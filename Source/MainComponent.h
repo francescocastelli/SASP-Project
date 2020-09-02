@@ -1,7 +1,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "WaveFormComponent.h"
 
+
+#define GRAINLENGTH 0.1    //grain length in seconds
 
 //==============================================================================
 
@@ -41,18 +44,26 @@ private:
     juce::AudioFormatManager formatManager;    //manager for the different formats
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;
-    
+    double sampleRate;
+    juce::AudioBuffer<float> grainBuffer;
+    juce::AudioThumbnail thumb;
 
+    //buttons
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton stopButton;
+    juce::TextButton selectionButton;
 
+    //drawing
     
+    juce::AudioThumbnailCache thumbnailCache;                 
+    WaveFormComponent inputWaveform;
     //==============================================================================
 
     void openButtonClicked();
     void playButtonClicked();
     void stopButtonClicked();
+    void selectionButtonClicked();
     void changeState(SoundState newState);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -1,15 +1,11 @@
 #include "MainComponent.h"
 
-
-
-
 //==============================================================================
 MainComponent::MainComponent()
-    :inputAudioState(Stopped)
+    : inputAudioState(Stopped),
+      thumbnailCache(5),
+      inputWaveform (512, formatManager, thumbnailCache, transportSource), thumb(512, formatManager, thumbnailCache)
 {
-    // Make sure you set the size of the component after
-    // you add any child components.
-    setSize (800, 600);
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -20,15 +16,16 @@ MainComponent::MainComponent()
     }
     else
     {
-        // Specify the number of input and output channels that we want to open
         setAudioChannels (0, 2);
     }
 
+    addAndMakeVisible(inputWaveform);
+    
+    //initialize buttons
     addAndMakeVisible(&openButton);
     openButton.setButtonText("Open");
     openButton.onClick = [this] { openButtonClicked(); };
   
-
     addAndMakeVisible(&playButton);
     playButton.setButtonText("Play");
     playButton.onClick = [this] { playButtonClicked(); };
@@ -41,8 +38,16 @@ MainComponent::MainComponent()
     stopButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
     stopButton.setEnabled(false);
 
+    addAndMakeVisible(&selectionButton);
+    selectionButton.setButtonText("Select grain");
+    selectionButton.onClick = [this] { selectionButtonClicked(); };
+    selectionButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
+    selectionButton.setEnabled(false);
+
     formatManager.registerBasicFormats();
     transportSource.addChangeListener(this);
+
+    setSize (800, 600);
 }
 
 MainComponent::~MainComponent()
@@ -55,15 +60,7 @@ MainComponent::~MainComponent()
 
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    if (source == &transportSource)
-    {
-        if (transportSource.isPlaying())
-        {
-            changeState(Playing);
-        }
-        else changeState(Stopped);
-    }
-
+    if (source == &transportSource) changeState(transportSource.isPlaying() ? Playing : Stopped);
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
@@ -86,17 +83,22 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    //juce::Rectangle<int> thumbnailBounds(10, 150, getWidth() - 250, 10);
 
-    // You can add your drawing code here!
+    //g.fillAll(juce::Colours::lightgrey);
+    //g.setColour(juce::Colours::black);
+
+    //thumb.drawChannels(g, thumbnailBounds, 0.0, thumb.getTotalLength(), 6.0f);
 }
 
 void MainComponent::resized()
 {
-    openButton.setBounds(10, 10, getWidth() - 20, 20);
-    playButton.setBounds(10, 40, getWidth() - 20, 20);
-    stopButton.setBounds(10, 70, getWidth() - 20, 20);
+    openButton.setBoundsRelative(0.82f, 0.05f, 0.05f, 0.03f);
+    playButton.setBoundsRelative(0.88f, 0.05f, 0.05f, 0.03f);
+    stopButton.setBoundsRelative(0.94f, 0.05f, 0.05f, 0.03f);
+    selectionButton.setBoundsRelative(0.82f, 0.1f, 0.125f, 0.03f);
+
+    inputWaveform.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.1f);
 }
 
 //==============================================================================
@@ -112,12 +114,14 @@ void MainComponent::changeState(SoundState newState)
         {
         case Stopped:
             stopButton.setEnabled(false);
+            selectionButton.setEnabled(true);
             playButton.setEnabled(true);
             transportSource.setPosition(0.0);
             break;
 
         case Starting:
             playButton.setEnabled(false);
+            selectionButton.setEnabled(false);
             transportSource.start();
             break;
 
@@ -145,9 +149,14 @@ void MainComponent::openButtonClicked()
         if (reader != nullptr)
         {
             std::unique_ptr<juce::AudioFormatReaderSource> newSource(new juce::AudioFormatReaderSource(reader, true)); 
-            transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);                                
-            playButton.setEnabled(true);                                                                               
-            readerSource.reset(newSource.release());                                                                    
+            sampleRate = reader->sampleRate;
+            grainBuffer = juce::AudioBuffer<float>(2, sampleRate * GRAINLENGTH);
+            transportSource.setSource(newSource.get(), 0, nullptr, sampleRate);                                
+            playButton.setEnabled(true);          
+            selectionButton.setEnabled(true);
+            inputWaveform.setFile(file);
+            readerSource.reset(newSource.release());     
+            changeState(Stopped);
         }
     }
 }
@@ -160,4 +169,12 @@ void MainComponent::playButtonClicked()
 void MainComponent::stopButtonClicked()
 {
     changeState(Stopping);
+}
+
+void MainComponent::selectionButtonClicked()
+{
+    auto currentPos = transportSource.getCurrentPosition();
+    juce::Rectangle<int> bound(1, 100, 300, 150);
+
+    inputWaveform.grainSelection(currentPos - 0.1, currentPos + 0.1,bound );
 }
