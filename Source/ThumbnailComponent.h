@@ -5,11 +5,7 @@ class ThumbnailComponent: public juce::Component , private juce::ChangeListener
 {
 public:
 
-    ThumbnailComponent(int sourceSamplesPerThumbnailSample, juce::AudioFormatManager& formatManager, juce::AudioThumbnailCache& cache, const juce::Rectangle<float> grainBound, const juce::Rectangle<float> waveFormBound );
-
-    void setFile(const juce::File& file);
-
-    void grainSelection(double startPos, double endPos);
+    ThumbnailComponent(juce::AudioThumbnail& audioThumbnail);
 
     void paint(juce::Graphics& g);
 
@@ -21,16 +17,8 @@ public:
 
 private:
     
-    //audioThumbnail
-    juce::AudioThumbnail thumbnail; 
-
-    //bounds
-    juce::Rectangle<float> waveFormBound;
-    juce::Rectangle<float> grainBound;
-
-    //timing pos
-    double startPos;
-    double endPos;
+    //audioThumbnail reference
+    juce::AudioThumbnail& thumbnail; 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ThumbnailComponent)
 };

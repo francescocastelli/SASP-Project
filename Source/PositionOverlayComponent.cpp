@@ -1,8 +1,7 @@
 #include "PositionOverlayComponent.h"
 
- PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse, const juce::Rectangle<float> waveFormBound)
-    : transportSource(transportSourceToUse),
-      waveFormBound(waveFormBound)
+ PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse )
+    : transportSource(transportSourceToUse)
 {
     startTimer(40);
 }

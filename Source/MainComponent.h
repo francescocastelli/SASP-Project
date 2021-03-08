@@ -4,8 +4,6 @@
 #include "WaveFormComponent.h"
 
 
-#define GRAINLENGTH 0.1    //grain length in seconds
-
 //==============================================================================
 
 class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener
@@ -29,41 +27,15 @@ public:
     void resized() override;
 
 private:
-
-    enum SoundState
-    {
-        Stopped,
-        Starting,
-        Playing,
-        Stopping
-    };
-
-    //==============================================================================
     
     SoundState inputAudioState;         //state for the input audio file
-    juce::AudioFormatManager formatManager;    //manager for the different formats
-    std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+    WaveFormComponent waveComponent;
     juce::AudioTransportSource transportSource;
-    double sampleRate;
-    juce::AudioBuffer<float> grainBuffer;
-    juce::AudioThumbnail thumb;
 
-    //buttons
-    juce::TextButton openButton;
-    juce::TextButton playButton;
-    juce::TextButton stopButton;
-    juce::TextButton selectionButton;
-
-    //drawing
-    
-    juce::AudioThumbnailCache thumbnailCache;                 
-    WaveFormComponent inputWaveform;
+    //directory where to store the samples
+    juce::File sampleDir;
     //==============================================================================
 
-    void openButtonClicked();
-    void playButtonClicked();
-    void stopButtonClicked();
-    void selectionButtonClicked();
     void changeState(SoundState newState);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

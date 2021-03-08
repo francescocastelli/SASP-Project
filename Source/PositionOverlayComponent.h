@@ -5,7 +5,7 @@ class PositionOverlayComponent : public juce::Component, private juce::Timer
 {
 public:
 
-    PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse, const juce::Rectangle<float> waveFormBound);
+    PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse);
 
     void paint(juce::Graphics& g) override;
 
@@ -17,9 +17,6 @@ private:
     
     //transportSource
     juce::AudioTransportSource& transportSource;
-
-    //bounds
-    juce::Rectangle<float> waveFormBound;
 
     //private functions
     void timerCallback() override;

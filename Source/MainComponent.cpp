@@ -2,9 +2,10 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-    : inputAudioState(Stopped),
-      thumbnailCache(5),
-      inputWaveform (512, formatManager, thumbnailCache, transportSource), thumb(512, formatManager, thumbnailCache)
+    :inputAudioState(SoundState::Stopped),
+    waveComponent(transportSource, sampleDir),
+    //for now set the path as fixed, then the user should be able to set it
+    sampleDir("C:\\Users\\Francesco\\Desktop\\testSamples")
 {
 
     // Some platforms require permissions to open input channels so request that here
@@ -19,35 +20,14 @@ MainComponent::MainComponent()
         setAudioChannels (0, 2);
     }
 
-    addAndMakeVisible(inputWaveform);
-    
-    //initialize buttons
-    addAndMakeVisible(&openButton);
-    openButton.setButtonText("Open");
-    openButton.onClick = [this] { openButtonClicked(); };
-  
-    addAndMakeVisible(&playButton);
-    playButton.setButtonText("Play");
-    playButton.onClick = [this] { playButtonClicked(); };
-    playButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
-    playButton.setEnabled(false);
-    
-    addAndMakeVisible(&stopButton);
-    stopButton.setButtonText("Stop");
-    stopButton.onClick = [this] { stopButtonClicked(); };
-    stopButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
-    stopButton.setEnabled(false);
+    addAndMakeVisible(waveComponent);
 
-    addAndMakeVisible(&selectionButton);
-    selectionButton.setButtonText("Select grain");
-    selectionButton.onClick = [this] { selectionButtonClicked(); };
-    selectionButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
-    selectionButton.setEnabled(false);
-
-    formatManager.registerBasicFormats();
     transportSource.addChangeListener(this);
-
+    waveComponent.addChangeListener(this);
     setSize (800, 600);
+
+    //create the directory based on the filename
+    sampleDir.createDirectory();
 }
 
 MainComponent::~MainComponent()
@@ -60,7 +40,8 @@ MainComponent::~MainComponent()
 
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    if (source == &transportSource) changeState(transportSource.isPlaying() ? Playing : Stopped);
+    if (source == &transportSource) changeState(transportSource.isPlaying() ? SoundState::Playing : SoundState::Stopped);
+    if (source == &waveComponent) changeState(waveComponent.getState());
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
@@ -71,7 +52,6 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
     bufferToFill.clearActiveBufferRegion();
-
     transportSource.getNextAudioBlock(bufferToFill);
 }
 
@@ -83,98 +63,47 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (juce::Graphics& g)
 {
-    //juce::Rectangle<int> thumbnailBounds(10, 150, getWidth() - 250, 10);
-
-    //g.fillAll(juce::Colours::lightgrey);
-    //g.setColour(juce::Colours::black);
-
-    //thumb.drawChannels(g, thumbnailBounds, 0.0, thumb.getTotalLength(), 6.0f);
 }
 
 void MainComponent::resized()
 {
-    openButton.setBoundsRelative(0.82f, 0.05f, 0.05f, 0.03f);
+   /* openButton.setBoundsRelative(0.82f, 0.05f, 0.05f, 0.03f);
     playButton.setBoundsRelative(0.88f, 0.05f, 0.05f, 0.03f);
     stopButton.setBoundsRelative(0.94f, 0.05f, 0.05f, 0.03f);
     selectionButton.setBoundsRelative(0.82f, 0.1f, 0.125f, 0.03f);
 
-    inputWaveform.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.1f);
+    waveDrawer.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.3f);
+    positionDrawer.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.3f);*/
+    waveComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.4f);
 }
 
 //==============================================================================
 
 void MainComponent::changeState(SoundState newState)
 {
-
     if (inputAudioState != newState)
     {
         inputAudioState = newState;
-        
+
         switch (inputAudioState)
         {
-        case Stopped:
-            stopButton.setEnabled(false);
-            selectionButton.setEnabled(true);
-            playButton.setEnabled(true);
+        case SoundState::Stopped:
+            waveComponent.setButtonsEnable(true, false, true);
             transportSource.setPosition(0.0);
             break;
 
-        case Starting:
-            playButton.setEnabled(false);
-            selectionButton.setEnabled(false);
+        case SoundState::Starting:
+            waveComponent.setButtonsEnable(false, true, false);
             transportSource.start();
             break;
 
-        case Playing:
-            stopButton.setEnabled(true);
+        case SoundState::Playing:
+            waveComponent.setButtonsEnable(false, true, false);
             break;
 
-        case Stopping:
+        case SoundState::Stopping:
             transportSource.stop();
             break;
         }
-
     }
-}
-
-void MainComponent::openButtonClicked()
-{
-    juce::FileChooser chooser("Select a Wave file to play...", {}, "*.wav");                                     
-
-    if (chooser.browseForFileToOpen())                                          
-    {
-        auto file = chooser.getResult();                                        
-        auto* reader = formatManager.createReaderFor(file);                    
-
-        if (reader != nullptr)
-        {
-            std::unique_ptr<juce::AudioFormatReaderSource> newSource(new juce::AudioFormatReaderSource(reader, true)); 
-            sampleRate = reader->sampleRate;
-            grainBuffer = juce::AudioBuffer<float>(2, sampleRate * GRAINLENGTH);
-            transportSource.setSource(newSource.get(), 0, nullptr, sampleRate);                                
-            playButton.setEnabled(true);          
-            selectionButton.setEnabled(true);
-            inputWaveform.setFile(file);
-            readerSource.reset(newSource.release());     
-            changeState(Stopped);
-        }
-    }
-}
-
-void MainComponent::playButtonClicked()
-{
-    changeState(Starting);
-}
-
-void MainComponent::stopButtonClicked()
-{
-    changeState(Stopping);
-}
-
-void MainComponent::selectionButtonClicked()
-{
-    auto currentPos = transportSource.getCurrentPosition();
-    juce::Rectangle<int> bound(1, 100, 300, 150);
-
-    inputWaveform.grainSelection(currentPos - 0.1, currentPos + 0.1,bound );
 }
