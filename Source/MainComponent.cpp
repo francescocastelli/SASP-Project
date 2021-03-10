@@ -1,10 +1,13 @@
+#pragma once
 #include "MainComponent.h"
+#include "AppColors.h"
 
 //==============================================================================
 MainComponent::MainComponent()
     :inputAudioState(SoundState::Stopped),
     waveComponent(transportSource, sampleDir),
     //for now set the path as fixed, then the user should be able to set it
+    //use the same approach as open file
     sampleDir("C:\\Users\\Francesco\\Desktop\\testSamples")
 {
 
@@ -24,7 +27,7 @@ MainComponent::MainComponent()
 
     transportSource.addChangeListener(this);
     waveComponent.addChangeListener(this);
-    setSize (800, 600);
+    setSize (1200, 600);
 
     //create the directory based on the filename
     sampleDir.createDirectory();
@@ -63,18 +66,15 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (juce::Graphics& g)
 {
+    //background of the entire window
+    g.fillAll(AppColours::background);
 }
 
 void MainComponent::resized()
-{
-   /* openButton.setBoundsRelative(0.82f, 0.05f, 0.05f, 0.03f);
-    playButton.setBoundsRelative(0.88f, 0.05f, 0.05f, 0.03f);
-    stopButton.setBoundsRelative(0.94f, 0.05f, 0.05f, 0.03f);
-    selectionButton.setBoundsRelative(0.82f, 0.1f, 0.125f, 0.03f);
-
-    waveDrawer.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.3f);
-    positionDrawer.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.3f);*/
-    waveComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.4f);
+{   
+    //here we set the component bounds
+    //this is the top half of the window
+    waveComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.55f);
 }
 
 //==============================================================================

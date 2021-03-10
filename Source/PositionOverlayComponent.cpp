@@ -1,4 +1,5 @@
 #include "PositionOverlayComponent.h"
+#include "AppColors.h"
 
  PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse )
     : transportSource(transportSourceToUse)
@@ -16,10 +17,9 @@ void PositionOverlayComponent::paint(juce::Graphics& g)
         auto drawPosition = (audioPosition / duration) * (float)getWidth();
         auto rectWidth = (0.1 / duration) * (float)getWidth();
 
-        g.setColour(juce::Colours::darkred);
+        g.setColour(AppColours::positionOverlayBar);
         g.drawLine(drawPosition, 0.0f, drawPosition, (float)getHeight(), 2.0f);
-        g.setColour(juce::Colours::lightsalmon);
-        g.setOpacity(0.5f);
+        g.setColour(AppColours::positionOverlay);
         g.fillRoundedRectangle(drawPosition - rectWidth/2, 0.0f, rectWidth, getHeight(), 1.0f);
     }
 }

@@ -1,7 +1,6 @@
 #pragma once
-
 #include <JuceHeader.h>
-#include "WaveFormComponent.h"
+#include "SelectionComponent.h"
 
 
 //==============================================================================
@@ -27,13 +26,17 @@ public:
     void resized() override;
 
 private:
-    
-    SoundState inputAudioState;         //state for the input audio file
-    WaveFormComponent waveComponent;
+
+    //state for the input audio file
+    SoundState inputAudioState;         
+    //top part of the window, contains the waveform and the grain selection (also buttons)
+    SelectionComponent waveComponent;
+    //transport source used to load and play audio 
     juce::AudioTransportSource transportSource;
 
     //directory where to store the samples
     juce::File sampleDir;
+
     //==============================================================================
 
     void changeState(SoundState newState);

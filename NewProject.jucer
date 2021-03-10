@@ -4,15 +4,18 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="FyVhbw" name="NewProject">
     <GROUP id="{6F180159-E5A0-6B1F-952B-825A83541AB8}" name="Source">
+      <FILE id="tyYht2" name="SelectionComponent.cpp" compile="1" resource="0"
+            file="Source/SelectionComponent.cpp"/>
+      <FILE id="PWOigG" name="AppColors.h" compile="0" resource="0" file="Source/AppColors.h"/>
       <FILE id="IjGS5k" name="GrainSelector.cpp" compile="1" resource="0"
             file="Source/GrainSelector.cpp"/>
       <FILE id="Td4SxF" name="GrainSelector.h" compile="0" resource="0" file="Source/GrainSelector.h"/>
-      <FILE id="glfaYb" name="WaveFormComponent.h" compile="1" resource="0"
-            file="Source/WaveFormComponent.h"/>
-      <FILE id="kdSROu" name="ThumbnailComponent.h" compile="0" resource="0"
-            file="Source/ThumbnailComponent.h"/>
-      <FILE id="kDDM6P" name="ThumbnailComponent.cpp" compile="1" resource="0"
-            file="Source/ThumbnailComponent.cpp"/>
+      <FILE id="glfaYb" name="SelectionComponent.h" compile="1" resource="0"
+            file="Source/SelectionComponent.h"/>
+      <FILE id="kdSROu" name="WaveformComponent.h" compile="0" resource="0"
+            file="Source/WaveformComponent.h"/>
+      <FILE id="kDDM6P" name="WaveformComponent.cpp" compile="1" resource="0"
+            file="Source/WaveformComponent.cpp"/>
       <FILE id="RqfWC8" name="PositionOverlayComponent.h" compile="0" resource="0"
             file="Source/PositionOverlayComponent.h"/>
       <FILE id="L40tDk" name="PositionOverlayComponent.cpp" compile="1" resource="0"

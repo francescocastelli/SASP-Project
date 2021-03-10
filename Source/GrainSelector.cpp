@@ -7,8 +7,9 @@
 
   ==============================================================================
 */
-
+#pragma once
 #include "GrainSelector.h"
+#include "AppColors.h"
 
 GrainSelector::GrainSelector(juce::AudioThumbnail& audioThumbnail)
     : thumbnail (audioThumbnail),
@@ -38,17 +39,26 @@ void GrainSelector::paint(juce::Graphics& g)
 
 void GrainSelector::paintIfNoFileLoaded(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::lightgrey);
-    g.setColour(juce::Colours::black);
-    g.drawFittedText("No File Loaded", getLocalBounds() , juce::Justification::centred, 1);
+    g.fillAll(AppColours::waveformBackground);
+
+    g.setColour(AppColours::waveformColor);
+    g.drawFittedText("No grain selected", getLocalBounds() , juce::Justification::centred, 1);
+
+    g.setColour(AppColours::waveformBorder);
+    g.drawRect(getLocalBounds(), 1);
 }
  
 void GrainSelector::paintIfFileLoaded(juce::Graphics& g)
 {
-     g.fillAll(juce::Colours::lightgrey);
-     g.setColour(juce::Colours::black);
+    //background
+    g.fillAll(AppColours::waveformBackground);
+    //waveform color
+    g.setColour(AppColours::waveformColor);
 
-     thumbnail.drawChannels(g, getLocalBounds(), startTime, endTime, 12.0f);
+    thumbnail.drawChannels(g, getLocalBounds(), startTime, endTime, 1.3f);
+
+    g.setColour(AppColours::waveformBorder);
+    g.drawRect(getLocalBounds(), 1);
 }
 
 void GrainSelector::changeListenerCallback(juce::ChangeBroadcaster* source) 
