@@ -27,4 +27,8 @@ namespace AppColours
 
     //text
     const juce::Colour boxText = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.7f);
+
+    //spectrogram
+    const juce::Colour specFill = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.2f);
+    const juce::Colour specStroke = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.9f);
 };

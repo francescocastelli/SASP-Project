@@ -24,6 +24,10 @@
       <FILE id="p27iKi" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="tqBsfj" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
+      <FILE id="OdYTAo" name="SpectrogramComponent.cpp" compile="1" resource="0"
+            file="Source/SpectrogramComponent.cpp"/>
+      <FILE id="zjhwb5" name="SpectrogramComponent.h" compile="0" resource="0"
+            file="Source/SpectrogramComponent.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
@@ -45,6 +49,7 @@
         <MODULEPATH id="juce_audio_utils" path="..\..\juce-6.0.7-windows\JUCE\modules\juce_audio_utils"/>
         <MODULEPATH id="juce_audio_formats" path="..\..\juce-6.0.7-windows\JUCE\modules\juce_audio_formats"/>
         <MODULEPATH id="juce_audio_devices" path="..\..\juce-6.0.7-windows\JUCE\modules\juce_audio_devices"/>
+        <MODULEPATH id="juce_dsp" path="../../juce-6.0.7-windows/JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
@@ -56,6 +61,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

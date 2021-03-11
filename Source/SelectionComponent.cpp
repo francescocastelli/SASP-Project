@@ -15,6 +15,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 		: thumbnailCache(5),
         thumbnail(512, formatManager, thumbnailCache),
         thumbnailComp(thumbnail),
+	    specComp(),
         transportSource(transportSourceRef),
         positionComp(transportSource),
         displayGrain(thumbnail),
@@ -42,19 +43,24 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	selectionButton.onClick = [this] { selectionButtonClicked(); };
 	selectionButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	selectionButton.setEnabled(false);
+
+	//add and make visible internal components
 	addAndMakeVisible(thumbnailComp);
 	addAndMakeVisible(positionComp);
 	addAndMakeVisible(displayGrain);
+	addAndMakeVisible(specComp);
+
+	//inizialize format for the format manager
 	formatManager.registerBasicFormats();
 }
 
 void SelectionComponent::resized() 
 {
 	//buttons sizes
-	openButton.setBoundsRelative(0.80f, 0.05f, 0.06f, 0.08f);
-	playButton.setBoundsRelative(0.87f, 0.05f, 0.06f, 0.08f);
-	stopButton.setBoundsRelative(0.94f, 0.05f, 0.06f, 0.08f);
-	selectionButton.setBoundsRelative(0.80f, 0.18f, 0.200f, 0.08f);
+	openButton.setBoundsRelative(0.79f, 0.05f, 0.06f, 0.08f);
+	playButton.setBoundsRelative(0.86f, 0.05f, 0.06f, 0.08f);
+	stopButton.setBoundsRelative(0.93f, 0.05f, 0.06f, 0.08f);
+	selectionButton.setBoundsRelative(0.79f, 0.18f, 0.200f, 0.08f);
 
 	//waveform display 
 	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
@@ -62,13 +68,18 @@ void SelectionComponent::resized()
         
 	//grain display
     displayGrain.setBoundsRelative(0.02f, 0.53f, 0.25f, 0.35f);
+
+	//spec display 
+	specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
 }
 
 void SelectionComponent::paint(juce::Graphics& g)
 {
     g.setColour(AppColours::boxText);
-	g.drawSingleLineText("Waveform", 22, 10);
+	g.setFont(juce::Font(13, 1));
+	g.drawSingleLineText("Waveform", 22, 12);
 	g.drawSingleLineText("Selected Grain", 22, 170);
+	g.drawSingleLineText("Grain spectrogram", 350, 170);
 
 	//border 
     g.setColour(AppColours::waveformBorder);
@@ -119,17 +130,37 @@ void SelectionComponent::stopButtonClicked()
     
 void SelectionComponent::selectionButtonClicked()
 {
+	//temp buffer used for getting the sample to store in the wav
+	//the lenght of the buffer is the grain lenght
+	juce::AudioBuffer<float> buffer(2, GRAINLENGTH*sampleRate);
+	//clear the buffer
+	buffer.clear();
+	//create the audio channel info that is required from the getNextAudioBlock
+	juce::AudioSourceChannelInfo audioChannelInfo(buffer);
+
     auto currentTime = transportSource.getCurrentPosition();
 	auto startTime = (currentTime - GRAINLENGTH/2) < 0 ? 0 : currentTime - GRAINLENGTH/2;
 	displayGrain.setTime(startTime, startTime + GRAINLENGTH);
 	displayGrain.setPaintGrain(true);
 	thumbnail.sendChangeMessage();
+	
+	//fill the buffer for grainlength samples from the current position  
+	//to get the buffer the transportSource must be in play 
+	transportSource.setPosition(startTime);
+	transportSource.start();
+	transportSource.getNextAudioBlock(audioChannelInfo);
+	transportSource.stop();
+	//reset the position to the previous one 
+	transportSource.setPosition(currentTime);
 
 	//save the grain as wav file
-	saveWav(startTime+GRAINLENGTH/2);
+	saveWav(startTime, buffer);
+
+	//display the spec
+	specComp.setNextAudioBlock(audioChannelInfo);
 }
     
-void SelectionComponent::saveWav(float startTime)
+void SelectionComponent::saveWav(float startTime, juce::AudioBuffer<float>& buffer)
 {
 	//saving the sample in the wav file 
 	juce::WavAudioFormat format;
@@ -142,21 +173,6 @@ void SelectionComponent::saveWav(float startTime)
 
 	//path to the file
 	juce::File file(sampleDir.getFullPathName() + "\\sample " + juce::String(fileNum)+".wav");
-
-	//temp buffer used for getting the sample to store in the wav
-	//the lenght of the buffer is the grain lenght
-	juce::AudioBuffer<float> buffer(2, GRAINLENGTH*sampleRate);
-	//clear the buffer
-	buffer.clear();
-	//create the audio channel info that is required from the getNextAudioBlock
-	juce::AudioSourceChannelInfo audioChannelInfo(buffer);
-
-	//to get the buffer the transportSource must be in play 
-	transportSource.start();
-	transportSource.getNextAudioBlock(audioChannelInfo);
-	transportSource.stop();
-	//reset the position to the previous one 
-	transportSource.setPosition(startTime);
 
 	//write the wav file with the buffer content
 	writer.reset(format.createWriterFor(new juce::FileOutputStream(file),

@@ -13,6 +13,7 @@
 #include "WaveformComponent.h"
 #include "PositionOverlayComponent.h"
 #include "GrainSelector.h"
+#include "SpectrogramComponent.h"
 
 //grain lenght in seconds
 #define GRAINLENGTH 0.1    
@@ -37,7 +38,7 @@ public:
     void playButtonClicked();
     void stopButtonClicked();
     void selectionButtonClicked();
-    void saveWav(float startTime);
+    void saveWav(float startTime, juce::AudioBuffer<float>& buffer);
     SoundState getState();
     void setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect);
     
@@ -67,6 +68,9 @@ private:
     WaveformComponent thumbnailComp;
     PositionOverlayComponent positionComp;
     GrainSelector displayGrain;
+
+    //spectrogram computation and display component
+    SpectrogramComponent specComp;
 
     //sample dir ref
     juce::File& sampleDir;
