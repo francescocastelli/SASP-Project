@@ -83,7 +83,7 @@ void SelectionComponent::resized()
 	openButton.setBoundsRelative(0.79f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
 	playButton.setBoundsRelative(0.86f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
 	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
-	selectionButton.setBoundsRelative(0.79f, 0.18f, 0.20f, 0.08f);
+	selectionButton.setBoundsRelative(0.79f, 0.27f, 0.20f, 0.08f);
 	saveButton.setBoundsRelative(0.79f, 0.65f, 0.2f, 0.08f);
 
 	//waveform display 
@@ -91,16 +91,16 @@ void SelectionComponent::resized()
 	positionComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
         
 	//grain display
-    displayGrain.setBoundsRelative(0.02f, 0.53f, 0.25f, 0.35f);
+    displayGrain.setBoundsRelative(0.02f, 0.6f, 0.25f, 0.35f);
 
 	//grain processing display
-	grainProcessing.setBoundsRelative(0.52f, 0.53f, 0.25f, 0.35f);
+	grainProcessing.setBoundsRelative(0.52f, 0.6f, 0.25f, 0.35f);
 
 	//spec display 
 	//specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
 
 	//windows menu display 
-	windowsMenu.setBoundsRelative(0.32f, 0.80f, 0.15f, 0.08f);;
+	windowsMenu.setBoundsRelative(0.32f, 0.84f, 0.15f, 0.08f);;
 }
 
 void SelectionComponent::paint(juce::Graphics& g)
@@ -108,12 +108,13 @@ void SelectionComponent::paint(juce::Graphics& g)
     g.setColour(AppColours::boxText);
 	g.setFont(juce::Font(13, 1));
 	g.drawSingleLineText("Waveform", 22, 12);
-	g.drawSingleLineText("Selected Grain", 22, 170);
-	g.drawSingleLineText("Windowed Grain", 605, 170);
+	g.drawSingleLineText("Selected Grain", 22, 168);
+	g.drawSingleLineText("Windowed Grain", 605, 168);
 
 	//border 
     g.setColour(AppColours::waveformBorder);
-    g.drawRect(getLocalBounds(), 1);
+	g.drawLine(getLocalBounds().getBottomLeft().getX(), getLocalBounds().getBottomLeft().getY(),
+		getLocalBounds().getBottomRight().getX(), getLocalBounds().getBottomRight().getY(), 3);
 }
 
 

@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="FyVhbw" name="NewProject">
     <GROUP id="{6F180159-E5A0-6B1F-952B-825A83541AB8}" name="Source">
+      <FILE id="WJWoeX" name="GranularSynthComponent.cpp" compile="1" resource="0"
+            file="Source/GranularSynthComponent.cpp"/>
+      <FILE id="SZ13DV" name="GranularSynthComponent.h" compile="0" resource="0"
+            file="Source/GranularSynthComponent.h"/>
       <FILE id="YGxU6m" name="GrainProcessingComponent.cpp" compile="1" resource="0"
             file="Source/GrainProcessingComponent.cpp"/>
       <FILE id="cFFEsr" name="GrainProcessingComponent.h" compile="0" resource="0"

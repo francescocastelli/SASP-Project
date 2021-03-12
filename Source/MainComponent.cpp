@@ -6,6 +6,7 @@
 MainComponent::MainComponent()
     :inputAudioState(SoundState::Stopped),
     selectionComponent(transportSource, sampleDir),
+    granularSynth(sampleDir, outputSynth),
     //for now set the path as fixed, then the user should be able to set it
     //use the same approach as open file
     sampleDir("C:\\Users\\Francesco\\Desktop\\testSamples")
@@ -24,6 +25,7 @@ MainComponent::MainComponent()
     }
 
     addAndMakeVisible(selectionComponent);
+    addAndMakeVisible(granularSynth);
 
     transportSource.addChangeListener(this);
     selectionComponent.addChangeListener(this);
@@ -31,6 +33,9 @@ MainComponent::MainComponent()
 
     //create the directory based on the filename
     sampleDir.createDirectory();
+
+    //add a voice to the synth
+    outputSynth.addVoice(new juce::SamplerVoice());
 }
 
 MainComponent::~MainComponent()
@@ -50,6 +55,7 @@ void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    outputSynth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -74,7 +80,9 @@ void MainComponent::resized()
 {   
     //here we set the component bounds
     //this is the top half of the window
-    selectionComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.55f);
+    selectionComponent.setBoundsRelative(0.015f, 0.02f, 0.97f, 0.48f);
+    //bottom half
+    granularSynth.setBoundsRelative(0.015f, 0.5f, 0.97f, 0.48f);
 }
 
 //==============================================================================

@@ -44,7 +44,7 @@ namespace AppConstants
     constexpr int grainwindowsize= 4410;
 
     //buttons position
-    const float controlButtonsY = 0.05f;
+    const float controlButtonsY = 0.15f;
     const float controlButtonWidth = 0.06f;
     const float controlButtonHeight = 0.08f;
 };

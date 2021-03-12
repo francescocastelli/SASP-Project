@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SelectionComponent.h"
+#include "GranularSynthComponent.h"
 
 //==============================================================================
 
@@ -28,8 +29,14 @@ private:
 
     //state for the input audio file
     SoundState inputAudioState;         
+
     //top part of the window, contains the waveform and the grain selection (also buttons)
     SelectionComponent selectionComponent;
+    //bottom half of the window, contains the granular synth
+    GranularSynthComponent granularSynth;
+    //synthesiser
+    juce::Synthesiser outputSynth;
+
     //transport source used to load and play audio 
     juce::AudioTransportSource transportSource;
 
