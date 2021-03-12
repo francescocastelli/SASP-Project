@@ -2,7 +2,6 @@
 #include <JuceHeader.h>
 #include "SelectionComponent.h"
 
-
 //==============================================================================
 
 class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener
@@ -30,7 +29,7 @@ private:
     //state for the input audio file
     SoundState inputAudioState;         
     //top part of the window, contains the waveform and the grain selection (also buttons)
-    SelectionComponent waveComponent;
+    SelectionComponent selectionComponent;
     //transport source used to load and play audio 
     juce::AudioTransportSource transportSource;
 

@@ -10,14 +10,13 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "AppConstants.h"
 
-class GrainSelector: public juce::Component , private juce::ChangeListener
+class GrainSelector: public juce::Component , public juce::ActionListener
 {
 public:
 
     GrainSelector(juce::AudioThumbnail& audioThumbnail);
-
-    void setPaintGrain(bool newPaintGrain);
 
     void setTime(double newStartTime, double newEndTime);
 
@@ -27,7 +26,7 @@ public:
      
     void paintIfFileLoaded(juce::Graphics& g);
 
-    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+    void actionListenerCallback(const juce::String &message) override;
 
 private:
     
@@ -36,7 +35,7 @@ private:
 
     double startTime;
     double endTime;
-    bool paintGrain;
+    bool active;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainSelector)
 };

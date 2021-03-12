@@ -1,5 +1,4 @@
 #include "PositionOverlayComponent.h"
-#include "AppColors.h"
 
  PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse )
     : transportSource(transportSourceToUse)

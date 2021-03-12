@@ -1,11 +1,11 @@
 #pragma once
 #include "MainComponent.h"
-#include "AppColors.h"
+#include "AppConstants.h"
 
 //==============================================================================
 MainComponent::MainComponent()
     :inputAudioState(SoundState::Stopped),
-    waveComponent(transportSource, sampleDir),
+    selectionComponent(transportSource, sampleDir),
     //for now set the path as fixed, then the user should be able to set it
     //use the same approach as open file
     sampleDir("C:\\Users\\Francesco\\Desktop\\testSamples")
@@ -23,10 +23,10 @@ MainComponent::MainComponent()
         setAudioChannels (0, 2);
     }
 
-    addAndMakeVisible(waveComponent);
+    addAndMakeVisible(selectionComponent);
 
     transportSource.addChangeListener(this);
-    waveComponent.addChangeListener(this);
+    selectionComponent.addChangeListener(this);
     setSize (1200, 600);
 
     //create the directory based on the filename
@@ -44,7 +44,7 @@ MainComponent::~MainComponent()
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
     if (source == &transportSource) changeState(transportSource.isPlaying() ? SoundState::Playing : SoundState::Stopped);
-    if (source == &waveComponent) changeState(waveComponent.getState());
+    if (source == &selectionComponent) changeState(selectionComponent.getState());
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
@@ -74,7 +74,7 @@ void MainComponent::resized()
 {   
     //here we set the component bounds
     //this is the top half of the window
-    waveComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.55f);
+    selectionComponent.setBoundsRelative(0.02f, 0.05f, 0.97f, 0.55f);
 }
 
 //==============================================================================
@@ -88,17 +88,17 @@ void MainComponent::changeState(SoundState newState)
         switch (inputAudioState)
         {
         case SoundState::Stopped:
-            waveComponent.setButtonsEnable(true, false, true);
+            selectionComponent.setButtonsEnable(true, false, true);
             transportSource.setPosition(0.0);
             break;
 
         case SoundState::Starting:
-            waveComponent.setButtonsEnable(false, true, false);
+            selectionComponent.setButtonsEnable(false, true, false);
             transportSource.start();
             break;
 
         case SoundState::Playing:
-            waveComponent.setButtonsEnable(false, true, false);
+            selectionComponent.setButtonsEnable(false, true, false);
             break;
 
         case SoundState::Stopping:

@@ -9,20 +9,13 @@
 */
 #pragma once
 #include "GrainSelector.h"
-#include "AppColors.h"
 
 GrainSelector::GrainSelector(juce::AudioThumbnail& audioThumbnail)
     : thumbnail (audioThumbnail),
       startTime (0.0),
       endTime (0.0),
-      paintGrain (false)
+      active(false)
 {
-    thumbnail.addChangeListener(this);
-}
-
-void GrainSelector::setPaintGrain(bool newPaintGrain)
-{
-    paintGrain = newPaintGrain;
 }
 
 void GrainSelector::setTime(double newStartTime, double newEndTime)
@@ -33,7 +26,7 @@ void GrainSelector::setTime(double newStartTime, double newEndTime)
 
 void GrainSelector::paint(juce::Graphics& g)
 {
-    if (thumbnail.getNumChannels() == 0 || !paintGrain)  paintIfNoFileLoaded(g);
+    if (!active)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
@@ -61,8 +54,16 @@ void GrainSelector::paintIfFileLoaded(juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
 
-void GrainSelector::changeListenerCallback(juce::ChangeBroadcaster* source) 
+void GrainSelector::actionListenerCallback(const juce::String &message) 
 {
-    if (source == &thumbnail)
+    if (message == "activateGrain")
+    {
+        active = true;
         repaint();
+    }
+
+    if (message == "deactivateGrain") {
+        active = false;
+        repaint();
+    }
 }

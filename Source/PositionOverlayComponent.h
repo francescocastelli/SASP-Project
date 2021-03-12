@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "AppConstants.h"
 
 class PositionOverlayComponent : public juce::Component, private juce::Timer
 {

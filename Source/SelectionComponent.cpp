@@ -9,7 +9,6 @@
 */
 
 #include "SelectionComponent.h"
-#include "AppColors.h"
 
 SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File &sampleDir)
 		: thumbnailCache(5),
@@ -19,7 +18,8 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
         transportSource(transportSourceRef),
         positionComp(transportSource),
         displayGrain(thumbnail),
-        sampleDir(sampleDir)
+        sampleDir(sampleDir),
+	    grainProcessing(sampleDir)
 {
 	//initialize buttons
 	addAndMakeVisible(&openButton);
@@ -44,23 +44,47 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	selectionButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	selectionButton.setEnabled(false);
 
+	addAndMakeVisible(&saveButton);
+	saveButton.setButtonText("Save grain");
+	saveButton.onClick = [this] { saveButtonClicked(); };
+	saveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
+	saveButton.setEnabled(false);
+
 	//add and make visible internal components
 	addAndMakeVisible(thumbnailComp);
 	addAndMakeVisible(positionComp);
 	addAndMakeVisible(displayGrain);
-	addAndMakeVisible(specComp);
+	//addAndMakeVisible(specComp);
+	addAndMakeVisible(windowsMenu);
+	addAndMakeVisible(grainProcessing);
+
+	//add items to the combo box 
+	windowsMenu.addItem("none", 1);
+	windowsMenu.addItem("rect", 2);
+	windowsMenu.addItem("hann", 3);
+	windowsMenu.addItem("hamming", 4);
+	windowsMenu.addItem("triangular", 5);
+	windowsMenu.addItem("blackman", 6);
+
+	windowsMenu.setSelectedId(1);
+	windowsMenu.onChange = [this] {grainProcessing.windowMenuChanged(windowsMenu.getSelectedId());};
 
 	//inizialize format for the format manager
 	formatManager.registerBasicFormats();
+
+	//register actions listeners
+	addActionListener(&grainProcessing);
+	addActionListener(&displayGrain);
 }
 
 void SelectionComponent::resized() 
 {
 	//buttons sizes
-	openButton.setBoundsRelative(0.79f, 0.05f, 0.06f, 0.08f);
-	playButton.setBoundsRelative(0.86f, 0.05f, 0.06f, 0.08f);
-	stopButton.setBoundsRelative(0.93f, 0.05f, 0.06f, 0.08f);
-	selectionButton.setBoundsRelative(0.79f, 0.18f, 0.200f, 0.08f);
+	openButton.setBoundsRelative(0.79f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	playButton.setBoundsRelative(0.86f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	selectionButton.setBoundsRelative(0.79f, 0.18f, 0.20f, 0.08f);
+	saveButton.setBoundsRelative(0.79f, 0.65f, 0.2f, 0.08f);
 
 	//waveform display 
 	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
@@ -69,8 +93,14 @@ void SelectionComponent::resized()
 	//grain display
     displayGrain.setBoundsRelative(0.02f, 0.53f, 0.25f, 0.35f);
 
+	//grain processing display
+	grainProcessing.setBoundsRelative(0.52f, 0.53f, 0.25f, 0.35f);
+
 	//spec display 
-	specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
+	//specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
+
+	//windows menu display 
+	windowsMenu.setBoundsRelative(0.32f, 0.80f, 0.15f, 0.08f);;
 }
 
 void SelectionComponent::paint(juce::Graphics& g)
@@ -79,7 +109,7 @@ void SelectionComponent::paint(juce::Graphics& g)
 	g.setFont(juce::Font(13, 1));
 	g.drawSingleLineText("Waveform", 22, 12);
 	g.drawSingleLineText("Selected Grain", 22, 170);
-	g.drawSingleLineText("Grain spectrogram", 350, 170);
+	g.drawSingleLineText("Windowed Grain", 605, 170);
 
 	//border 
     g.setColour(AppColours::waveformBorder);
@@ -112,6 +142,10 @@ void SelectionComponent::openButtonClicked()
 			readerSource.reset(newSource.release());     
 			state = SoundState::Stopped;
 			sendChangeMessage();
+
+			//also deactivate the grain component and relative buttons
+			sendActionMessage("deactivateGrain");
+			saveButton.setEnabled(false);
 		}
     }
 }
@@ -127,7 +161,7 @@ void SelectionComponent::stopButtonClicked()
     state = SoundState::Stopping;
 	sendChangeMessage();
 }
-    
+
 void SelectionComponent::selectionButtonClicked()
 {
 	//temp buffer used for getting the sample to store in the wav
@@ -140,9 +174,6 @@ void SelectionComponent::selectionButtonClicked()
 
     auto currentTime = transportSource.getCurrentPosition();
 	auto startTime = (currentTime - GRAINLENGTH/2) < 0 ? 0 : currentTime - GRAINLENGTH/2;
-	displayGrain.setTime(startTime, startTime + GRAINLENGTH);
-	displayGrain.setPaintGrain(true);
-	thumbnail.sendChangeMessage();
 	
 	//fill the buffer for grainlength samples from the current position  
 	//to get the buffer the transportSource must be in play 
@@ -153,36 +184,19 @@ void SelectionComponent::selectionButtonClicked()
 	//reset the position to the previous one 
 	transportSource.setPosition(currentTime);
 
-	//save the grain as wav file
-	saveWav(startTime, buffer);
+	//activate the grain components only when a grain is selected
+	displayGrain.setTime(startTime, startTime + GRAINLENGTH);
+	sendActionMessage("activateGrain");
+	//and compute windowing operation
+	grainProcessing.applyWindow(buffer);
 
-	//display the spec
-	specComp.setNextAudioBlock(audioChannelInfo);
+	//activate the save grain button
+	saveButton.setEnabled(true);
 }
     
-void SelectionComponent::saveWav(float startTime, juce::AudioBuffer<float>& buffer)
+void SelectionComponent::saveButtonClicked()
 {
-	//saving the sample in the wav file 
-	juce::WavAudioFormat format;
-	std::unique_ptr<juce::AudioFormatWriter> writer;
-	int fileNum (0);
-
-	//get the number of files in the dir
-	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator (juce::File(sampleDir.getFullPathName()), false))
-		fileNum++;
-
-	//path to the file
-	juce::File file(sampleDir.getFullPathName() + "\\sample " + juce::String(fileNum)+".wav");
-
-	//write the wav file with the buffer content
-	writer.reset(format.createWriterFor(new juce::FileOutputStream(file),
-										sampleRate,
-										buffer.getNumChannels(),
-										24,
-										{},
-										0));
-	if (writer != nullptr)
-		writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
+	sendActionMessage("saveGrain");
 }
 
 SoundState SelectionComponent::getState()

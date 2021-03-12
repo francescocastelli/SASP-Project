@@ -14,6 +14,8 @@
 #include "PositionOverlayComponent.h"
 #include "GrainSelector.h"
 #include "SpectrogramComponent.h"
+#include "GrainProcessingComponent.h"
+#include "AppConstants.h"
 
 //grain lenght in seconds
 #define GRAINLENGTH 0.1    
@@ -27,22 +29,32 @@ enum class SoundState
     Stopping
 };
 
-class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster 
+class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster 
 {
 public:
     SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File& sampleDir);
 
-    void resized() override;
     void grainSelection(double start, double end, juce::Rectangle<int> bounds);
-    void openButtonClicked();
-    void playButtonClicked();
-    void stopButtonClicked();
-    void selectionButtonClicked();
-    void saveWav(float startTime, juce::AudioBuffer<float>& buffer);
+
     SoundState getState();
+
+    //----------------------------------------------------------------------------------
+    void openButtonClicked();
+
+    void playButtonClicked();
+
+    void stopButtonClicked();
+
+    void selectionButtonClicked();
+
+    void saveButtonClicked();
+
     void setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect);
-    
+
+    //-------------------------------------------------------------------------------------
     void paint(juce::Graphics& g) override;
+
+    void resized() override;
 
 private:
     
@@ -59,15 +71,23 @@ private:
     //the actual object is in the main
     juce::AudioTransportSource& transportSource;
 
-    //top-buttons
+    //buttons
     juce::TextButton openButton;
     juce::TextButton playButton;
     juce::TextButton stopButton;
     juce::TextButton selectionButton;
+    juce::TextButton saveButton;
+
+    //grain processing buttons
+    juce::ComboBox windowsMenu;
+
+    //where we perform windowing of the grain
+    GrainProcessingComponent grainProcessing;
+    //display grain
+    GrainSelector displayGrain;
 
     WaveformComponent thumbnailComp;
     PositionOverlayComponent positionComp;
-    GrainSelector displayGrain;
 
     //spectrogram computation and display component
     SpectrogramComponent specComp;

@@ -10,6 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "AppConstants.h"
 
 
 class SpectrogramComponent : public juce::Component,
@@ -43,7 +44,7 @@ public:
     {
         fftOrder = 11,             
         fftSize = 1 << fftOrder,  
-        scopeSize = 512               
+        scopeSize = 512 
     };
 
 private:

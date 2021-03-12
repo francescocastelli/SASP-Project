@@ -31,4 +31,20 @@ namespace AppColours
     //spectrogram
     const juce::Colour specFill = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.2f);
     const juce::Colour specStroke = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.9f);
+
+    //windowing
+    const juce::Colour grainWindowedFill = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.7f);
+    const juce::Colour grainStroke = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.9f);
+};
+
+namespace AppConstants
+{
+    //grain
+    constexpr float maxgrainlengthsec = 0.1;
+    constexpr int grainwindowsize= 4410;
+
+    //buttons position
+    const float controlButtonsY = 0.05f;
+    const float controlButtonWidth = 0.06f;
+    const float controlButtonHeight = 0.08f;
 };

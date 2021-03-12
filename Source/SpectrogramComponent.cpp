@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "SpectrogramComponent.h"
-#include "AppColors.h"
 
 SpectrogramComponent::SpectrogramComponent()
     : forwardFFT(fftOrder),

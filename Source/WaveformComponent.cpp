@@ -1,5 +1,4 @@
 #include "WaveformComponent.h"
-#include "AppColors.h"
 
 WaveformComponent::WaveformComponent(juce::AudioThumbnail& audioThumbnail) : thumbnail (audioThumbnail)
 {
