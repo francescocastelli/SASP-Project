@@ -16,6 +16,7 @@ SpectrogramComponent::SpectrogramComponent()
     paintComp(false),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
+    startTimerHz(30);
 }
 
 SpectrogramComponent::~SpectrogramComponent() {}
@@ -28,9 +29,6 @@ void SpectrogramComponent::setNextAudioBlock(const juce::AudioSourceChannelInfo&
 
         for (auto i = 0; i < bufferToFill.numSamples; ++i)
             pushNextSampleIntoFifo(channelData[i]);
-
-        paintComp = true;
-        timerCallback();
     }
 }
 
@@ -55,7 +53,7 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 
 void SpectrogramComponent::paint(juce::Graphics& g)
 {
-    if (!paintComp)  paintIfNoFileLoaded(g);
+    if (false)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 

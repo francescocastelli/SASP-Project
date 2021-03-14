@@ -6,7 +6,7 @@
 MainComponent::MainComponent()
     :inputAudioState(SoundState::Stopped),
     selectionComponent(transportSource, sampleDir),
-    granularSynth(sampleDir, outputSynth),
+    granularSynth(sampleDir),
     //for now set the path as fixed, then the user should be able to set it
     //use the same approach as open file
     sampleDir("C:\\Users\\Francesco\\Desktop\\testSamples")
@@ -26,6 +26,7 @@ MainComponent::MainComponent()
 
     addAndMakeVisible(selectionComponent);
     addAndMakeVisible(granularSynth);
+    setAudioChannels(0, 2);
 
     transportSource.addChangeListener(this);
     selectionComponent.addChangeListener(this);
@@ -33,9 +34,6 @@ MainComponent::MainComponent()
 
     //create the directory based on the filename
     sampleDir.createDirectory();
-
-    //add a voice to the synth
-    outputSynth.addVoice(new juce::SamplerVoice());
 }
 
 MainComponent::~MainComponent()
@@ -45,7 +43,6 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
-
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
     if (source == &transportSource) changeState(transportSource.isPlaying() ? SoundState::Playing : SoundState::Stopped);
@@ -55,18 +52,20 @@ void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
     transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
-    outputSynth.setCurrentPlaybackSampleRate(sampleRate);
+    granularSynth.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
     bufferToFill.clearActiveBufferRegion();
-    transportSource.getNextAudioBlock(bufferToFill);
+    //transportSource.getNextAudioBlock(bufferToFill);
+    granularSynth.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponent::releaseResources()
 {
     transportSource.releaseResources();
+    granularSynth.releaseResources();
 }
 
 //==============================================================================

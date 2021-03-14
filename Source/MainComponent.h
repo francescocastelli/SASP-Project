@@ -5,8 +5,7 @@
 
 //==============================================================================
 
-class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener
-{
+class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener{
 public:
 
 
@@ -34,8 +33,6 @@ private:
     SelectionComponent selectionComponent;
     //bottom half of the window, contains the granular synth
     GranularSynthComponent granularSynth;
-    //synthesiser
-    juce::Synthesiser outputSynth;
 
     //transport source used to load and play audio 
     juce::AudioTransportSource transportSource;
