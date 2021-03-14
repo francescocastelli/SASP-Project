@@ -17,9 +17,6 @@
 #include "GrainProcessingComponent.h"
 #include "AppConstants.h"
 
-//grain lenght in seconds
-#define GRAINLENGTH 0.1    
-
 //state for the transport source 
 enum class SoundState
 {
@@ -29,7 +26,7 @@ enum class SoundState
     Stopping
 };
 
-class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster 
+class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster, public juce::Slider::Listener 
 {
 public:
     SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File& sampleDir);
@@ -50,6 +47,8 @@ public:
     void saveButtonClicked();
 
     void setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect);
+
+    void sliderValueChanged(juce::Slider* slider) override;
 
     //-------------------------------------------------------------------------------------
     void paint(juce::Graphics& g) override;
@@ -78,6 +77,9 @@ private:
     juce::TextButton selectionButton;
     juce::TextButton saveButton;
 
+    //slider
+    juce::Slider grainLenghtSlider;
+
     //grain processing buttons
     juce::ComboBox windowsMenu;
 
@@ -85,6 +87,7 @@ private:
     GrainProcessingComponent grainProcessing;
     //display grain
     GrainSelector displayGrain;
+    float currentGrainLenght;
 
     WaveformComponent thumbnailComp;
     PositionOverlayComponent positionComp;

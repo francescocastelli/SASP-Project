@@ -19,6 +19,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
         positionComp(transportSource),
         displayGrain(thumbnail),
         sampleDir(sampleDir),
+		currentGrainLenght (AppConstants::maxgrainlengthsec),
 	    grainProcessing(sampleDir)
 {
 	//initialize buttons
@@ -50,6 +51,14 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	saveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	saveButton.setEnabled(false);
 
+	//slider
+	addAndMakeVisible(grainLenghtSlider);
+	grainLenghtSlider.setRange(0, 0.1);
+	grainLenghtSlider.setTextValueSuffix("[s]");
+	grainLenghtSlider.addListener(this);
+	grainLenghtSlider.setTextBoxIsEditable(false);
+	grainLenghtSlider.setValue(0.1);
+
 	//add and make visible internal components
 	addAndMakeVisible(thumbnailComp);
 	addAndMakeVisible(positionComp);
@@ -67,7 +76,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	windowsMenu.addItem("blackman", 6);
 
 	windowsMenu.setSelectedId(1);
-	windowsMenu.onChange = [this] {grainProcessing.windowMenuChanged(windowsMenu.getSelectedId());};
+	windowsMenu.onChange = [this] {grainProcessing.windowMenuChanged(windowsMenu.getSelectedId(), sampleRate*currentGrainLenght);};
 
 	//inizialize format for the format manager
 	formatManager.registerBasicFormats();
@@ -83,8 +92,8 @@ void SelectionComponent::resized()
 	openButton.setBoundsRelative(0.79f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
 	playButton.setBoundsRelative(0.86f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
 	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
-	selectionButton.setBoundsRelative(0.79f, 0.27f, 0.20f, 0.08f);
-	saveButton.setBoundsRelative(0.79f, 0.65f, 0.2f, 0.08f);
+	selectionButton.setBoundsRelative(0.79f, 0.35f, 0.20f, 0.08f);
+	saveButton.setBoundsRelative(0.79f, 0.7f, 0.2f, 0.08f);
 
 	//waveform display 
 	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
@@ -92,6 +101,9 @@ void SelectionComponent::resized()
         
 	//grain display
     displayGrain.setBoundsRelative(0.02f, 0.6f, 0.25f, 0.35f);
+
+	//slider
+	grainLenghtSlider.setBoundsRelative(0.79f, 0.2f, 0.2f, 0.15f);
 
 	//grain processing display
 	grainProcessing.setBoundsRelative(0.52f, 0.6f, 0.25f, 0.35f);
@@ -167,14 +179,14 @@ void SelectionComponent::selectionButtonClicked()
 {
 	//temp buffer used for getting the sample to store in the wav
 	//the lenght of the buffer is the grain lenght
-	juce::AudioBuffer<float> buffer(2, GRAINLENGTH*sampleRate);
+	juce::AudioBuffer<float> buffer(2, currentGrainLenght*sampleRate);
 	//clear the buffer
 	buffer.clear();
 	//create the audio channel info that is required from the getNextAudioBlock
 	juce::AudioSourceChannelInfo audioChannelInfo(buffer);
 
     auto currentTime = transportSource.getCurrentPosition();
-	auto startTime = (currentTime - GRAINLENGTH/2) < 0 ? 0 : currentTime - GRAINLENGTH/2;
+	auto startTime = (currentTime - currentGrainLenght/2) < 0 ? 0 : currentTime - currentGrainLenght/2;
 	
 	//fill the buffer for grainlength samples from the current position  
 	//to get the buffer the transportSource must be in play 
@@ -186,7 +198,7 @@ void SelectionComponent::selectionButtonClicked()
 	transportSource.setPosition(currentTime);
 
 	//activate the grain components only when a grain is selected
-	displayGrain.setTime(startTime, startTime + GRAINLENGTH);
+	displayGrain.setTime(startTime, startTime + currentGrainLenght);
 	sendActionMessage("activateGrain");
 	//and compute windowing operation
 	grainProcessing.applyWindow(buffer);
@@ -211,4 +223,14 @@ void SelectionComponent::setButtonsEnable(bool enablePlay, bool enableStop, bool
 	stopButton.setEnabled(enableStop);
 	selectionButton.setEnabled(enableSelect);
 }
+
+void SelectionComponent::sliderValueChanged(juce::Slider* slider)
+{
+	//seconds
+	currentGrainLenght = slider->getValue();
+
+	//set the overlay
+	positionComp.setWindowLenght(currentGrainLenght);
+}
+
 

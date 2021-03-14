@@ -14,10 +14,14 @@ public:
 
     void mouseDown(const juce::MouseEvent& event) override;
 
+    void setWindowLenght(float windowLenght);
+
 private:
     
     //transportSource
     juce::AudioTransportSource& transportSource;
+
+    float windowLenght;
 
     //private functions
     void timerCallback() override;

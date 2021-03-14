@@ -18,7 +18,7 @@ public:
     GrainProcessingComponent(juce::File& sampleDir);
 
     //==============================================================================
-    void windowMenuChanged(int id);
+    void windowMenuChanged(int id, int windowLenght);
 
     void applyWindow(juce::AudioBuffer<float>& buffer);
 
@@ -53,9 +53,10 @@ private:
     //enable or disable the component
     bool active;
 
-    int sampleRate;
     juce::File& sampleDir;
     
+    int windowLenght;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainProcessingComponent);
 };
 

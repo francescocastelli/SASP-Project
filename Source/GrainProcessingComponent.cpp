@@ -13,23 +13,25 @@
 GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir)
                             :nowindowing(false),
                              active(false),
-		                     grainWindow(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::hann),
+		                     grainWindow(4410, juce::dsp::WindowingFunction<float>::rectangular),
                              originalBuffer(),
                              windowedBuffer(),
                              sampleDir(saveDir)
 {
 }
 
-void GrainProcessingComponent::windowMenuChanged(int id)
+void GrainProcessingComponent::windowMenuChanged(int id, int windowLenght)
 {
+    this->windowLenght = windowLenght;
+
 	switch (id)
 	{
     case 1: nowindowing = true; break;
-	case 2: grainWindow.fillWindowingTables(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::rectangular); break;
-	case 3: grainWindow.fillWindowingTables(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::hann); break;
-	case 4: grainWindow.fillWindowingTables(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::hamming); break;
-	case 5: grainWindow.fillWindowingTables(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::triangular); break;
-	case 6: grainWindow.fillWindowingTables(AppConstants::grainwindowsize, juce::dsp::WindowingFunction<float>::blackman); break;
+	case 2: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::rectangular); break;
+	case 3: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hann); break;
+	case 4: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hamming); break;
+	case 5: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::triangular); break;
+	case 6: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::blackman); break;
 	default:
 		break;
 	}
@@ -54,7 +56,7 @@ void GrainProcessingComponent::computeWindowOutput()
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
     //apply the selected window
-    if( !nowindowing ) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(0), AppConstants::grainwindowsize);
+    if( !nowindowing ) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(0), windowLenght);
 
     //paint the windowed grain
     repaint();
@@ -135,10 +137,10 @@ void GrainProcessingComponent::drawFrame(juce::Graphics& g)
     juce::Path path = juce::Path();
     juce::PathStrokeType stroke = juce::PathStrokeType(0.6f);
 
-    for (int i = 0; i < AppConstants::grainwindowsize; ++i)
+    for (int i = 0; i < windowLenght; ++i)
     {
         //add points to the path
-        path.lineTo((float)juce::jmap(i, 0, AppConstants::grainwindowsize- 1, 0, width),
+        path.lineTo((float)juce::jmap(i, 0, windowLenght- 1, 0, width),
             juce::jmap(windowedBuffer.getReadPointer(0)[i], 0.0f, 1.0f, (float)height, 0.0f) - height/2);
     }
 

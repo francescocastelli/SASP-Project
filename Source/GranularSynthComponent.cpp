@@ -45,23 +45,19 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 void GranularSynthComponent::readGrains() 
 {
 	int fileNum (0);
-
-	juce::BigInteger range;
-	range.setRange(0, 128, true);
-	juce::AudioBuffer<float> buf = juce::AudioBuffer<float> (2, 4410); 
+	juce::AudioBuffer<float> tempBuf;
 
 	//get the number of files in the dir
 	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(sampleDir.getFullPathName()), false))
 	{
 		formatReader = formatManager.createReaderFor(entry.getFile());
-		//synth.addSound(new juce::SamplerSound(entry.getFile().getFileName(), *formatReader, range, 60, 0.1, 0.1, 0.1));
+		tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
 		if (formatReader)
 		{
-			formatReader->read(&buf, 0, 4410, 0, true, true);	
-			grainStack.add(Grain(buf));
+			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
+			grainStack.add(Grain(tempBuf));
 		}
 	}
-
 	//enable the play audio button
 	playAudio.setEnabled(true);
 }
