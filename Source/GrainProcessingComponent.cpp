@@ -13,17 +13,33 @@
 GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir)
                             :nowindowing(false),
                              active(false),
+                             sampleRate (44100),
 		                     grainWindow(4410, juce::dsp::WindowingFunction<float>::rectangular),
                              originalBuffer(),
                              windowedBuffer(),
+                             fadeSamples(0),
                              sampleDir(saveDir)
 {
 }
 
-void GrainProcessingComponent::windowMenuChanged(int id, int windowLenght)
+void GrainProcessingComponent::setSampleRate(double sampleRate)
 {
-    this->windowLenght = windowLenght;
+    this->sampleRate = sampleRate;
+}
 
+void GrainProcessingComponent::setGrainLenght(int grainLenght)
+{
+    windowLenght = grainLenght;
+}
+
+void GrainProcessingComponent::setFadeValue(int fadeValue)
+{
+    fadeSamples = fadeValue;;
+    computeWindowOutput();
+}
+
+void GrainProcessingComponent::windowMenuChanged(int id)
+{
 	switch (id)
 	{
     case 1: nowindowing = true; break;
@@ -55,8 +71,23 @@ void GrainProcessingComponent::computeWindowOutput()
 {
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
+
+    //min max normalization
+    juce::Range<float> rangeIn = windowedBuffer.findMinMax(0, 0, windowedBuffer.getNumSamples());
+    juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
+
+    for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
+    {
+        windowedBuffer.getWritePointer(0)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(0)[i]) - 0.5) * 0.8;
+    }
+
     //apply the selected window
     if( !nowindowing ) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(0), windowLenght);
+
+    //fade in
+    windowedBuffer.applyGainRamp(0, fadeSamples, 0.0f, 1.0f);
+    //fade out
+    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()-fadeSamples, fadeSamples, 1.0f, 0.0f);
 
     //paint the windowed grain
     repaint();
@@ -76,7 +107,7 @@ void GrainProcessingComponent::actionListenerCallback(const juce::String &messag
 
 void GrainProcessingComponent::saveGrain()
 {
-	//saving the sample in the wav file 
+   	//saving the sample in the wav file 
 	juce::WavAudioFormat format;
 	std::unique_ptr<juce::AudioFormatWriter> writer;
 	int fileNum (0);
@@ -90,9 +121,9 @@ void GrainProcessingComponent::saveGrain()
 
 	//write the wav file with the buffer content
 	writer.reset(format.createWriterFor(new juce::FileOutputStream(file),
-										44100,
+										sampleRate,
 										1,
-										24,
+										16,
 										{},
 										0));
 

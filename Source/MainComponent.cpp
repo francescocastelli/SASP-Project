@@ -28,6 +28,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(granularSynth);
     setAudioChannels(0, 2);
 
+    //add this component as listener to the broadcasters
+    granularSynth.addChangeListener(this);
     transportSource.addChangeListener(this);
     selectionComponent.addChangeListener(this);
     setSize (1200, 600);
@@ -46,7 +48,8 @@ MainComponent::~MainComponent()
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
     if (source == &transportSource) changeState(transportSource.isPlaying() ? SoundState::Playing : SoundState::Stopped);
-    if (source == &selectionComponent) changeState(selectionComponent.getState());
+    if (source == &selectionComponent) changeState(selectionComponent.getSoundState());
+    if (source == &granularSynth);
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
@@ -58,7 +61,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
     bufferToFill.clearActiveBufferRegion();
-    //transportSource.getNextAudioBlock(bufferToFill);
+    transportSource.getNextAudioBlock(bufferToFill);
     granularSynth.getNextAudioBlock(bufferToFill);
 }
 

@@ -18,13 +18,19 @@ public:
     GrainProcessingComponent(juce::File& sampleDir);
 
     //==============================================================================
-    void windowMenuChanged(int id, int windowLenght);
+    void windowMenuChanged(int id);
 
     void applyWindow(juce::AudioBuffer<float>& buffer);
 
     void computeWindowOutput();
 
     void saveGrain();
+
+    void setSampleRate(double sampleRate);
+
+    void setGrainLenght(int grainLenght);
+
+    void setFadeValue(int fadeValue);
     //-------------------------------------------------------------
 
     void actionListenerCallback(const juce::String& message) override;
@@ -46,14 +52,22 @@ private:
     juce::AudioBuffer<float> originalBuffer;
     //buffer containing the windowed signal
     juce::AudioBuffer<float> windowedBuffer;
-    
+
     //flags
     bool nowindowing;
+
+    bool fadeInAndOut;
+
+    int fadeSamples;
     
     //enable or disable the component
     bool active;
 
+    //folder where to save files
     juce::File& sampleDir;
+
+    //current sample rate
+    double sampleRate;
     
     int windowLenght;
 

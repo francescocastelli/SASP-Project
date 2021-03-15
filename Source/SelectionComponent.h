@@ -26,14 +26,12 @@ enum class SoundState
     Stopping
 };
 
-class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster, public juce::Slider::Listener 
+class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster
 {
 public:
     SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File& sampleDir);
 
-    void grainSelection(double start, double end, juce::Rectangle<int> bounds);
-
-    SoundState getState();
+    SoundState getSoundState();
 
     //----------------------------------------------------------------------------------
     void openButtonClicked();
@@ -48,8 +46,6 @@ public:
 
     void setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect);
 
-    void sliderValueChanged(juce::Slider* slider) override;
-
     //-------------------------------------------------------------------------------------
     void paint(juce::Graphics& g) override;
 
@@ -58,6 +54,8 @@ public:
 private:
     
     SoundState state;
+
+    //sample rate of the current opened audio file
     double sampleRate;
 
     //manager for the different formats
@@ -77,8 +75,9 @@ private:
     juce::TextButton selectionButton;
     juce::TextButton saveButton;
 
-    //slider
+    //sliders
     juce::Slider grainLenghtSlider;
+    juce::Slider fadeSlider;
 
     //grain processing buttons
     juce::ComboBox windowsMenu;

@@ -19,6 +19,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
         positionComp(transportSource),
         displayGrain(thumbnail),
         sampleDir(sampleDir),
+	    sampleRate(0),
 		currentGrainLenght (AppConstants::maxgrainlengthsec),
 	    grainProcessing(sampleDir)
 {
@@ -51,14 +52,22 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	saveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	saveButton.setEnabled(false);
 
-	//slider
+	//grain lenght slider
 	addAndMakeVisible(grainLenghtSlider);
-	grainLenghtSlider.setRange(0, 0.1);
-	grainLenghtSlider.setTextValueSuffix("[s]");
-	grainLenghtSlider.addListener(this);
+	grainLenghtSlider.setRange(1, 100, 0.5);
+	grainLenghtSlider.setTextValueSuffix(" [ms]");
 	grainLenghtSlider.setTextBoxIsEditable(false);
-	grainLenghtSlider.setValue(0.1);
+	grainLenghtSlider.setValue(100);
+	grainLenghtSlider.onValueChange = [this] {	currentGrainLenght = grainLenghtSlider.getValue()/1000; positionComp.setWindowLenght(currentGrainLenght); };
 
+	//fade in out slider
+	addAndMakeVisible(fadeSlider);
+	fadeSlider.setRange(0, 1000, 1);
+	fadeSlider.setTextValueSuffix(" [samples]");
+	fadeSlider.setTextBoxIsEditable(false);
+	fadeSlider.setValue(0);
+	fadeSlider.onValueChange = [this] { grainProcessing.setFadeValue(fadeSlider.getValue()); };
+	
 	//add and make visible internal components
 	addAndMakeVisible(thumbnailComp);
 	addAndMakeVisible(positionComp);
@@ -76,7 +85,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	windowsMenu.addItem("blackman", 6);
 
 	windowsMenu.setSelectedId(1);
-	windowsMenu.onChange = [this] {grainProcessing.windowMenuChanged(windowsMenu.getSelectedId(), sampleRate*currentGrainLenght);};
+	windowsMenu.onChange = [this] {grainProcessing.setGrainLenght(currentGrainLenght * sampleRate); grainProcessing.windowMenuChanged(windowsMenu.getSelectedId()); };
 
 	//inizialize format for the format manager
 	formatManager.registerBasicFormats();
@@ -84,6 +93,14 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	//register actions listeners
 	addActionListener(&grainProcessing);
 	addActionListener(&displayGrain);
+}
+
+void SelectionComponent::setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect)
+{
+	playButton.setEnabled(enablePlay);
+	stopButton.setEnabled(enableStop);
+	selectionButton.setEnabled(enableSelect);
+	saveButton.setEnabled(enableSelect);
 }
 
 void SelectionComponent::resized() 
@@ -104,6 +121,7 @@ void SelectionComponent::resized()
 
 	//slider
 	grainLenghtSlider.setBoundsRelative(0.79f, 0.2f, 0.2f, 0.15f);
+	fadeSlider.setBoundsRelative(0.32f, 0.65f, 0.15f, 0.15f);
 
 	//grain processing display
 	grainProcessing.setBoundsRelative(0.52f, 0.6f, 0.25f, 0.35f);
@@ -129,12 +147,6 @@ void SelectionComponent::paint(juce::Graphics& g)
 		getLocalBounds().getBottomRight().getX(), getLocalBounds().getBottomRight().getY(), 3);
 }
 
-
-void SelectionComponent::grainSelection(double start, double end, juce::Rectangle<int> bounds)
-{
-//thumbnailComp.grainSelection(start, end, bounds);
-}
-
 void SelectionComponent::openButtonClicked()
 {
     juce::FileChooser chooser("Select a Wave file to play...", {}, "*.wav");                                     
@@ -144,21 +156,22 @@ void SelectionComponent::openButtonClicked()
 		auto file = chooser.getResult();                                        
 		auto* reader = formatManager.createReaderFor(file);                    
 		sampleRate = reader->sampleRate;
+		//inform the listener that the sample rate is changed
+		grainProcessing.setSampleRate(sampleRate);
 
 		if (reader != nullptr)
 		{
 			std::unique_ptr<juce::AudioFormatReaderSource> newSource(new juce::AudioFormatReaderSource(reader, true)); 
 			transportSource.setSource(newSource.get(), 0, nullptr, sampleRate);                                
 			thumbnail.setSource(new juce::FileInputSource(file));
-			playButton.setEnabled(true);          
-			selectionButton.setEnabled(true);
-			readerSource.reset(newSource.release());     
+						readerSource.reset(newSource.release());     
 			state = SoundState::Stopped;
 			sendChangeMessage();
 
 			//also deactivate the grain component and relative buttons
 			sendActionMessage("deactivateGrain");
-			saveButton.setEnabled(false);
+			//save button is active when selection is active
+			setButtonsEnable(true, false, true);
 		}
     }
 }
@@ -195,16 +208,16 @@ void SelectionComponent::selectionButtonClicked()
 	transportSource.getNextAudioBlock(audioChannelInfo);
 	transportSource.stop();
 	//reset the position to the previous one 
-	transportSource.setPosition(currentTime);
+	transportSource.setPosition(currentTime+currentGrainLenght);
 
 	//activate the grain components only when a grain is selected
-	displayGrain.setTime(startTime, startTime + currentGrainLenght);
 	sendActionMessage("activateGrain");
+	displayGrain.setTime(startTime, startTime + currentGrainLenght);
 	//and compute windowing operation
 	grainProcessing.applyWindow(buffer);
 
 	//activate the save grain button
-	saveButton.setEnabled(true);
+	setButtonsEnable(true, false, true);
 }
     
 void SelectionComponent::saveButtonClicked()
@@ -212,25 +225,7 @@ void SelectionComponent::saveButtonClicked()
 	sendActionMessage("saveGrain");
 }
 
-SoundState SelectionComponent::getState()
+SoundState SelectionComponent::getSoundState()
 {
 	return state;
 }
-
-void SelectionComponent::setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect)
-{
-	playButton.setEnabled(enablePlay);
-	stopButton.setEnabled(enableStop);
-	selectionButton.setEnabled(enableSelect);
-}
-
-void SelectionComponent::sliderValueChanged(juce::Slider* slider)
-{
-	//seconds
-	currentGrainLenght = slider->getValue();
-
-	//set the overlay
-	positionComp.setWindowLenght(currentGrainLenght);
-}
-
-

@@ -14,7 +14,7 @@
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
 
-class GranularSynthComponent: public juce::Component, juce::AudioSource
+class GranularSynthComponent: public juce::Component, public juce::AudioSource, public juce::ChangeBroadcaster
 {
 public:
     GranularSynthComponent(juce::File& sampleDir);
@@ -27,6 +27,7 @@ public:
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override;
 
     void releaseResources() override;
+
     //-------------------------------------------------------------
 
     void paint(juce::Graphics& g) override;
@@ -45,17 +46,26 @@ private:
     juce::TextButton stopAudio;
     juce::TextButton playAudio;
 
+    //master volume slider
+    juce::Slider masterVolume;
+
     //test
-    juce::Array<Grain> grainStack;
+    juce::Array<Grain*> grainStack;
     int index;
-    int currentGrain;
+    int currentGrainIndex;
+    int nextGrainIndex;
+    long time;
     juce::Random rand;
 
     //flag
     bool audioIsPlaying;
-    bool skipGrain;
+    int skipGrain;
 
     SpectrogramComponent spectrogram;
+
+
+    //private method
+    void setButtonState(bool enableStart, bool enableStop, bool enableLoad);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };
