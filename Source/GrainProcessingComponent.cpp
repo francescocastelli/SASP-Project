@@ -35,7 +35,7 @@ void GrainProcessingComponent::setGrainLenght(int grainLenght)
 void GrainProcessingComponent::setFadeValue(int fadeValue)
 {
     fadeSamples = fadeValue;;
-    computeWindowOutput();
+    if ( active ) computeWindowOutput();
 }
 
 void GrainProcessingComponent::windowMenuChanged(int id)

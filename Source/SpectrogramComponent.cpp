@@ -13,7 +13,7 @@
 
 SpectrogramComponent::SpectrogramComponent()
     : forwardFFT(fftOrder),
-    paintComp(false),
+    active(false),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
     startTimerHz(30);
@@ -30,6 +30,12 @@ void SpectrogramComponent::setNextAudioBlock(const juce::AudioSourceChannelInfo&
         for (auto i = 0; i < bufferToFill.numSamples; ++i)
             pushNextSampleIntoFifo(channelData[i]);
     }
+}
+
+void SpectrogramComponent::setActive(bool active)
+{
+    this->active = active;
+    repaint();
 }
 
 void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
@@ -53,7 +59,7 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 
 void SpectrogramComponent::paint(juce::Graphics& g)
 {
-    if (false)  paintIfNoFileLoaded(g);
+    if (!active)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
@@ -61,8 +67,8 @@ void SpectrogramComponent::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
-    g.setColour(AppColours::waveformColor);
-    g.drawFittedText("No file loaded", getLocalBounds() , juce::Justification::centred, 1);
+    //g.setColour(AppColours::waveformColor);
+    //g.drawFittedText("No file loaded", getLocalBounds() , juce::Justification::centred, 1);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);
@@ -140,6 +146,6 @@ void SpectrogramComponent::drawFrame(juce::Graphics& g)
     g.fillPath(path);
 
     //draw the stroke
-    g.setColour(AppColours::specStroke);
-    g.strokePath(path, specStroke);
+    //g.setColour(AppColours::specStroke);
+    //g.strokePath(path, specStroke);
 }

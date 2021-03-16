@@ -29,26 +29,28 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 
 	addAndMakeVisible(&playAudio);
 	playAudio.setButtonText("Play");
-	playAudio.onClick = [this] { audioIsPlaying = true; setButtonState(false, true, false); };
+	playAudio.onClick = [this] { audioIsPlaying = true; setButtonState(false, true, false); spectrogram.setActive(true); };
 	playAudio.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
 	playAudio.setEnabled(false);
 
 	//stop audio from playing
 	addAndMakeVisible(&stopAudio);
 	stopAudio.setButtonText("Stop");
-	stopAudio.onClick = [this] { audioIsPlaying = false; setButtonState(true, false, true); };
+	stopAudio.onClick = [this] { audioIsPlaying = false; setButtonState(true, false, true); spectrogram.setActive(false);};
 	stopAudio.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
 	stopAudio.setEnabled(false);
 
 	//grain lenght slider
 	addAndMakeVisible(masterVolume);
-	masterVolume.setRange(1, 100, 1);
+	masterVolume.setRange(0.0f, 0.95f, 0.001);
 	masterVolume.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	masterVolume.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
-	masterVolume.setValue(50);
-	//masterVolume.onValueChange = [this] {	currentGrainLenght = grainLenghtSlider.getValue()/1000; positionComp.setWindowLenght(currentGrainLenght); };
+	masterVolume.setValue(0.8);
+	masterVolume.setSkewFactor(0.5);
+	masterVolume.onValueChange = [this] { outputGain = masterVolume.getValue(); };
 
 	addAndMakeVisible(spectrogram);
+	spectrogram.setActive(false);
 }
 
 void GranularSynthComponent::readGrains() 
@@ -112,6 +114,8 @@ void GranularSynthComponent::getNextAudioBlock(const juce::AudioSourceChannelInf
 			}
 	    }
 
+		//apply gain at the output sound
+		bufferToFill.buffer->applyGain(outputGain);
 		//visualize fft of the block
 		spectrogram.setNextAudioBlock(bufferToFill);
 	}

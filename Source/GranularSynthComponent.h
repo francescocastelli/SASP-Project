@@ -49,6 +49,8 @@ private:
     //master volume slider
     juce::Slider masterVolume;
 
+    float outputGain;
+
     //test
     juce::Array<Grain*> grainStack;
     int index;

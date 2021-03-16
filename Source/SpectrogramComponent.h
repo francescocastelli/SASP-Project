@@ -25,6 +25,8 @@ public:
 
     void setNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
 
+    void setActive(bool active);
+
     void paint(juce::Graphics& g) override;
 
     void timerCallback() override;
@@ -57,7 +59,7 @@ private:
     bool nextFFTBlockReady = false;                
     float scopeData[scopeSize];                    
 
-    bool paintComp;
+    bool active;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent);
 };
