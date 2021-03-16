@@ -33,6 +33,8 @@ public:
 
     SoundState getSoundState();
 
+    void automaticGrainSelection();
+
     //----------------------------------------------------------------------------------
     void openButtonClicked();
 
@@ -74,6 +76,7 @@ private:
     juce::TextButton stopButton;
     juce::TextButton selectionButton;
     juce::TextButton saveButton;
+    juce::TextButton automaticSaveButton;
 
     //sliders
     juce::Slider grainLenghtSlider;

@@ -52,6 +52,12 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	saveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	saveButton.setEnabled(false);
 
+	addAndMakeVisible(&automaticSaveButton);
+	automaticSaveButton.setButtonText("Automatic");
+	automaticSaveButton.onClick = [this] { /*automaticGrainSelection(); */};
+	automaticSaveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
+	automaticSaveButton.setEnabled(false);
+
 	//grain lenght slider
 	addAndMakeVisible(grainLenghtSlider);
 	grainLenghtSlider.setRange(1, 100, 0.5);
@@ -101,6 +107,7 @@ void SelectionComponent::setButtonsEnable(bool enablePlay, bool enableStop, bool
 	stopButton.setEnabled(enableStop);
 	selectionButton.setEnabled(enableSelect);
 	saveButton.setEnabled(enableSelect);
+	automaticSaveButton.setEnabled(enableSelect);
 }
 
 void SelectionComponent::resized() 
@@ -111,6 +118,7 @@ void SelectionComponent::resized()
 	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
 	selectionButton.setBoundsRelative(0.79f, 0.35f, 0.20f, 0.08f);
 	saveButton.setBoundsRelative(0.79f, 0.7f, 0.2f, 0.08f);
+	automaticSaveButton.setBoundsRelative(0.79f, 0.85, 0.2f, 0.08f);
 
 	//waveform display 
 	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
@@ -220,6 +228,31 @@ void SelectionComponent::selectionButtonClicked()
 	setButtonsEnable(true, false, true);
 }
     
+void SelectionComponent::automaticGrainSelection()
+{
+	auto currentTime = 0.10f;
+
+	for (int i = 0; i < 100; i++)
+	{
+		juce::AudioBuffer<float> buffer(2, currentGrainLenght*sampleRate);
+		juce::AudioSourceChannelInfo audioChannelInfo(buffer);
+		buffer.clear();
+		auto startTime = (currentTime - currentGrainLenght/2) < 0 ? 0 : currentTime - currentGrainLenght/2;
+	
+		transportSource.setPosition(startTime);
+		transportSource.start();
+		transportSource.getNextAudioBlock(audioChannelInfo);
+		transportSource.stop();
+		transportSource.setPosition(currentTime+currentGrainLenght);
+
+		//activate the grain components only when a grain is selected
+		sendActionMessage("activateGrain");
+		grainProcessing.applyWindow(buffer);
+		currentTime += currentGrainLenght;
+		saveButtonClicked();
+	}
+}
+
 void SelectionComponent::saveButtonClicked()
 {
 	sendActionMessage("saveGrain");

@@ -10,13 +10,14 @@
 
 #include "GranularSynthComponent.h"
 
-
 GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	:sampleDir(sampleDir),
 	index(0),
 	skipGrain(3),
 	audioIsPlaying(false),
-	time(0),
+	timeIndex(0),
+	windowLenght(0),
+	sampleRate(44100),
 	currentGrainIndex(0)
 {
 	formatManager.registerBasicFormats();
@@ -48,6 +49,22 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	masterVolume.setValue(0.8);
 	masterVolume.setSkewFactor(0.5);
 	masterVolume.onValueChange = [this] { outputGain = masterVolume.getValue(); };
+	
+	//density slider
+	addAndMakeVisible(densitySlider);
+	densitySlider.setRange(0, 10, 1);
+	densitySlider.setTextBoxIsEditable(false);
+	densitySlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+	densitySlider.setValue(2);
+	densitySlider.onValueChange = [this] { densityValue = densitySlider.getValue(); grainSelectionAndPositioning(); };
+
+	//window lenght slider
+	addAndMakeVisible(windowLenghtSlider);
+	windowLenghtSlider.setRange(0, 10, 0.01);
+	windowLenghtSlider.setTextBoxIsEditable(false);
+	windowLenghtSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+	windowLenghtSlider.setValue(2);
+	windowLenghtSlider.onValueChange = [this] { windowLenght = windowLenghtSlider.getValue() * sampleRate; grainSelectionAndPositioning(); };
 
 	addAndMakeVisible(spectrogram);
 	spectrogram.setActive(false);
@@ -69,6 +86,7 @@ void GranularSynthComponent::readGrains()
 	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(sampleDir.getFullPathName()), false))
 	{
 		formatReader = formatManager.createReaderFor(entry.getFile());
+
 		tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
 		if (formatReader)
 		{
@@ -76,6 +94,11 @@ void GranularSynthComponent::readGrains()
 			grainStack.add(new Grain(tempBuf));
 		}
 	}
+	
+	//set max value for density 
+	densitySlider.setRange(0, grainStack.size(), 1);
+	//select and position grain in the window
+	grainSelectionAndPositioning();
 }
 
 void GranularSynthComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -86,33 +109,44 @@ void GranularSynthComponent::releaseResources()
 {
 }
 
+void GranularSynthComponent::grainSelectionAndPositioning()
+{
+	std::vector<int> v(grainStack.size());
+	std::iota(v.begin(), v.end(), 0);
+	std::random_shuffle(v.begin(), v.end());
+	
+	//clear the selected grain array
+	selectedGrain.clear();
+
+	//fill in a random way the selected grain array
+	for (int i = 0; i < std::min(densityValue, grainStack.size()); ++i)
+		selectedGrain.add(grainStack[v[i]]);
+
+	//set the starting position inside the window for each grain
+	for (int i = 0; i < selectedGrain.size(); ++i)
+		selectedGrain[i]->setStartIndex(rand.nextInt(windowLenght));
+}
+
 void GranularSynthComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-
 	if (grainStack.size() > 0 && audioIsPlaying )
 	{
-		
-		auto currentGrain = grainStack[currentGrainIndex];
-		currentGrain->processBlock(bufferToFill);
+		//iterate over the selected grains
+		//only the ones with active = true will really process the block
+		for (int i = 0; i < selectedGrain.size(); ++i)
+		{
+			if (std::abs(selectedGrain[i]->getStartIndex() - timeIndex) < bufferToFill.numSamples)
+				selectedGrain[i]->activeGrain();
 
-		//if (currentGrain->getSamplesLeft() - 120< 0)
-		//	grainStack[(currentGrainIndex+1) % ( grainStack.size() -2)]->processBlock(bufferToFill);
-		//grainStack[rand.nextInt(grainStack.size() - 1)]->processBlock(bufferToFill);
+			selectedGrain[i]->processBlock(bufferToFill, timeIndex);
+		}
 		
-		//no samples left
-	    if (!currentGrain->isPlaying())
-	    {
-			if (skipGrain > 0 )
-			{
-				//currentGrainIndex = grainStack.size() - 1;
-				skipGrain -= 1;
-			}
-			else 
-			{
-				currentGrainIndex = (currentGrainIndex+1)%( grainStack.size() -1);
-				skipGrain = 0;
-			}
-	    }
+		//increment the time index
+		timeIndex += bufferToFill.numSamples;
+		if (timeIndex > windowLenght)
+		{
+			timeIndex = 0;
+		}
 
 		//apply gain at the output sound
 		bufferToFill.buffer->applyGain(outputGain);
@@ -146,5 +180,11 @@ void GranularSynthComponent::resized()
 
 	//master volume slider
 	masterVolume.setBoundsRelative(0.2f, 0.9f, 0.2f, 0.08f);
+
+	//density slider
+	densitySlider.setBoundsRelative(0.1f, 0.4f, 0.4f, 0.4f);
+
+	//window lenght slider
+	windowLenghtSlider.setBoundsRelative(0.4f, 0.4f, 0.2, 0.4f);
 }
 

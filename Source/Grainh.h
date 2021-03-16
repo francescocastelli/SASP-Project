@@ -24,19 +24,15 @@ public:
 
     juce::AudioBuffer<float>& getBufferPointer();
 
-    int getCurrentIndex();
+    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, long currentTimeIndex);
 
-    int getTotSamples();
+    void setStartIndex(int startIndex);
+    
+    int getStartIndex();
 
-    int getSamplesLeft();
+    bool isActive();
 
-    void incIndex(int numSamples);
-
-    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill);
-
-    void prepareToPlay(double sampleRate, double rampLenghtInSecond);
-
-    bool isPlaying();
+    void activeGrain();
 
 private:
 
@@ -45,4 +41,11 @@ private:
     juce::SmoothedValue<float> smoother;
 
     int dataBufferIndex;
+
+    int startIndex;
+
+    bool active;
+
+    //private methods
+    int getSamplesLeft();
 };

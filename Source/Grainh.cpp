@@ -12,10 +12,9 @@
 
 Grain::Grain() 
     : dataBuffer(),
-      smoother(0),
-      dataBufferIndex(0)
+      dataBufferIndex(0),
+      active (false)
 {
-    smoother.reset(200);
 }
 
 Grain::~Grain()
@@ -24,7 +23,8 @@ Grain::~Grain()
 
 Grain::Grain(juce::AudioBuffer<float>& buf) 
     : dataBuffer (buf),
-      dataBufferIndex (0)
+      dataBufferIndex (0),
+      active(false)
 {
     
 }
@@ -34,43 +34,50 @@ juce::AudioBuffer<float>& Grain::getBufferPointer()
     return dataBuffer;
 }
 
-int Grain::getCurrentIndex()
-{
-    return dataBufferIndex;
-}
-
-int Grain::getTotSamples()
-{
-    return dataBuffer.getNumSamples();
-}
-
 int Grain::getSamplesLeft()
 {
     return dataBuffer.getNumSamples() - dataBufferIndex;
 }
 
-void Grain::incIndex(int numSamples)
+void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, long currentTimeIndex)
 {
-    dataBufferIndex += numSamples;
-}
-
-void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
+    if (active) 
     {
-        auto bufRead = bufferToFill.buffer->getReadPointer(channel);
-        auto bufWrite = bufferToFill.buffer->getWritePointer(channel);
+        int startPoint;
+        //fill the two channel of the buffer with the grain buffer
+        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
+        {
+            startPoint = (currentTimeIndex % bufferToFill.numSamples);
+            bufferToFill.buffer->addFrom(channel, startPoint, dataBuffer, channel, dataBufferIndex, 
+										juce::jmin(bufferToFill.numSamples - startPoint, getSamplesLeft()));
+	    }
 
-        bufferToFill.buffer->addFrom(channel, 0, dataBuffer, channel, dataBufferIndex, 
-										juce::jmin(bufferToFill.numSamples, getSamplesLeft()));
-	}
-
-    dataBufferIndex += bufferToFill.numSamples;
-    if (dataBufferIndex >= dataBuffer.getNumSamples())
-        dataBufferIndex = 0;
+        dataBufferIndex += bufferToFill.numSamples;
+        //if the grain has been copyed all then deactive the grain and reset the index
+        if (dataBufferIndex >= dataBuffer.getNumSamples())
+        {
+            dataBufferIndex = 0;
+            active = false;
+        }
+    }
 }
 
-bool Grain::isPlaying()
+void Grain::setStartIndex(int startIndex)
 {
-    return dataBufferIndex != 0;
+    this->startIndex = startIndex;
+}
+
+int Grain::getStartIndex()
+{
+    return startIndex;
+}
+
+bool Grain::isActive()
+{
+    return active;
+}
+
+void Grain::activeGrain()
+{
+    active = true;
 }

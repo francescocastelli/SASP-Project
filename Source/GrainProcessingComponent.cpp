@@ -97,7 +97,7 @@ void GrainProcessingComponent::actionListenerCallback(const juce::String &messag
 {
     if (message == "activateGrain") active = true;
 
-    if (message == "saveGrain") saveGrain();
+    if (message == "saveGrain" && active) saveGrain();
 
     if (message == "deactivateGrain") {
         active = false;
