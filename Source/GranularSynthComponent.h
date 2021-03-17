@@ -14,6 +14,15 @@
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
 
+//state for the transport source 
+enum class SynthState 
+{
+    Stopped,
+    Playing,
+    Loaded,
+    Disable
+};
+
 class GranularSynthComponent: public juce::Component, public juce::AudioSource, public juce::ChangeBroadcaster, public juce::Thread
 {
 public:
@@ -37,6 +46,9 @@ public:
 
 private:
 
+    //synth state 
+    SynthState currentState;
+
     //directory of the grains and format manager for reading
     juce::File& sampleDir;
     juce::AudioFormatManager formatManager;
@@ -46,6 +58,7 @@ private:
     juce::TextButton loadGrain;
     juce::TextButton stopAudio;
     juce::TextButton playAudio;
+    juce::ToggleButton randomSelectionButton;
 
     //sliders
     juce::Slider masterVolume;
@@ -65,6 +78,12 @@ private:
     int windowLenght;
     //window startint position in samples
     int windowPosition;
+    //current index for linear selection of grains
+    int currentGrainIndex;
+
+    //grain position parameters
+    long long nextGrainStart;
+    int randomPosOffset;
 
     //audio processing parameters
     juce::Reverb reverb;
@@ -79,11 +98,17 @@ private:
     SpectrogramComponent spectrogram;
 
     //---------------------- private method -------------------------------
-    void setButtonState(bool enableStart, bool enableStop, bool enableLoad);
+    void setButtonState(bool enableStart, bool enableStop, bool enableLoad, bool enableRandom);
+
+    void setSliderState(bool enableWindowPos, bool enableWindowL);
 
     void readGrains();
 
     void slidersChanged();
+
+    void changeCurrentState(SynthState newState);
+
+    int selectNextGrain();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };
