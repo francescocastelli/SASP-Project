@@ -88,7 +88,7 @@ void GrainProcessingComponent::computeWindowOutput()
     windowedBuffer.applyGainRamp(0, fadeSamples, 0.0f, 1.0f);
     //fade out
     windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()-fadeSamples, fadeSamples, 1.0f, 0.0f);
-
+    
     //paint the windowed grain
     repaint();
 }

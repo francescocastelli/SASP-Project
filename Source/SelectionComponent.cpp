@@ -54,13 +54,13 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 
 	addAndMakeVisible(&automaticSaveButton);
 	automaticSaveButton.setButtonText("Automatic");
-	automaticSaveButton.onClick = [this] { /*automaticGrainSelection(); */};
+	automaticSaveButton.onClick = [this] { automaticGrainSelection(); };
 	automaticSaveButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	automaticSaveButton.setEnabled(false);
 
 	//grain lenght slider
 	addAndMakeVisible(grainLenghtSlider);
-	grainLenghtSlider.setRange(1, 100, 0.5);
+	grainLenghtSlider.setRange(1, 500, 0.5);
 	grainLenghtSlider.setTextValueSuffix(" [ms]");
 	grainLenghtSlider.setTextBoxIsEditable(false);
 	grainLenghtSlider.setValue(100);
@@ -68,7 +68,7 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 
 	//fade in out slider
 	addAndMakeVisible(fadeSlider);
-	fadeSlider.setRange(0, 1000, 1);
+	fadeSlider.setRange(0, 2000, 1);
 	fadeSlider.setTextValueSuffix(" [samples]");
 	fadeSlider.setTextBoxIsEditable(false);
 	fadeSlider.setValue(0);
@@ -230,26 +230,11 @@ void SelectionComponent::selectionButtonClicked()
     
 void SelectionComponent::automaticGrainSelection()
 {
-	auto currentTime = 0.10f;
-
 	for (int i = 0; i < 100; i++)
 	{
-		juce::AudioBuffer<float> buffer(2, currentGrainLenght*sampleRate);
-		juce::AudioSourceChannelInfo audioChannelInfo(buffer);
-		buffer.clear();
-		auto startTime = (currentTime - currentGrainLenght/2) < 0 ? 0 : currentTime - currentGrainLenght/2;
-	
-		transportSource.setPosition(startTime);
-		transportSource.start();
-		transportSource.getNextAudioBlock(audioChannelInfo);
-		transportSource.stop();
-		transportSource.setPosition(currentTime+currentGrainLenght);
-
-		//activate the grain components only when a grain is selected
-		sendActionMessage("activateGrain");
-		grainProcessing.applyWindow(buffer);
-		currentTime += currentGrainLenght;
-		saveButtonClicked();
+		selectionButtonClicked();
+		grainProcessing.saveGrain();
+//		saveButtonClicked();
 	}
 }
 

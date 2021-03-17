@@ -14,7 +14,7 @@
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
 
-class GranularSynthComponent: public juce::Component, public juce::AudioSource, public juce::ChangeBroadcaster
+class GranularSynthComponent: public juce::Component, public juce::AudioSource, public juce::ChangeBroadcaster, public juce::Thread
 {
 public:
     GranularSynthComponent(juce::File& sampleDir);
@@ -27,6 +27,8 @@ public:
 
     void releaseResources() override;
 
+    void run() override;
+
     //-------------------------------------------------------------
 
     void paint(juce::Graphics& g) override;
@@ -35,61 +37,53 @@ public:
 
 private:
 
+    //directory of the grains and format manager for reading
     juce::File& sampleDir;
-
     juce::AudioFormatManager formatManager;
-    juce::AudioFormatReader* formatReader;
+    juce::Array<juce::File> grainFileStack;
 
     //buttons
     juce::TextButton loadGrain;
     juce::TextButton stopAudio;
     juce::TextButton playAudio;
 
-    //master volume slider
+    //sliders
     juce::Slider masterVolume;
-
-    //density slider
     juce::Slider densitySlider;
-    
-    //window lenght slider
     juce::Slider windowLenghtSlider;
+    juce::Slider windowPositionSlider;
 
-    float outputGain;
-
-    //test
-    juce::Array<Grain*> grainStack;
-    //currently selected grain that can be used in the window
-    juce::Array<Grain*> selectedGrain;
-
-    int index;
-    int currentGrainIndex;
-    int nextGrainIndex;
-
+    //Grain parameters
+    //stack of grains
+    std::deque<Grain> grainStack;
+    //time index 
+    long long timeIndex;
+ 
     //density of grains -> number of grains in the current window
 	int densityValue;
-    //time index along the window
-    long timeIndex;
     //window lenght in samples
     int windowLenght;
+    //window startint position in samples
+    int windowPosition;
 
+    //audio processing parameters
+    juce::Reverb reverb;
+    float outputGain;
     int sampleRate;
 
-    juce::Random rand;
-
-
-    //flag
+    //flags
     bool audioIsPlaying;
-    int skipGrain;
+    bool grainLoaded;
 
+    //visualization components
     SpectrogramComponent spectrogram;
 
-
-    //private method
+    //---------------------- private method -------------------------------
     void setButtonState(bool enableStart, bool enableStop, bool enableLoad);
 
-    void grainSelectionAndPositioning();
-
     void readGrains();
+
+    void slidersChanged();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };

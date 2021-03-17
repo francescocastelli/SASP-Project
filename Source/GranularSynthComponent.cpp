@@ -11,14 +11,15 @@
 #include "GranularSynthComponent.h"
 
 GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
-	:sampleDir(sampleDir),
-	index(0),
-	skipGrain(3),
+	:Thread("Thread"),
+	sampleDir(sampleDir),
 	audioIsPlaying(false),
+	grainLoaded(false),
 	timeIndex(0),
 	windowLenght(0),
+	windowPosition (0),
 	sampleRate(44100),
-	currentGrainIndex(0)
+	densityValue(0)
 {
 	formatManager.registerBasicFormats();
 
@@ -54,100 +55,116 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	addAndMakeVisible(densitySlider);
 	densitySlider.setRange(0, 10, 1);
 	densitySlider.setTextBoxIsEditable(false);
+	densitySlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	densitySlider.hideTextBox(true);
 	densitySlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+	densitySlider.onValueChange = [this] { slidersChanged(); };
 	densitySlider.setValue(2);
-	densitySlider.onValueChange = [this] { densityValue = densitySlider.getValue(); grainSelectionAndPositioning(); };
 
 	//window lenght slider
 	addAndMakeVisible(windowLenghtSlider);
-	windowLenghtSlider.setRange(0, 10, 0.01);
+	windowLenghtSlider.setRange(0, 20, 1);
 	windowLenghtSlider.setTextBoxIsEditable(false);
+	//windowLenghtSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	//windowLenghtSlider.hideTextBox(true);
 	windowLenghtSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+	windowLenghtSlider.onValueChange = [this] { slidersChanged(); };
 	windowLenghtSlider.setValue(2);
-	windowLenghtSlider.onValueChange = [this] { windowLenght = windowLenghtSlider.getValue() * sampleRate; grainSelectionAndPositioning(); };
+	windowLenghtSlider.setEnabled(false);
+
+	//window position slider
+	addAndMakeVisible(windowPositionSlider);
+	windowPositionSlider.setRange(0, 100, 1);
+	windowPositionSlider.setTextBoxIsEditable(false);
+	//windowPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	//windowPositionSlider.hideTextBox(true);
+	windowPositionSlider.setEnabled(false);
+	windowPositionSlider.onValueChange = [this] { slidersChanged(); };
+	windowPositionSlider.setValue(0);
 
 	addAndMakeVisible(spectrogram);
 	spectrogram.setActive(false);
 }
 
+void GranularSynthComponent::slidersChanged()
+{
+	if (grainLoaded)
+	{
+		windowPosition = windowPositionSlider.getValue();
+		windowLenght = windowLenghtSlider.getValue();
+		densityValue = densitySlider.getValue();
+
+		//update the ranges
+		windowPositionSlider.setRange(0, grainStack.size(), 1);
+		windowLenghtSlider.setRange(0, grainStack.size() - windowPosition + 1, 1);
+		//densitySlider.setRange(0, windowLenght);
+	}
+}
+
 void GranularSynthComponent::readGrains() 
 {
-	int fileNum (0);
-	juce::AudioBuffer<float> tempBuf;
-
-	if (grainStack.size() > 0) {
-		for (int i = 0; i < grainStack.size(); ++i)
-			delete(grainStack[i]);
-
-		grainStack.clear();
-	}
-
 	//get the number of files in the dir
 	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(sampleDir.getFullPathName()), false))
 	{
-		formatReader = formatManager.createReaderFor(entry.getFile());
-
-		tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
-		if (formatReader)
-		{
-			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
-			grainStack.add(new Grain(tempBuf));
-		}
+		grainFileStack.add(entry.getFile());
 	}
-	
-	//set max value for density 
-	densitySlider.setRange(0, grainStack.size(), 1);
-	//select and position grain in the window
-	grainSelectionAndPositioning();
+
+	grainLoaded = true;
+	startThread();
 }
 
 void GranularSynthComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
+	juce::Reverb::Parameters param = { 0.3f, 0.1f, 0.33f, 0.4f, 1.5f, 0.f};
+	reverb.setParameters(param);
+	reverb.setSampleRate(sampleRate);
 }
 
 void GranularSynthComponent::releaseResources()
 {
 }
 
-void GranularSynthComponent::grainSelectionAndPositioning()
+void GranularSynthComponent::run()
 {
-	std::vector<int> v(grainStack.size());
-	std::iota(v.begin(), v.end(), 0);
-	std::random_shuffle(v.begin(), v.end());
-	
-	//clear the selected grain array
-	selectedGrain.clear();
+	juce::AudioBuffer<float> tempBuf;
+	juce::AudioFormatReader* formatReader;
 
-	//fill in a random way the selected grain array
-	for (int i = 0; i < std::min(densityValue, grainStack.size()); ++i)
-		selectedGrain.add(grainStack[v[i]]);
+	while (!threadShouldExit())
+	{
+		//read the buffer for the current grain
+		formatReader = formatManager.createReaderFor(grainFileStack[0]);
+		if (formatReader)
+		{
+			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
+			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
+			//add the buffer to the grain stack
+			grainStack.push_back((Grain(tempBuf, timeIndex + 500)));
+		}
 
-	//set the starting position inside the window for each grain
-	for (int i = 0; i < selectedGrain.size(); ++i)
-		selectedGrain[i]->setStartIndex(rand.nextInt(windowLenght));
+		//remove the grains already played
+		if (grainStack.size() > 0)
+			grainStack.erase(std::remove_if(grainStack.begin(), grainStack.end(), [this](Grain x) {return x.hasEnded(timeIndex); }), grainStack.end());
+
+		wait(100);
+	}
 }
 
 void GranularSynthComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-	if (grainStack.size() > 0 && audioIsPlaying )
+	if (grainLoaded )
 	{
-		//iterate over the selected grains
-		//only the ones with active = true will really process the block
-		for (int i = 0; i < selectedGrain.size(); ++i)
-		{
-			if (std::abs(selectedGrain[i]->getStartIndex() - timeIndex) < bufferToFill.numSamples)
-				selectedGrain[i]->activeGrain();
+		std::deque<Grain> localStack = grainStack;
 
-			selectedGrain[i]->processBlock(bufferToFill, timeIndex);
-		}
-		
-		//increment the time index
-		timeIndex += bufferToFill.numSamples;
-		if (timeIndex > windowLenght)
+		for (int i = 0; i < bufferToFill.numSamples; ++i)
 		{
-			timeIndex = 0;
+			for (int j = 0; j < localStack.size(); ++j)
+				if (localStack[j].canPlay(timeIndex))
+					localStack[j].processBlock(bufferToFill, timeIndex);
+
+			++timeIndex;
 		}
 
+		//reverb.processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
 		//apply gain at the output sound
 		bufferToFill.buffer->applyGain(outputGain);
 		//visualize fft of the block
@@ -182,9 +199,12 @@ void GranularSynthComponent::resized()
 	masterVolume.setBoundsRelative(0.2f, 0.9f, 0.2f, 0.08f);
 
 	//density slider
-	densitySlider.setBoundsRelative(0.1f, 0.4f, 0.4f, 0.4f);
+	densitySlider.setBoundsRelative(-0.02f, 0.62f, 0.15f, 0.25f);
 
 	//window lenght slider
-	windowLenghtSlider.setBoundsRelative(0.4f, 0.4f, 0.2, 0.4f);
+	windowLenghtSlider.setBoundsRelative(0.1f, 0.62f, 0.15f, 0.25f);
+
+	//window position slider
+	windowPositionSlider.setBoundsRelative(0.1f, 0.30f, 0.25f, 0.2f);
 }
 

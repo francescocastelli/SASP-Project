@@ -12,59 +12,38 @@
 
 Grain::Grain() 
     : dataBuffer(),
-      dataBufferIndex(0),
-      active (false)
+      startIndex (0),
+      dataBufferIndex(0)
 {
+}
+
+Grain::Grain(juce::AudioBuffer<float>& buf, int startTime) 
+    : dataBuffer (),
+      startIndex (startTime),
+      dataBufferIndex (0)
+{
+    //make a copy of the buffer
+    dataBuffer = buf;
 }
 
 Grain::~Grain()
 {
 }
 
-Grain::Grain(juce::AudioBuffer<float>& buf) 
-    : dataBuffer (buf),
-      dataBufferIndex (0),
-      active(false)
+void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex)
 {
-    
-}
-
-juce::AudioBuffer<float>& Grain::getBufferPointer()
-{
-    return dataBuffer;
-}
-
-int Grain::getSamplesLeft()
-{
-    return dataBuffer.getNumSamples() - dataBufferIndex;
-}
-
-void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, long currentTimeIndex)
-{
-    if (active) 
+    for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
     {
-        int startPoint;
-        //fill the two channel of the buffer with the grain buffer
-        for (auto channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
-        {
-            startPoint = (currentTimeIndex % bufferToFill.numSamples);
-            bufferToFill.buffer->addFrom(channel, startPoint, dataBuffer, channel, dataBufferIndex, 
-										juce::jmin(bufferToFill.numSamples - startPoint, getSamplesLeft()));
-	    }
+        auto outputChannel = bufferToFill.buffer->getWritePointer(channel);
+        auto dataChannel = dataBuffer.getReadPointer(channel);
 
-        dataBufferIndex += bufferToFill.numSamples;
-        //if the grain has been copyed all then deactive the grain and reset the index
-        if (dataBufferIndex >= dataBuffer.getNumSamples())
-        {
-            dataBufferIndex = 0;
-            active = false;
-        }
+        outputChannel[timeIndex % bufferToFill.numSamples] = dataChannel[timeIndex - startIndex];
     }
 }
 
-void Grain::setStartIndex(int startIndex)
+bool Grain::canPlay(int timeIndex)
 {
-    this->startIndex = startIndex;
+    return (startIndex < timeIndex) && (timeIndex < startIndex + dataBuffer.getNumSamples());
 }
 
 int Grain::getStartIndex()
@@ -72,12 +51,7 @@ int Grain::getStartIndex()
     return startIndex;
 }
 
-bool Grain::isActive()
+bool Grain::hasEnded(int timeIndex)
 {
-    return active;
-}
-
-void Grain::activeGrain()
-{
-    active = true;
+    return (timeIndex > startIndex + dataBuffer.getNumSamples());
 }

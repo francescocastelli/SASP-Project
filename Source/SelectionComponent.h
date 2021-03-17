@@ -35,6 +35,8 @@ public:
 
     void automaticGrainSelection();
 
+    void saveGrain(juce::AudioBuffer<float> buf);
+
     //----------------------------------------------------------------------------------
     void openButtonClicked();
 
