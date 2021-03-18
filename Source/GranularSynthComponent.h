@@ -13,6 +13,7 @@
 #include "AppConstants.h"
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
+#include "TimeFrequencyVisualizer.h"
 
 //state for the transport source 
 enum class SynthState 
@@ -96,6 +97,7 @@ private:
 
     //visualization components
     SpectrogramComponent spectrogram;
+    GrainVisualizer grainVisualizer;
 
     //---------------------- private method -------------------------------
     void setButtonState(bool enableStart, bool enableStop, bool enableLoad, bool enableRandom);

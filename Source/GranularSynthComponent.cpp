@@ -55,7 +55,7 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	addAndMakeVisible(densitySlider);
 	densitySlider.setRange(1, 500, 1);
 	densitySlider.setTextBoxIsEditable(false);
-	//densitySlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	densitySlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 15);
 	//densitySlider.hideTextBox(true);
 	densitySlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
 	densitySlider.onValueChange = [this] { slidersChanged(); };
@@ -65,7 +65,7 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	addAndMakeVisible(windowLenghtSlider);
 	windowLenghtSlider.setRange(0, 20, 1);
 	windowLenghtSlider.setTextBoxIsEditable(false);
-	//windowLenghtSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	windowLenghtSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 15);
 	//windowLenghtSlider.hideTextBox(true);
 	windowLenghtSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
 	windowLenghtSlider.onValueChange = [this] { slidersChanged(); };
@@ -75,17 +75,20 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	addAndMakeVisible(windowPositionSlider);
 	windowPositionSlider.setRange(0, 100, 1);
 	windowPositionSlider.setTextBoxIsEditable(false);
-	//windowPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	windowPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 15);
 	//windowPositionSlider.hideTextBox(true);
+	windowPositionSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
 	windowPositionSlider.onValueChange = [this] { slidersChanged(); };
 	windowPositionSlider.setValue(0);
 
 	//random selection button
 	addAndMakeVisible(randomSelectionButton);
-	randomSelectionButton.setButtonText("Random selection");
 
 	//fft visualizer
 	addAndMakeVisible(spectrogram);
+
+	//grain visualizer
+	addAndMakeVisible(grainVisualizer);
 
 	//set everything to the initial correct value
 	changeCurrentState(SynthState::Disable);
@@ -101,12 +104,14 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 			setButtonState(true, false, true, true);
 			setSliderState(true, true);
 			spectrogram.setActive(false);
+			grainVisualizer.setActive(true);
             break;
 
 		case SynthState::Stopped:
 			setButtonState(true, false, true, true); 
 			setSliderState(true, true);
 			spectrogram.setActive(false);
+			grainVisualizer.setActive(true);
 			timeIndex = 0;
 			nextGrainStart = 0;
 			grainStack.clear();
@@ -116,11 +121,13 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 			setButtonState(false, true, false, true); 
 			setSliderState(true, true);
 			spectrogram.setActive(true); 
+			grainVisualizer.setActive(true);
             break;
 		case SynthState::Disable:
 			setButtonState(false, false, true, false);
 			setSliderState(false, false);
 			spectrogram.setActive(false);
+			grainVisualizer.setActive(false);
 		default:
 			break;
         }
@@ -148,6 +155,8 @@ void GranularSynthComponent::readGrains()
 	{
 		grainFileStack.add(entry.getFile());
 	}
+
+	grainVisualizer.setGrains(grainFileStack);
 }
 
 void GranularSynthComponent::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -277,19 +286,22 @@ void GranularSynthComponent::resized()
 	stopAudio.setBoundsRelative(0.50f, 0.9f, 0.08f, 0.08f);
 
 	//spec
-	spectrogram.setBoundsRelative(0.6f, 0.05f, 0.39f, 0.93f);
+	spectrogram.setBoundsRelative(0.6f, 0.48f, 0.39f, 0.5f);
+
+	//grain vis
+	grainVisualizer.setBoundsRelative(0.6f, 0.04f, 0.39f, 0.4f);
 
 	//master volume slider
 	masterVolume.setBoundsRelative(0.2f, 0.9f, 0.2f, 0.08f);
 
 	//density slider
-	densitySlider.setBoundsRelative(-0.02f, 0.62f, 0.15f, 0.25f);
+	densitySlider.setBoundsRelative(-0.02f, 0.50f, 0.15f, 0.3f);
 
 	//window lenght slider
-	windowLenghtSlider.setBoundsRelative(0.3f, 0.62f, 0.15f, 0.25f);
+	windowLenghtSlider.setBoundsRelative(0.08f, 0.1f, 0.15f, 0.3f);
 
 	//window position slider
-	windowPositionSlider.setBoundsRelative(0.1f, 0.30f, 0.25f, 0.2f);
+	windowPositionSlider.setBoundsRelative(-0.02f, 0.1f, 0.15f, 0.3f);
 
 	//random selection button
 	randomSelectionButton.setBoundsRelative(0.4f, 0.3f, 0.2f, 0.2f);
