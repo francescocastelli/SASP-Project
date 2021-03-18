@@ -7,7 +7,6 @@
 
   ==============================================================================
 */
-
 #include "SelectionComponent.h"
 
 SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File &sampleDir)
@@ -26,23 +25,23 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	//initialize buttons
 	addAndMakeVisible(&openButton);
 	openButton.setButtonText("Open");
-	openButton.onClick = [this] { openButtonClicked(); };
+	openButton.onClick = [this] { openButtonClicked(); changeCurrentState(SelectionState::Loaded); };
       
 	addAndMakeVisible(&playButton);
 	playButton.setButtonText("Play");
-	playButton.onClick = [this] { playButtonClicked(); };
+	playButton.onClick = [this] { playButtonClicked(); changeCurrentState(SelectionState::Playing); };
 	playButton.setColour(juce::TextButton::buttonColourId, juce::Colours::green);
 	playButton.setEnabled(false);
         
 	addAndMakeVisible(&stopButton);
 	stopButton.setButtonText("Stop");
-	stopButton.onClick = [this] { stopButtonClicked(); };
+	stopButton.onClick = [this] { stopButtonClicked(); changeCurrentState(SelectionState::Loaded); };
 	stopButton.setColour(juce::TextButton::buttonColourId, juce::Colours::red);
 	stopButton.setEnabled(false);
 
 	addAndMakeVisible(&selectionButton);
 	selectionButton.setButtonText("Select grain");
-	selectionButton.onClick = [this] { selectionButtonClicked(); };
+	selectionButton.onClick = [this] { selectionButtonClicked(); changeCurrentState(SelectionState::SelectGrain); };
 	selectionButton.setColour(juce::TextButton::buttonColourId, juce::Colours::lightsalmon);
 	selectionButton.setEnabled(false);
 
@@ -74,6 +73,13 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	fadeSlider.setValue(0);
 	fadeSlider.onValueChange = [this] { grainProcessing.setFadeValue(fadeSlider.getValue()); };
 	
+	//automatic selection slider
+	addAndMakeVisible(automaticSelectionSlider);
+	automaticSelectionSlider.setRange(0, 1 , 1);
+	automaticSelectionSlider.setTextBoxIsEditable(false);
+	automaticSelectionSlider.setValue(0);
+	automaticSelectionSlider.onValueChange = [this] { automaticSelectionVal = automaticSelectionSlider.getValue();};
+
 	//add and make visible internal components
 	addAndMakeVisible(thumbnailComp);
 	addAndMakeVisible(positionComp);
@@ -99,60 +105,55 @@ SelectionComponent::SelectionComponent(juce::AudioTransportSource& transportSour
 	//register actions listeners
 	addActionListener(&grainProcessing);
 	addActionListener(&displayGrain);
+
+	//set the current state at creation 
+	changeCurrentState(SelectionState::Disabled);
 }
 
-void SelectionComponent::setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect)
+//used to change the state of the component
+void SelectionComponent::changeCurrentState(SelectionState newState)
 {
+	currentState = newState;
+
+	switch (currentState)
+	{
+	case SelectionState::Disabled:
+		setButtonsEnable(true, false, false, false, false);
+		setSliderEnable(false, false, false, false);
+		break;
+	case SelectionState::Loaded:
+		setButtonsEnable(true, true, false, true, false);
+		setSliderEnable(true, false, false, true);
+		break;
+	case SelectionState::Playing:
+		setButtonsEnable(false, false, true, false, false);
+		setSliderEnable(false, false, false, false);
+		break;
+	case SelectionState::SelectGrain:
+		setButtonsEnable(true, true, false, true, true);
+		setSliderEnable(true, true, true, true);
+		break;
+	default:
+		break;
+	}
+}
+
+void SelectionComponent::setButtonsEnable(bool enableOpen, bool enablePlay, bool enableStop, bool enableSelect, bool enableSave)
+{
+	openButton.setEnabled(enableOpen);
 	playButton.setEnabled(enablePlay);
 	stopButton.setEnabled(enableStop);
 	selectionButton.setEnabled(enableSelect);
-	saveButton.setEnabled(enableSelect);
-	automaticSaveButton.setEnabled(enableSelect);
+	saveButton.setEnabled(enableSave);
+	automaticSaveButton.setEnabled(enableSave);
 }
 
-void SelectionComponent::resized() 
+void SelectionComponent::setSliderEnable(bool enableWlenght, bool enableFade, bool enableWselection, bool enableAuto)
 {
-	//buttons sizes
-	openButton.setBoundsRelative(0.79f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
-	playButton.setBoundsRelative(0.86f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
-	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
-	selectionButton.setBoundsRelative(0.79f, 0.35f, 0.20f, 0.08f);
-	saveButton.setBoundsRelative(0.79f, 0.7f, 0.2f, 0.08f);
-	automaticSaveButton.setBoundsRelative(0.79f, 0.85, 0.2f, 0.08f);
-
-	//waveform display 
-	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
-	positionComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
-        
-	//grain display
-    displayGrain.setBoundsRelative(0.02f, 0.6f, 0.25f, 0.35f);
-
-	//slider
-	grainLenghtSlider.setBoundsRelative(0.79f, 0.2f, 0.2f, 0.15f);
-	fadeSlider.setBoundsRelative(0.32f, 0.65f, 0.15f, 0.15f);
-
-	//grain processing display
-	grainProcessing.setBoundsRelative(0.52f, 0.6f, 0.25f, 0.35f);
-
-	//spec display 
-	//specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
-
-	//windows menu display 
-	windowsMenu.setBoundsRelative(0.32f, 0.84f, 0.15f, 0.08f);;
-}
-
-void SelectionComponent::paint(juce::Graphics& g)
-{
-    g.setColour(AppColours::boxText);
-	g.setFont(juce::Font(13, 1));
-	g.drawSingleLineText("Waveform", 22, 12);
-	g.drawSingleLineText("Selected Grain", 22, 168);
-	g.drawSingleLineText("Windowed Grain", 605, 168);
-
-	//border 
-    g.setColour(AppColours::waveformBorder);
-	g.drawLine(getLocalBounds().getBottomLeft().getX(), getLocalBounds().getBottomLeft().getY(),
-		getLocalBounds().getBottomRight().getX(), getLocalBounds().getBottomRight().getY(), 3);
+	grainLenghtSlider.setEnabled(enableWlenght);
+	fadeSlider.setEnabled(enableFade);
+	windowsMenu.setEnabled(enableWselection);
+	automaticSelectionSlider.setEnabled(enableAuto);
 }
 
 void SelectionComponent::openButtonClicked()
@@ -177,9 +178,10 @@ void SelectionComponent::openButtonClicked()
 			sendChangeMessage();
 
 			//also deactivate the grain component and relative buttons
+			//TODO change this 
 			sendActionMessage("deactivateGrain");
-			//save button is active when selection is active
-			setButtonsEnable(true, false, true);
+			
+			automaticSelectionSlider.setRange(0, (transportSource.getTotalLength() - transportSource.getCurrentPosition())); 
 		}
     }
 }
@@ -223,9 +225,6 @@ void SelectionComponent::selectionButtonClicked()
 	displayGrain.setTime(startTime, startTime + currentGrainLenght);
 	//and compute windowing operation
 	grainProcessing.applyWindow(buffer);
-
-	//activate the save grain button
-	setButtonsEnable(true, false, true);
 }
     
 void SelectionComponent::automaticGrainSelection()
@@ -234,7 +233,6 @@ void SelectionComponent::automaticGrainSelection()
 	{
 		selectionButtonClicked();
 		grainProcessing.saveGrain();
-//		saveButtonClicked();
 	}
 }
 
@@ -247,3 +245,51 @@ SoundState SelectionComponent::getSoundState()
 {
 	return state;
 }
+
+void SelectionComponent::resized() 
+{
+	//buttons sizes
+	openButton.setBoundsRelative(0.79f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	playButton.setBoundsRelative(0.86f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	stopButton.setBoundsRelative(0.93f, AppConstants::controlButtonsY, AppConstants::controlButtonWidth, AppConstants::controlButtonHeight);
+	selectionButton.setBoundsRelative(0.79f, 0.35f, 0.20f, 0.08f);
+	saveButton.setBoundsRelative(0.79f, 0.60f, 0.2f, 0.08f);
+	automaticSaveButton.setBoundsRelative(0.79f, 0.85, 0.2f, 0.08f);
+
+	//waveform display 
+	thumbnailComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
+	positionComp.setBoundsRelative(0.02f, 0.05f, 0.75f, 0.40f);
+        
+	//grain display
+    displayGrain.setBoundsRelative(0.02f, 0.6f, 0.25f, 0.35f);
+
+	//slider
+	grainLenghtSlider.setBoundsRelative(0.79f, 0.2f, 0.2f, 0.15f);
+	fadeSlider.setBoundsRelative(0.32f, 0.65f, 0.15f, 0.15f);
+
+	//grain processing display
+	grainProcessing.setBoundsRelative(0.52f, 0.6f, 0.25f, 0.35f);
+
+	//spec display 
+	//specComp.setBoundsRelative(0.30f, 0.53f, 0.25f, 0.35f);
+
+	//windows menu display 
+	windowsMenu.setBoundsRelative(0.32f, 0.84f, 0.15f, 0.08f);;
+
+	automaticSelectionSlider.setBoundsRelative(0.79f, 0.75f, 0.2f, 0.08f);
+}
+
+void SelectionComponent::paint(juce::Graphics& g)
+{
+    g.setColour(AppColours::boxText);
+	g.setFont(juce::Font(13, 1));
+	g.drawSingleLineText("Waveform", 22, 12);
+	g.drawSingleLineText("Selected Grain", 22, 168);
+	g.drawSingleLineText("Windowed Grain", 605, 168);
+
+	//border 
+    g.setColour(AppColours::waveformBorder);
+	g.drawLine(getLocalBounds().getBottomLeft().getX(), getLocalBounds().getBottomLeft().getY(),
+		getLocalBounds().getBottomRight().getX(), getLocalBounds().getBottomRight().getY(), 3);
+}
+

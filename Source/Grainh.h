@@ -18,7 +18,7 @@ public:
 
     Grain();
 
-    Grain(juce::AudioBuffer<float>& buf, int startTime);
+    Grain(juce::AudioBuffer<float>& buf, int startTime, int id);
 
     ~Grain();
 
@@ -30,6 +30,8 @@ public:
 
     int getStartIndex();
 
+    int getId();
+
 private:
 
     juce::AudioBuffer<float> dataBuffer;
@@ -37,4 +39,6 @@ private:
     int dataBufferIndex;
 
     int startIndex;
+
+    int id;
 };

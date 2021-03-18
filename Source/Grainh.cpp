@@ -17,9 +17,10 @@ Grain::Grain()
 {
 }
 
-Grain::Grain(juce::AudioBuffer<float>& buf, int startTime) 
+Grain::Grain(juce::AudioBuffer<float>& buf, int startTime, int id) 
     : dataBuffer (),
       startIndex (startTime),
+      id (id),
       dataBufferIndex (0)
 {
     //make a copy of the buffer
@@ -54,4 +55,9 @@ int Grain::getStartIndex()
 bool Grain::hasEnded(int timeIndex)
 {
     return (timeIndex > startIndex + dataBuffer.getNumSamples());
+}
+
+int Grain::getId()
+{
+    return id;
 }

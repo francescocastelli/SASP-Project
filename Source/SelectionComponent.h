@@ -26,6 +26,15 @@ enum class SoundState
     Stopping
 };
 
+//state for the selection component
+enum class SelectionState 
+{
+    Disabled,
+    Loaded,
+    Playing, 
+    SelectGrain
+};
+
 class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster
 {
 public:
@@ -36,6 +45,8 @@ public:
     void automaticGrainSelection();
 
     void saveGrain(juce::AudioBuffer<float> buf);
+     
+    void changeCurrentState(SelectionState newState);
 
     //----------------------------------------------------------------------------------
     void openButtonClicked();
@@ -48,7 +59,9 @@ public:
 
     void saveButtonClicked();
 
-    void setButtonsEnable(bool enablePlay, bool enableStop, bool enableSelect);
+    void setButtonsEnable(bool enableOpen, bool enablePlay, bool enableStop, bool enableSelect, bool enableSave);
+     
+    void setSliderEnable(bool enableWlenght, bool enableFade, bool enableWselection, bool enableAuto);
 
     //-------------------------------------------------------------------------------------
     void paint(juce::Graphics& g) override;
@@ -57,6 +70,9 @@ public:
 
 private:
     
+    //state for the selection component
+    SelectionState currentState;
+
     SoundState state;
 
     //sample rate of the current opened audio file
@@ -72,6 +88,8 @@ private:
     //the actual object is in the main
     juce::AudioTransportSource& transportSource;
 
+    int automaticSelectionVal;
+
     //buttons
     juce::TextButton openButton;
     juce::TextButton playButton;
@@ -83,6 +101,7 @@ private:
     //sliders
     juce::Slider grainLenghtSlider;
     juce::Slider fadeSlider;
+    juce::Slider automaticSelectionSlider;
 
     //grain processing buttons
     juce::ComboBox windowsMenu;

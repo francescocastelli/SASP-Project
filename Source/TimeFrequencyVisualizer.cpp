@@ -11,8 +11,9 @@
 #include "TimeFrequencyVisualizer.h"
 
 GrainVisualizer::GrainVisualizer()
+    :active(false)
 {
-    startTimerHz(20);
+    startTimerHz(300);
 }
 
 GrainVisualizer::~GrainVisualizer() {}
@@ -23,18 +24,25 @@ void GrainVisualizer::setActive(bool active)
     repaint();
 }
 
+
 void GrainVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray)
 {
-    float xOffset = float(grainFileArray.size()) / float(getLocalBounds().getWidth());
+    float xOffset =  float(getLocalBounds().getWidth()) / float(grainFileArray.size());
     auto x = 0.0f;
 
     for (int i = 0; i < grainFileArray.size(); ++i)
     {
-        x += xOffset+1;
-        auto y = juce::Random::getSystemRandom().nextInt(getHeight());
+        x += xOffset;
+        auto y = juce::Random::getSystemRandom().nextInt(juce::Range<int>(10, getHeight()-10));
         grainArray.add(juce::Point<float>(x, y));
     }
 }
+
+void GrainVisualizer::addCurrentIndex(int grainId)
+{
+    currentIndex =  grainId;
+}
+
 
 void GrainVisualizer::timerCallback()
 {
@@ -70,8 +78,11 @@ void GrainVisualizer::drawGrains(juce::Graphics& g)
 {
     for (int i = 0; i < grainArray.size(); ++i)
     {
-        g.setColour(juce::Colours::red);
-        g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 1, 1);
+        g.setColour(AppColours::specStroke);
+        if ( i == currentIndex )
+            g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 8, 8);
+        else
+            g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 3, 3);
     }
 }
 

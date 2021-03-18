@@ -72,17 +72,22 @@ void GrainProcessingComponent::computeWindowOutput()
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
 
-    //min max normalization
-    juce::Range<float> rangeIn = windowedBuffer.findMinMax(0, 0, windowedBuffer.getNumSamples());
-    juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
 
-    for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
+    for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
     {
-        windowedBuffer.getWritePointer(0)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(0)[i]) - 0.5) * 0.8;
-    }
+        //min max normalization
+        juce::Range<float> rangeIn = windowedBuffer.findMinMax(channel, 0, windowedBuffer.getNumSamples());
+        //if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
+        juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
 
-    //apply the selected window
-    if( !nowindowing ) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(0), windowLenght);
+        for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
+        {
+            windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) * 0.8;
+        }
+
+        //apply the selected window
+        if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
+    }
 
     //fade in
     windowedBuffer.applyGainRamp(0, fadeSamples, 0.0f, 1.0f);
@@ -122,7 +127,7 @@ void GrainProcessingComponent::saveGrain()
 	//write the wav file with the buffer content
 	writer.reset(format.createWriterFor(new juce::FileOutputStream(file),
 										sampleRate,
-										1,
+										2,
 										16,
 										{},
 										0));

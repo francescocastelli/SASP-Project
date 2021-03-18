@@ -98,17 +98,14 @@ void MainComponent::changeState(SoundState newState)
         switch (inputAudioState)
         {
         case SoundState::Stopped:
-            selectionComponent.setButtonsEnable(true, false, true);
             transportSource.setPosition(0.0);
             break;
 
         case SoundState::Starting:
-            selectionComponent.setButtonsEnable(false, true, false);
             transportSource.start();
             break;
 
         case SoundState::Playing:
-            selectionComponent.setButtonsEnable(false, true, false);
             break;
 
         case SoundState::Stopping:

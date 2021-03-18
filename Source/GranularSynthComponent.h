@@ -10,6 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <set>
 #include "AppConstants.h"
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
@@ -72,6 +73,8 @@ private:
     std::deque<Grain> grainStack;
     //time index 
     long long timeIndex;
+
+    std::mutex mtx;
  
     //density of grains -> number of grains in the current window
 	int densityValue;

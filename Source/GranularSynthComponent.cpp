@@ -200,7 +200,9 @@ void GranularSynthComponent::run()
 	while (!threadShouldExit())
 	{
 		//read the buffer for the current grain
-		formatReader = formatManager.createReaderFor(grainFileStack[selectNextGrain()]);
+		auto currentIndex = selectNextGrain();
+
+		formatReader = formatManager.createReaderFor(grainFileStack[currentIndex]);
 		if (formatReader)
 		{
 			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
@@ -223,12 +225,14 @@ void GranularSynthComponent::run()
 			//time to wait
 			waitTime = (duration * 1000)/sampleRate;
 			//add the buffer to the grain stack
-			grainStack.push_back((Grain(tempBuf, grainStart)));
+			grainStack.push_back((Grain(tempBuf, grainStart, currentIndex)));
 		}
 
+		mtx.lock();
 		//remove the grains already played
 		if (grainStack.size() > 0)
 			grainStack.erase(std::remove_if(grainStack.begin(), grainStack.end(), [this](Grain x) {return x.hasEnded(timeIndex); }), grainStack.end());
+		mtx.unlock();
 
 		wait(waitTime);
 	}
@@ -238,23 +242,33 @@ void GranularSynthComponent::getNextAudioBlock(const juce::AudioSourceChannelInf
 {
 	if (currentState == SynthState::Playing)
 	{
-		std::deque<Grain> localStack = grainStack;
-
-		for (int i = 0; i < bufferToFill.numSamples; ++i)
+		if (grainStack.size() > 0)
 		{
-			for (int j = 0; j < localStack.size(); ++j)
-				if (localStack[j].canPlay(timeIndex))
-					localStack[j].processBlock(bufferToFill, timeIndex);
+			//lock to prevent the thread to modify the grain stack during the copy 
+			mtx.lock();
+			std::deque<Grain> localStack = grainStack;
+			//unlock 
+			mtx.unlock();
 
-			++timeIndex;
+			for (int i = 0; i < bufferToFill.numSamples; ++i)
+			{
+				for (int j = 0; j < localStack.size(); ++j)
+					if (localStack[j].canPlay(timeIndex))
+					{
+						localStack[j].processBlock(bufferToFill, timeIndex);
+						grainVisualizer.addCurrentIndex(localStack[j].getId());
+					}
+
+				++timeIndex;
+			}
+
+			//apply some reverb to the output
+			reverb.processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
+			//apply gain at the output sound
+			bufferToFill.buffer->applyGain(outputGain);
+			//visualize fft of the block
+			spectrogram.setNextAudioBlock(bufferToFill);
 		}
-
-		//apply some reverb to the output
-		reverb.processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
-		//apply gain at the output sound
-		bufferToFill.buffer->applyGain(outputGain);
-		//visualize fft of the block
-		spectrogram.setNextAudioBlock(bufferToFill);
 	}
 }
 
