@@ -5,7 +5,8 @@
 
 //==============================================================================
 
-class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener{
+class MainComponent  : public juce::AudioAppComponent, public juce::ChangeListener
+{
 public:
 
 
@@ -15,34 +16,29 @@ public:
 
     //==============================================================================
     
-    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
+
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override;
+
     void releaseResources() override;
+
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 
     //==============================================================================
     void paint (juce::Graphics& g) override;
+
     void resized() override;
 
 private:
-
-    //state for the input audio file
-    SoundState inputAudioState;         
-
     //top part of the window, contains the waveform and the grain selection (also buttons)
     SelectionComponent selectionComponent;
     //bottom half of the window, contains the granular synth
     GranularSynthComponent granularSynth;
 
-    //transport source used to load and play audio 
-    juce::AudioTransportSource transportSource;
-
     //directory where to store the samples
     juce::File sampleDir;
 
     //==============================================================================
-
-    void changeState(SoundState newState);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

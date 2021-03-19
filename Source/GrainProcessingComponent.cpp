@@ -10,50 +10,42 @@
 
 #include "GrainProcessingComponent.h"
 
-GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir)
+GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir, const float& grainLenght, const float& fadeValue, const double& sampleRate)
                             :nowindowing(false),
-                             active(false),
-                             sampleRate (44100),
+                             enabled(false),
+                             windowLenght(grainLenght),
+                             fadeValue(fadeValue),
+                             sampleRate (sampleRate),
 		                     grainWindow(4410, juce::dsp::WindowingFunction<float>::rectangular),
                              originalBuffer(),
                              windowedBuffer(),
-                             fadeSamples(0),
                              sampleDir(saveDir)
 {
 }
 
-void GrainProcessingComponent::setSampleRate(double sampleRate)
+void GrainProcessingComponent::setEnable(bool enable)
 {
-    this->sampleRate = sampleRate;
-}
-
-void GrainProcessingComponent::setGrainLenght(int grainLenght)
-{
-    windowLenght = grainLenght;
-}
-
-void GrainProcessingComponent::setFadeValue(int fadeValue)
-{
-    fadeSamples = fadeValue;;
-    if ( active ) computeWindowOutput();
+    enabled = enable;
+    repaint();
 }
 
 void GrainProcessingComponent::windowMenuChanged(int id)
 {
+
 	switch (id)
 	{
     case 1: nowindowing = true; break;
-	case 2: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::rectangular); break;
-	case 3: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hann); break;
-	case 4: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hamming); break;
-	case 5: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::triangular); break;
-	case 6: grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::blackman); break;
+    case 2: windowMethod = juce::dsp::WindowingFunction<float>::rectangular; break;//grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::rectangular); break;
+	case 3: windowMethod = juce::dsp::WindowingFunction<float>::hann; break;//grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hann); break;
+	case 4: windowMethod = juce::dsp::WindowingFunction<float>::hamming; break;//grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::hamming); break;
+	case 5: windowMethod = juce::dsp::WindowingFunction<float>::triangular; break;//grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::triangular); break;
+	case 6: windowMethod = juce::dsp::WindowingFunction<float>::blackman; break;//grainWindow.fillWindowingTables(windowLenght, juce::dsp::WindowingFunction<float>::blackman); break;
 	default:
 		break;
 	}
 
     if (id != 1) nowindowing = false;
-	if ( active ) computeWindowOutput();
+	if ( enabled ) computeWindowOutput();
 }
 
 void GrainProcessingComponent::applyWindow(juce::AudioBuffer<float>& buffer)
@@ -69,12 +61,19 @@ void GrainProcessingComponent::applyWindow(juce::AudioBuffer<float>& buffer)
 
 void GrainProcessingComponent::computeWindowOutput()
 {
+    auto fadeInSamples = int(fadeValue * sampleRate);
+    auto windowLenght = this->windowLenght * sampleRate;
+
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
-
-
+    //create the window 
+    if ( !nowindowing) grainWindow.fillWindowingTables(windowLenght, windowMethod, false);
+    
     for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
     {
+        //apply the selected window
+        if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
+
         //min max normalization
         juce::Range<float> rangeIn = windowedBuffer.findMinMax(channel, 0, windowedBuffer.getNumSamples());
         //if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
@@ -85,29 +84,15 @@ void GrainProcessingComponent::computeWindowOutput()
             windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) * 0.8;
         }
 
-        //apply the selected window
-        if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
     }
 
     //fade in
-    windowedBuffer.applyGainRamp(0, fadeSamples, 0.0f, 1.0f);
+    windowedBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
     //fade out
-    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()-fadeSamples, fadeSamples, 1.0f, 0.0f);
+    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()- fadeInSamples, fadeInSamples, 1.0f, 0.0f);
     
     //paint the windowed grain
     repaint();
-}
-
-void GrainProcessingComponent::actionListenerCallback(const juce::String &message)
-{
-    if (message == "activateGrain") active = true;
-
-    if (message == "saveGrain" && active) saveGrain();
-
-    if (message == "deactivateGrain") {
-        active = false;
-        repaint();
-    }
 }
 
 void GrainProcessingComponent::saveGrain()
@@ -138,7 +123,7 @@ void GrainProcessingComponent::saveGrain()
 
 void GrainProcessingComponent::paint(juce::Graphics& g)
 {
-    if (!active)  paintIfNoFileLoaded(g);
+    if (!enabled )  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
@@ -168,6 +153,7 @@ void GrainProcessingComponent::drawFrame(juce::Graphics& g)
 {
     auto width = getLocalBounds().getWidth();
     auto height = getLocalBounds().getHeight();
+    auto windowLenght = int(this->windowLenght * sampleRate);
     
     //create a new path
     juce::Path path = juce::Path();

@@ -4,8 +4,7 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-    :inputAudioState(SoundState::Stopped),
-    selectionComponent(transportSource, sampleDir),
+    :selectionComponent(sampleDir),
     granularSynth(sampleDir),
     //for now set the path as fixed, then the user should be able to set it
     //use the same approach as open file
@@ -28,10 +27,6 @@ MainComponent::MainComponent()
     addAndMakeVisible(granularSynth);
     setAudioChannels(0, 2);
 
-    //add this component as listener to the broadcasters
-    granularSynth.addChangeListener(this);
-    transportSource.addChangeListener(this);
-    selectionComponent.addChangeListener(this);
     setSize (1200, 600);
 
     //create the directory based on the filename
@@ -45,29 +40,28 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
+
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    if (source == &transportSource) changeState(transportSource.isPlaying() ? SoundState::Playing : SoundState::Stopped);
-    if (source == &selectionComponent) changeState(selectionComponent.getSoundState());
-    if (source == &granularSynth);
 }
 
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    selectionComponent.prepareToPlay(samplesPerBlockExpected, sampleRate);
     granularSynth.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
     bufferToFill.clearActiveBufferRegion();
-    transportSource.getNextAudioBlock(bufferToFill);
+
+    selectionComponent.getNextAudioBlock(bufferToFill);
     granularSynth.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponent::releaseResources()
 {
-    transportSource.releaseResources();
+    selectionComponent.releaseResources();
     granularSynth.releaseResources();
 }
 
@@ -88,29 +82,3 @@ void MainComponent::resized()
 }
 
 //==============================================================================
-
-void MainComponent::changeState(SoundState newState)
-{
-    if (inputAudioState != newState)
-    {
-        inputAudioState = newState;
-
-        switch (inputAudioState)
-        {
-        case SoundState::Stopped:
-            transportSource.setPosition(0.0);
-            break;
-
-        case SoundState::Starting:
-            transportSource.start();
-            break;
-
-        case SoundState::Playing:
-            break;
-
-        case SoundState::Stopping:
-            transportSource.stop();
-            break;
-        }
-    }
-}

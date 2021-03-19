@@ -1,8 +1,8 @@
 #include "PositionOverlayComponent.h"
 
- PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse )
+ PositionOverlayComponent::PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse, const float& grainLenght )
     : transportSource(transportSourceToUse),
-     windowLenght(0.1)
+     currentGrainLenght (grainLenght)
 {
     startTimer(40);
 }
@@ -15,7 +15,7 @@ void PositionOverlayComponent::paint(juce::Graphics& g)
     {
         auto audioPosition = (float)transportSource.getCurrentPosition();
         auto drawPosition = (audioPosition / duration) * (float)getWidth();
-        auto rectWidth = (windowLenght/ duration) * (float)getWidth();
+        auto rectWidth = float((currentGrainLenght/ duration)) * (float)getWidth();
 
         g.setColour(AppColours::positionOverlayBar);
         g.drawLine(drawPosition, 0.0f, drawPosition, (float)getHeight(), 2.0f);
@@ -52,7 +52,3 @@ void PositionOverlayComponent::mouseSelection(const juce::MouseEvent& event)
     }
 }
 
-void PositionOverlayComponent::setWindowLenght(float windowLenght)
-{
-    this->windowLenght = windowLenght;
-}

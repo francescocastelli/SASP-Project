@@ -17,53 +17,33 @@
 #include "GrainProcessingComponent.h"
 #include "AppConstants.h"
 
-//state for the transport source 
-enum class SoundState
-{
-    Stopped,
-    Starting,
-    Playing,
-    Stopping
-};
-
 //state for the selection component
 enum class SelectionState 
 {
     Disabled,
     Loaded,
+    Stopped,
     Playing, 
     SelectGrain
 };
 
-class SelectionComponent : public juce::Component, public juce::ChangeBroadcaster, public juce::ActionBroadcaster
+class SelectionComponent : public juce::Component, public juce::ChangeListener, public juce::ChangeBroadcaster
 {
 public:
-    SelectionComponent(juce::AudioTransportSource& transportSourceRef, juce::File& sampleDir);
+    SelectionComponent(juce::File& sampleDir);
 
-    SoundState getSoundState();
+    SelectionState getCurrentState();
 
-    void automaticGrainSelection();
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 
-    void saveGrain(juce::AudioBuffer<float> buf);
-     
-    void changeCurrentState(SelectionState newState);
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
 
-    //----------------------------------------------------------------------------------
-    void openButtonClicked();
+    void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill);
 
-    void playButtonClicked();
-
-    void stopButtonClicked();
-
-    void selectionButtonClicked();
-
-    void saveButtonClicked();
-
-    void setButtonsEnable(bool enableOpen, bool enablePlay, bool enableStop, bool enableSelect, bool enableSave);
-     
-    void setSliderEnable(bool enableWlenght, bool enableFade, bool enableWselection, bool enableAuto);
+    void releaseResources();
 
     //-------------------------------------------------------------------------------------
+
     void paint(juce::Graphics& g) override;
 
     void resized() override;
@@ -73,20 +53,25 @@ private:
     //state for the selection component
     SelectionState currentState;
 
-    SoundState state;
-
     //sample rate of the current opened audio file
     double sampleRate;
+
+    //current grain lenght selected with the slider in sec
+    float currentGrainLenght;
+
+    //current fade value in sec
+    float currentFadeValue;
 
     //manager for the different formats
     juce::AudioFormatManager formatManager;    
     //reader for loading audio files
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioThumbnailCache thumbnailCache;                 
+    //audio thubnail to keep the opened file
     juce::AudioThumbnail thumbnail;
-    //reference to the transport source 
-    //the actual object is in the main
-    juce::AudioTransportSource& transportSource;
+
+    //tranport source used to play the input audio
+    juce::AudioTransportSource transportSource;
 
     int automaticSelectionVal;
 
@@ -110,15 +95,27 @@ private:
     GrainProcessingComponent grainProcessing;
     //display grain
     GrainSelector displayGrain;
-    float currentGrainLenght;
+
 
     WaveformComponent thumbnailComp;
     PositionOverlayComponent positionComp;
 
-    //spectrogram computation and display component
-    SpectrogramComponent specComp;
-
     //sample dir ref
     juce::File& sampleDir;
+
+    //-------------------------------- private methods -------------------------------
+    void changeCurrentState(SelectionState newState);
+
+    void setButtonsEnable(bool enableOpen, bool enablePlay, bool enableStop, bool enableSelect, bool enableSave);
+     
+    void setSliderEnable(bool enableWlenght, bool enableFade, bool enableWselection, bool enableAuto);
+
+    void openButtonClicked();
+
+    void selectionButtonClicked();
+
+    void automaticGrainSelection();
+
+    void grainLenghtChanged();
 };
 

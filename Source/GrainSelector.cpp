@@ -10,11 +10,12 @@
 #pragma once
 #include "GrainSelector.h"
 
+
 GrainSelector::GrainSelector(juce::AudioThumbnail& audioThumbnail)
     : thumbnail (audioThumbnail),
       startTime (0.0),
       endTime (0.0),
-      active(false)
+      enabled(false)
 {
 }
 
@@ -24,9 +25,15 @@ void GrainSelector::setTime(double newStartTime, double newEndTime)
     endTime = newEndTime;
 }
 
+void GrainSelector::setEnable(bool enable)
+{
+    this->enabled = enable;
+    repaint();
+}
+
 void GrainSelector::paint(juce::Graphics& g)
 {
-    if (!active)  paintIfNoFileLoaded(g);
+    if (!enabled)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
@@ -52,18 +59,4 @@ void GrainSelector::paintIfFileLoaded(juce::Graphics& g)
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);
-}
-
-void GrainSelector::actionListenerCallback(const juce::String &message) 
-{
-    if (message == "activateGrain")
-    {
-        active = true;
-        repaint();
-    }
-
-    if (message == "deactivateGrain") {
-        active = false;
-        repaint();
-    }
 }

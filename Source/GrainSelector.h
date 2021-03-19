@@ -12,7 +12,7 @@
 #include <JuceHeader.h>
 #include "AppConstants.h"
 
-class GrainSelector: public juce::Component , public juce::ActionListener
+class GrainSelector: public juce::Component
 {
 public:
 
@@ -20,13 +20,13 @@ public:
 
     void setTime(double newStartTime, double newEndTime);
 
+    void setEnable(bool enable);
+
     void paint(juce::Graphics& g);
 
     void paintIfNoFileLoaded(juce::Graphics& g);
      
     void paintIfFileLoaded(juce::Graphics& g);
-
-    void actionListenerCallback(const juce::String &message) override;
 
 private:
     
@@ -35,7 +35,7 @@ private:
 
     double startTime;
     double endTime;
-    bool active;
+    bool enabled;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainSelector)
 };

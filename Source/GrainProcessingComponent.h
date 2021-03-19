@@ -12,10 +12,10 @@
 #include <JuceHeader.h>
 #include "AppConstants.h"
 
-class GrainProcessingComponent: public juce::Component, public juce::ActionListener
+class GrainProcessingComponent: public juce::Component
 {
 public:
-    GrainProcessingComponent(juce::File& sampleDir);
+    GrainProcessingComponent(juce::File& sampleDir, const float& grainLenght, const float& fadeValue, const double& sampleRate);
 
     //==============================================================================
     void windowMenuChanged(int id);
@@ -26,14 +26,7 @@ public:
 
     void saveGrain();
 
-    void setSampleRate(double sampleRate);
-
-    void setGrainLenght(int grainLenght);
-
-    void setFadeValue(int fadeValue);
-    //-------------------------------------------------------------
-
-    void actionListenerCallback(const juce::String& message) override;
+    void setEnable(bool enable);
 
     //-------------------------------------------------------------
 
@@ -48,6 +41,8 @@ public:
 private:
     //window used in the process
     juce::dsp::WindowingFunction<float> grainWindow;     
+    juce::dsp::WindowingFunction<float>::WindowingMethod windowMethod;
+
     //copy of the input buffer
     juce::AudioBuffer<float> originalBuffer;
     //buffer containing the windowed signal
@@ -56,20 +51,20 @@ private:
     //flags
     bool nowindowing;
 
-    bool fadeInAndOut;
-
-    int fadeSamples;
-    
     //enable or disable the component
-    bool active;
+    bool enabled;
 
     //folder where to save files
     juce::File& sampleDir;
 
     //current sample rate
-    double sampleRate;
+    const double& sampleRate;
     
-    int windowLenght;
+    //window lenght in second [s]
+    const float& windowLenght;
+
+    //fade in and fade out [s]
+    const float& fadeValue;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainProcessingComponent);
 };

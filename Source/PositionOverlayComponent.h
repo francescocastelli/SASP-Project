@@ -6,7 +6,7 @@ class PositionOverlayComponent : public juce::Component, private juce::Timer
 {
 public:
 
-    PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse);
+    PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse, const float& grainLenght);
 
     void paint(juce::Graphics& g) override;
 
@@ -14,14 +14,12 @@ public:
 
     void mouseDown(const juce::MouseEvent& event) override;
 
-    void setWindowLenght(float windowLenght);
-
 private:
     
     //transportSource
     juce::AudioTransportSource& transportSource;
 
-    float windowLenght;
+    const float& currentGrainLenght;
 
     //private functions
     void timerCallback() override;
