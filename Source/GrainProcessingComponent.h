@@ -15,7 +15,7 @@
 class GrainProcessingComponent: public juce::Component
 {
 public:
-    GrainProcessingComponent(juce::File& sampleDir, const float& grainLenght, const float& fadeValue, const double& sampleRate);
+    GrainProcessingComponent(juce::File& sampleDir, const float& grainLenght, const float& fadeValue, const double& sampleRate, const bool& showLeft);
 
     //==============================================================================
     void windowMenuChanged(int id);
@@ -65,6 +65,9 @@ private:
 
     //fade in and fade out [s]
     const float& fadeValue;
+
+    //show left or right channel
+    const bool& showLeft;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainProcessingComponent);
 };

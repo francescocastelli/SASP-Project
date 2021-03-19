@@ -48,6 +48,11 @@ void PositionOverlayComponent::mouseSelection(const juce::MouseEvent& event)
         auto clickPosition = event.position.x;
         auto audioPosition = (clickPosition / (float)getWidth()) * duration;
 
+        if (audioPosition >= duration)
+            audioPosition = duration;
+        else if (audioPosition < 0)
+            audioPosition = 0;
+
         transportSource.setPosition(audioPosition);
     }
 }

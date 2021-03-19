@@ -16,6 +16,7 @@
 #include "SpectrogramComponent.h"
 #include "GrainProcessingComponent.h"
 #include "AppConstants.h"
+#include "KnobLookAndFeel.h"
 
 //state for the selection component
 enum class SelectionState 
@@ -50,6 +51,8 @@ public:
 
 private:
     
+    KnobLookAndFeel knobLookAndFeel;
+
     //state for the selection component
     SelectionState currentState;
 
@@ -73,7 +76,11 @@ private:
     //tranport source used to play the input audio
     juce::AudioTransportSource transportSource;
 
+    //number of grain for automatic selection
     int automaticSelectionVal;
+
+    //show left or right channel 
+    bool showLeft;
 
     //buttons
     juce::TextButton openButton;
@@ -82,6 +89,14 @@ private:
     juce::TextButton selectionButton;
     juce::TextButton saveButton;
     juce::TextButton automaticSaveButton;
+    juce::TextButton grainLeft;
+    juce::TextButton grainRight;
+
+    //text labels
+    juce::Label waveformLabel;
+    juce::Label grainLabel;
+    juce::Label windowLabel;
+    juce::Label fadeLabel;
 
     //sliders
     juce::Slider grainLenghtSlider;

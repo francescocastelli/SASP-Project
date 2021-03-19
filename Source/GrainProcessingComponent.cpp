@@ -10,12 +10,13 @@
 
 #include "GrainProcessingComponent.h"
 
-GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir, const float& grainLenght, const float& fadeValue, const double& sampleRate)
+GrainProcessingComponent::GrainProcessingComponent(juce::File& saveDir, const float& grainLenght, const float& fadeValue, const double& sampleRate, const bool& showLeft)
                             :nowindowing(false),
                              enabled(false),
                              windowLenght(grainLenght),
                              fadeValue(fadeValue),
                              sampleRate (sampleRate),
+                             showLeft (showLeft),
 		                     grainWindow(4410, juce::dsp::WindowingFunction<float>::rectangular),
                              originalBuffer(),
                              windowedBuffer(),
@@ -61,36 +62,37 @@ void GrainProcessingComponent::applyWindow(juce::AudioBuffer<float>& buffer)
 
 void GrainProcessingComponent::computeWindowOutput()
 {
-    auto fadeInSamples = int(fadeValue * sampleRate);
-    auto windowLenght = this->windowLenght * sampleRate;
+    //always check the maximum lenght
+    auto fadeInSamples = juce::jmin(int(fadeValue * sampleRate), originalBuffer.getNumSamples());
+    auto windowLenght = juce::jmin(int(this->windowLenght * sampleRate), originalBuffer.getNumSamples());
 
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
     //create the window 
-    if ( !nowindowing) grainWindow.fillWindowingTables(windowLenght, windowMethod, false);
+    if ( !nowindowing) grainWindow.fillWindowingTables(windowLenght, windowMethod, true);
     
+    //windowing
     for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
-    {
-        //apply the selected window
         if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
 
-        //min max normalization
+    //fade in
+    windowedBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
+    //fade out
+    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()- fadeInSamples, fadeInSamples, 1.0f, 0.0f);
+
+    //min max normalization
+    for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
+    {
         juce::Range<float> rangeIn = windowedBuffer.findMinMax(channel, 0, windowedBuffer.getNumSamples());
-        //if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
+        if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
         juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
 
         for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
         {
             windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) * 0.8;
         }
-
     }
 
-    //fade in
-    windowedBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
-    //fade out
-    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()- fadeInSamples, fadeInSamples, 1.0f, 0.0f);
-    
     //paint the windowed grain
     repaint();
 }
@@ -131,7 +133,7 @@ void GrainProcessingComponent::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
-    g.setColour(AppColours::waveformColor);
+    g.setColour(AppColours::buttonsText);
     g.drawFittedText("No grain selected", getLocalBounds() , juce::Justification::centred, 1);
 
     g.setColour(AppColours::waveformBorder);
@@ -153,17 +155,21 @@ void GrainProcessingComponent::drawFrame(juce::Graphics& g)
 {
     auto width = getLocalBounds().getWidth();
     auto height = getLocalBounds().getHeight();
-    auto windowLenght = int(this->windowLenght * sampleRate);
-    
+    auto windowLenght = juce::jmin(int(this->windowLenght * sampleRate), windowedBuffer.getNumSamples());
+    auto channel = (showLeft) ? 0 : 1;
+
     //create a new path
     juce::Path path = juce::Path();
-    juce::PathStrokeType stroke = juce::PathStrokeType(0.6f);
+    juce::PathStrokeType stroke = juce::PathStrokeType(0.9f);
+
+    //starting point of the path
+    path.startNewSubPath(0, height/2);
 
     for (int i = 0; i < windowLenght; ++i)
     {
         //add points to the path
         path.lineTo((float)juce::jmap(i, 0, windowLenght- 1, 0, width),
-            juce::jmap(windowedBuffer.getReadPointer(0)[i], 0.0f, 1.0f, (float)height, 0.0f) - height/2);
+            juce::jmap(windowedBuffer.getReadPointer(channel)[i], 0.0f, 1.0f, (float)height, 0.0f) - height/2 );
     }
 
     //draw the stroke

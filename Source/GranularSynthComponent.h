@@ -15,6 +15,7 @@
 #include "Grainh.h"
 #include "SpectrogramComponent.h"
 #include "TimeFrequencyVisualizer.h"
+#include "KnobLookAndFeel.h"
 
 //state for the transport source 
 enum class SynthState 
@@ -48,6 +49,8 @@ public:
 
 private:
 
+    KnobLookAndFeel knobLookAndFeel;
+
     //synth state 
     SynthState currentState;
 
@@ -67,6 +70,22 @@ private:
     juce::Slider densitySlider;
     juce::Slider windowLenghtSlider;
     juce::Slider windowPositionSlider;
+    //filter sliders
+    juce::Slider cutOffFreqSlider;
+    juce::Slider qFactorSlider;
+    juce::Slider filterGainSlider;
+    juce::Slider filterTypeSlider;
+
+    //labels
+    juce::Label grainLabel;
+    juce::Label filterLabel;
+    juce::Label densityLabel;
+	juce::Label positionLabel;
+	juce::Label lengthLabel;
+    juce::Label cutoffLabel;
+    juce::Label gainLabel;
+    juce::Label qFactorLabel;
+    juce::Label filterTypeLabel;
 
     //Grain parameters
     //stack of grains
@@ -94,6 +113,14 @@ private:
     float outputGain;
     int sampleRate;
 
+    //filtering
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> filter;
+    float cutOffFreq;
+    float qFactor;
+    float filterGain;
+    int filterType;
+    bool noFiltering;
+
     //flags
     bool audioIsPlaying;
     bool grainLoaded;
@@ -103,9 +130,14 @@ private:
     GrainVisualizer grainVisualizer;
 
     //---------------------- private method -------------------------------
+
+    void updateFilter();
+
     void setButtonState(bool enableStart, bool enableStop, bool enableLoad, bool enableRandom);
 
-    void setSliderState(bool enableWindowPos, bool enableWindowL);
+    void setSliderState(bool granulationSlider);
+
+    void setFilterSliderState(bool noFilter, bool filterParam);
 
     void readGrains();
 
