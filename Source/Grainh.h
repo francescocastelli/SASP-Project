@@ -11,7 +11,6 @@
 #pragma once
 #include <JuceHeader.h>
 
-
 class Grain 
 {
 public:
@@ -23,6 +22,10 @@ public:
     ~Grain();
 
     void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex);
+
+    void fadeOut(int startSample);
+
+    void fadeIn(int endSample);
 
     bool canPlay(int timeIndex);
     

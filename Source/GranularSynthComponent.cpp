@@ -110,7 +110,7 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	
 	//density slider
 	addAndMakeVisible(densitySlider);
-	densitySlider.setRange(1, 500, 1);
+	densitySlider.setRange(1, 200, 1);
 	densitySlider.setTextBoxIsEditable(false);
 	densitySlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
 	densitySlider.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);
@@ -146,12 +146,13 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 
 	//cut off freq slider
 	addAndMakeVisible(cutOffFreqSlider);
-	cutOffFreqSlider.setRange(1, 15000, 0.5);
+	cutOffFreqSlider.setRange(20, 15000, 0.5);
 	cutOffFreqSlider.setTextBoxIsEditable(false);
 	cutOffFreqSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
 	cutOffFreqSlider.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);
-	cutOffFreqSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
+	cutOffFreqSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 20);
 	cutOffFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+	cutOffFreqSlider.setSkewFactor(0.4);
 	cutOffFreqSlider.setLookAndFeel(&knobLookAndFeel);
 	cutOffFreqSlider.onValueChange = [this] { cutOffFreq = cutOffFreqSlider.getValue(); };
 	cutOffFreqSlider.setValue(0);
@@ -169,7 +170,7 @@ GranularSynthComponent::GranularSynthComponent(juce::File& sampleDir)
 	qFactorSlider.setValue(0);
 
 	addAndMakeVisible(filterGainSlider);
-	filterGainSlider.setRange(0.0, 1.2, 0.1);
+	filterGainSlider.setRange(0.0, 1.2, 0.01);
 	filterGainSlider.setTextBoxIsEditable(false);
 	filterGainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
 	filterGainSlider.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);
@@ -280,8 +281,8 @@ void GranularSynthComponent::slidersChanged()
 		densityValue = densitySlider.getValue();
 
 		//update the ranges
-		windowPositionSlider.setRange(0, grainFileStack.size(), 1);
-		windowLenghtSlider.setRange(0, grainFileStack.size() - windowPosition + 1, 1);
+		windowPositionSlider.setRange(1, grainFileStack.size(), 1);
+		windowLenghtSlider.setRange(0, grainFileStack.size() - windowPosition , 1);
 	}
 }
 
@@ -344,7 +345,7 @@ void GranularSynthComponent::updateFilter()
 	}
 }
 
-int GranularSynthComponent::selectNextGrain()
+void GranularSynthComponent::selectNextGrain()
 {
 	//linear or random selection based on the state of the button
 	if (randomSelectionButton.getToggleState()) 
@@ -354,11 +355,9 @@ int GranularSynthComponent::selectNextGrain()
 	else
 	{
 		if (currentGrainIndex > windowPosition + windowLenght) 
-			currentGrainIndex = windowPosition;
+			currentGrainIndex = windowPosition-1;
 		else 
 			++currentGrainIndex;
-
-		return currentGrainIndex;
 	}
 }
 
@@ -367,44 +366,64 @@ void GranularSynthComponent::run()
 	juce::AudioBuffer<float> tempBuf;
 	juce::AudioFormatReader* formatReader;
 	double waitTime = -1;
+	long long fadein = 0;
+	long long fadeout = 0;
 
 	while (!threadShouldExit())
 	{
-		//read the buffer for the current grain
-		auto currentIndex = selectNextGrain();
-
-		formatReader = formatManager.createReaderFor(grainFileStack[currentIndex]);
-		if (formatReader)
-		{
-			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
-			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
-
-
-			if (nextGrainStart == 0) nextGrainStart = timeIndex;
-
-			//float offset = juce::Random::getSystemRandom().nextInt(juce::Range<int> (-randomPosOffset, randomPosOffset));
-
-			//set the start index for the current grain
-			//500 for the wait of the thread
-			long long grainStart = nextGrainStart + 500;
-
-			float duration = (sampleRate / densityValue) + tempBuf.getNumSamples();
-
-			//set the start index for the next grain 
-			// next = start pos of this + its duration
-			nextGrainStart = grainStart + duration;
-			//time to wait
-			waitTime = (duration * 1000)/sampleRate;
-			//add the buffer to the grain stack
-			grainStack.push_back((Grain(tempBuf, grainStart, currentIndex)));
-		}
-
 		mtx.lock();
 		//remove the grains already played
 		if (grainStack.size() > 0)
 			grainStack.erase(std::remove_if(grainStack.begin(), grainStack.end(), [this](Grain x) {return x.hasEnded(timeIndex); }), grainStack.end());
 		mtx.unlock();
 
+		//read the buffer for the current grain
+		selectNextGrain();
+
+		formatReader = formatManager.createReaderFor(grainFileStack[currentGrainIndex]);
+		if (formatReader)
+		{
+			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
+			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
+			formatReader->~AudioFormatReader();
+
+			if (nextGrainStart == 0) nextGrainStart = timeIndex;
+
+			//set the start index for the current grain
+			int scheduleDelay = 200;
+			long long grainStart = nextGrainStart + scheduleDelay;
+
+			//add the buffer to the grain stack
+			grainStack.push_back((Grain(tempBuf, grainStart, currentGrainIndex)));
+
+			mtx.lock();
+			if (fadein != 0) grainStack.back().fadeIn(fadein);
+			mtx.unlock();
+
+			//set the start index for the next grain 
+			// next = start pos of this + its duration
+			//nextGrainStart = grainStart + duration;
+			int duration = (sampleRate / densityValue);
+			nextGrainStart = grainStart + duration;
+
+			//overlap
+			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)
+			{
+				mtx.lock();
+				auto fadeSamples = grainStart + tempBuf.getNumSamples() - nextGrainStart;
+				grainStack.back().fadeOut(fadeSamples);
+				mtx.unlock();
+				fadein = fadeSamples;
+			}
+			else fadein = 0;
+
+			//time to wait
+			float grainDuration = float(tempBuf.getNumSamples()) / sampleRate;
+			waitTime = (grainDuration * 1000)/sampleRate;
+			//add the schedule error wrt to the current time
+			double scheduleErr = float( ( (grainStart - scheduleDelay) - timeIndex) * 1000) / sampleRate;
+			waitTime += scheduleErr;
+		}
 		wait(waitTime);
 	}
 }

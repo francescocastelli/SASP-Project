@@ -145,7 +145,7 @@ private:
 
     void changeCurrentState(SynthState newState);
 
-    int selectNextGrain();
+    void selectNextGrain();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };

@@ -15,8 +15,9 @@ void WaveformComponent::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
+	g.setFont(juce::Font (12.0f, juce::Font::bold));
     g.setColour(AppColours::buttonsText);
-    g.drawFittedText("No file loaded", getLocalBounds() , juce::Justification::centred, 1);
+    g.drawFittedText("NO FILE LOADED", getLocalBounds() , juce::Justification::centred, 1);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);

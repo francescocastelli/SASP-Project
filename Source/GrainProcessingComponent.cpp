@@ -69,16 +69,23 @@ void GrainProcessingComponent::computeWindowOutput()
     //every time re-use the original buffer
     windowedBuffer = originalBuffer;
     //create the window 
-    if ( !nowindowing) grainWindow.fillWindowingTables(windowLenght, windowMethod, true);
+    if ( !nowindowing) grainWindow.fillWindowingTables(windowLenght, windowMethod);
     
     //windowing
-    for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
-        if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
+    for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel) 
+    {
+        /*
+        juce::Range<float> rangeIn = windowedBuffer.findMinMax(channel, 0, windowedBuffer.getNumSamples());
+        if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
+        juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
 
-    //fade in
-    windowedBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
-    //fade out
-    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()- fadeInSamples, fadeInSamples, 1.0f, 0.0f);
+        for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
+        {
+            windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) * 0.8;
+        }
+        */
+        if (!nowindowing) grainWindow.multiplyWithWindowingTable(windowedBuffer.getWritePointer(channel), windowLenght);
+    }
 
     //min max normalization
     for (int channel = 0; channel < windowedBuffer.getNumChannels(); ++channel)
@@ -89,9 +96,14 @@ void GrainProcessingComponent::computeWindowOutput()
 
         for (int i = 0; i < windowedBuffer.getNumSamples(); ++i)
         {
-            windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) * 0.8;
+            windowedBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(windowedBuffer.getReadPointer(channel)[i]) - 0.5) ;
         }
     }
+
+    //fade in
+    windowedBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
+    //fade out
+    windowedBuffer.applyGainRamp(windowedBuffer.getNumSamples()- fadeInSamples, fadeInSamples, 1.0f, 0.0f);
 
     //paint the windowed grain
     repaint();
@@ -133,8 +145,9 @@ void GrainProcessingComponent::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
+	g.setFont(juce::Font (12.0f, juce::Font::bold));
     g.setColour(AppColours::buttonsText);
-    g.drawFittedText("No grain selected", getLocalBounds() , juce::Justification::centred, 1);
+    g.drawFittedText("NO GRAIN SELECTED", getLocalBounds() , juce::Justification::centred, 1);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);

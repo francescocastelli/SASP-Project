@@ -33,8 +33,8 @@ namespace AppColours
     const juce::Colour buttons = juce::Colour(juce::uint8(109), juce::uint8(159), juce::uint8(226), 0.7f);
 
     //spectrogram
-    const juce::Colour specFill = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.2f);
-    const juce::Colour specStroke = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.9f);
+    const juce::Colour specFill = juce::Colour(juce::uint8(157), juce::uint8(6), juce::uint8(26), 0.6f);
+    const juce::Colour specStroke = juce::Colour(juce::uint8(157), juce::uint8(6), juce::uint8(26), 0.9f);
 
     //windowing
     const juce::Colour grainWindowedFill = juce::Colour(juce::uint8(245), juce::uint8(245), juce::uint8(245), 0.7f);
@@ -44,7 +44,7 @@ namespace AppColours
     const juce::Colour knobBackground = juce::Colour(juce::uint8(13), juce::uint8(15), juce::uint8(23), 0.9f);
     const juce::Colour knobOutline = juce::Colour(juce::uint8(255), juce::uint8(255), juce::uint8(255), 0.9f);
     const juce::Colour knobText = juce::Colour(juce::uint8(255), juce::uint8(255), juce::uint8(255), 0.7f);
-    const juce::Colour knobLabel = juce::Colour(juce::uint8(255), juce::uint8(255), juce::uint8(255), 0.95f);
+    const juce::Colour knobLabel = juce::Colour(juce::uint8(255), juce::uint8(255), juce::uint8(255), 0.9f);
 };
 
 namespace AppConstants

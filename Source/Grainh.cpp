@@ -38,8 +38,18 @@ void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int t
         auto outputChannel = bufferToFill.buffer->getWritePointer(channel);
         auto dataChannel = dataBuffer.getReadPointer(channel);
 
-        outputChannel[timeIndex % bufferToFill.numSamples] = dataChannel[timeIndex - startIndex];
+        outputChannel[timeIndex % bufferToFill.numSamples] += dataChannel[timeIndex - startIndex];
     }
+}
+
+void Grain::fadeOut(int startSample)
+{
+    dataBuffer.applyGainRamp(startSample, dataBuffer.getNumSamples() - startSample, 1.0f, 0.0f);
+}
+
+void Grain::fadeIn(int endSample)
+{
+    dataBuffer.applyGainRamp(0, endSample, 0.0f, 1.0f);
 }
 
 bool Grain::canPlay(int timeIndex)

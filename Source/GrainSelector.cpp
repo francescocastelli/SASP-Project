@@ -41,8 +41,9 @@ void GrainSelector::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
+	g.setFont(juce::Font (12.0f, juce::Font::bold));
     g.setColour(AppColours::buttonsText);
-    g.drawFittedText("No grain selected", getLocalBounds() , juce::Justification::centred, 1);
+    g.drawFittedText("NO GRAIN SELECTED", getLocalBounds() , juce::Justification::centred, 1);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);
