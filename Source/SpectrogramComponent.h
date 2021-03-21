@@ -11,13 +11,13 @@
 #pragma once
 #include <JuceHeader.h>
 #include "AppConstants.h"
-
+#include "Model.h"
 
 class SpectrogramComponent : public juce::Component,
                              private juce::Timer
 {
 public:
-    SpectrogramComponent();
+    SpectrogramComponent(Model& model);
 
     ~SpectrogramComponent() override;
 
@@ -25,7 +25,7 @@ public:
 
     void setNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
 
-    void setActive(bool active);
+    void setEnabled(bool active);
 
     void paint(juce::Graphics& g) override;
 
@@ -50,6 +50,8 @@ public:
     };
 
 private:
+    Model& model;
+
     juce::dsp::FFT forwardFFT;                     
     juce::dsp::WindowingFunction<float> window;     
 
@@ -59,7 +61,7 @@ private:
     bool nextFFTBlockReady = false;                
     float scopeData[scopeSize];                    
 
-    bool active;
+    bool enabled;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent);
 };

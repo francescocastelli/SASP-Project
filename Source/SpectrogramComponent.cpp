@@ -11,9 +11,10 @@
 #include <JuceHeader.h>
 #include "SpectrogramComponent.h"
 
-SpectrogramComponent::SpectrogramComponent()
+SpectrogramComponent::SpectrogramComponent(Model& model)
     : forwardFFT(fftOrder),
-    active(false),
+    model (model),
+    enabled(false),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
     startTimerHz(30);
@@ -32,9 +33,9 @@ void SpectrogramComponent::setNextAudioBlock(const juce::AudioSourceChannelInfo&
     }
 }
 
-void SpectrogramComponent::setActive(bool active)
+void SpectrogramComponent::setEnabled(bool active)
 {
-    this->active = active;
+    this->enabled = active;
     repaint();
 }
 
@@ -59,7 +60,7 @@ void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
 
 void SpectrogramComponent::paint(juce::Graphics& g)
 {
-    if (!active)  paintIfNoFileLoaded(g);
+    if (!enabled)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 

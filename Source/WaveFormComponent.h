@@ -1,12 +1,15 @@
 #pragma once
 #include <JuceHeader.h>
 #include "AppConstants.h"
+#include "Model.h"
 
-class WaveformComponent: public juce::Component , private juce::ChangeListener
+class WaveformVisualizer: public juce::Component 
 {
 public:
 
-    WaveformComponent(juce::AudioThumbnail& audioThumbnail);
+    WaveformVisualizer(Model& model);
+
+    void setEnabled(bool enabled);
 
     void paint(juce::Graphics& g);
 
@@ -14,12 +17,9 @@ public:
      
     void paintIfFileLoaded(juce::Graphics& g);
 
-    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
-
 private:
-    
-    //audioThumbnail reference
-    juce::AudioThumbnail& thumbnail; 
+    Model& model;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WaveformComponent)
+    bool enabled;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WaveformVisualizer)
 };

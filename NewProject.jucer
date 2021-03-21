@@ -4,6 +4,31 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="FyVhbw" name="NewProject">
     <GROUP id="{6F180159-E5A0-6B1F-952B-825A83541AB8}" name="Source">
+      <FILE id="bq1X4m" name="GrainProcessing.h" compile="0" resource="0"
+            file="Source/GrainProcessing.h"/>
+      <FILE id="uWoct3" name="GrainVisualizer.cpp" compile="1" resource="0"
+            file="Source/GrainVisualizer.cpp"/>
+      <FILE id="Xt7TpC" name="GrainVisualizer.h" compile="0" resource="0"
+            file="Source/GrainVisualizer.h"/>
+      <FILE id="MDBHhZ" name="ControllerBottom.cpp" compile="1" resource="0"
+            file="Source/ControllerBottom.cpp"/>
+      <FILE id="lDf7oK" name="ControllerBottom.h" compile="0" resource="0"
+            file="Source/ControllerBottom.h"/>
+      <FILE id="fXx5RB" name="ControllerTop.cpp" compile="1" resource="0"
+            file="Source/ControllerTop.cpp"/>
+      <FILE id="j7AGYH" name="ControllerTop.h" compile="0" resource="0" file="Source/ControllerTop.h"/>
+      <FILE id="UzT1Wp" name="ControllerMainComponent.cpp" compile="1" resource="0"
+            file="Source/ControllerMainComponent.cpp"/>
+      <FILE id="kes9PK" name="ControllerMainComponent.h" compile="0" resource="0"
+            file="Source/ControllerMainComponent.h"/>
+      <FILE id="cwDc2F" name="GrainProcessingVisualizer.cpp" compile="1"
+            resource="0" file="Source/GrainProcessingVisualizer.cpp"/>
+      <FILE id="oBYjPT" name="AudioLoader.cpp" compile="1" resource="0" file="Source/AudioLoader.cpp"/>
+      <FILE id="NWeAd1" name="AudioLoader.h" compile="0" resource="0" file="Source/AudioLoader.h"/>
+      <FILE id="meypZX" name="GrainSelectorThread.cpp" compile="1" resource="0"
+            file="Source/GrainSelectorThread.cpp"/>
+      <FILE id="ZFx34Q" name="GrainSelectorThread.h" compile="0" resource="0"
+            file="Source/GrainSelectorThread.h"/>
       <FILE id="c6IOkI" name="KnobLookAndFeel.h" compile="0" resource="0"
             file="Source/KnobLookAndFeel.h"/>
       <FILE id="rH9w5o" name="TimeFrequencyVisualizer.cpp" compile="1" resource="0"
@@ -12,22 +37,7 @@
             file="Source/TimeFrequencyVisualizer.h"/>
       <FILE id="smvOuv" name="Grainh.cpp" compile="1" resource="0" file="Source/Grainh.cpp"/>
       <FILE id="h54EK1" name="Grainh.h" compile="0" resource="0" file="Source/Grainh.h"/>
-      <FILE id="WJWoeX" name="GranularSynthComponent.cpp" compile="1" resource="0"
-            file="Source/GranularSynthComponent.cpp"/>
-      <FILE id="SZ13DV" name="GranularSynthComponent.h" compile="0" resource="0"
-            file="Source/GranularSynthComponent.h"/>
-      <FILE id="YGxU6m" name="GrainProcessingComponent.cpp" compile="1" resource="0"
-            file="Source/GrainProcessingComponent.cpp"/>
-      <FILE id="cFFEsr" name="GrainProcessingComponent.h" compile="0" resource="0"
-            file="Source/GrainProcessingComponent.h"/>
-      <FILE id="tyYht2" name="SelectionComponent.cpp" compile="1" resource="0"
-            file="Source/SelectionComponent.cpp"/>
       <FILE id="PWOigG" name="AppConstants.h" compile="0" resource="0" file="Source/AppConstants.h"/>
-      <FILE id="IjGS5k" name="GrainSelector.cpp" compile="1" resource="0"
-            file="Source/GrainSelector.cpp"/>
-      <FILE id="Td4SxF" name="GrainSelector.h" compile="0" resource="0" file="Source/GrainSelector.h"/>
-      <FILE id="glfaYb" name="SelectionComponent.h" compile="1" resource="0"
-            file="Source/SelectionComponent.h"/>
       <FILE id="kdSROu" name="WaveformComponent.h" compile="0" resource="0"
             file="Source/WaveformComponent.h"/>
       <FILE id="kDDM6P" name="WaveformComponent.cpp" compile="1" resource="0"
@@ -37,13 +47,18 @@
       <FILE id="L40tDk" name="PositionOverlayComponent.cpp" compile="1" resource="0"
             file="Source/PositionOverlayComponent.cpp"/>
       <FILE id="aAJpZu" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
-      <FILE id="p27iKi" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
-      <FILE id="tqBsfj" name="MainComponent.cpp" compile="1" resource="0"
-            file="Source/MainComponent.cpp"/>
       <FILE id="OdYTAo" name="SpectrogramComponent.cpp" compile="1" resource="0"
             file="Source/SpectrogramComponent.cpp"/>
       <FILE id="zjhwb5" name="SpectrogramComponent.h" compile="0" resource="0"
             file="Source/SpectrogramComponent.h"/>
+      <FILE id="avmAUN" name="AudioEngine.cpp" compile="1" resource="0" file="Source/AudioEngine.cpp"/>
+      <FILE id="nI9EhJ" name="AudioEngine.h" compile="0" resource="0" file="Source/AudioEngine.h"/>
+      <FILE id="eeByvs" name="Model.cpp" compile="1" resource="0" file="Source/Model.cpp"/>
+      <FILE id="wc3O4p" name="Model.h" compile="0" resource="0" file="Source/Model.h"/>
+      <FILE id="RJeo1h" name="GrainProcessingVisualizer.h" compile="0" resource="0"
+            file="Source/GrainProcessingVisualizer.h"/>
+      <FILE id="VR7rm1" name="GrainProcessing.cpp" compile="1" resource="0"
+            file="Source/GrainProcessing.cpp"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>

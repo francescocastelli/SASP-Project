@@ -13,16 +13,16 @@
 #include <set>
 #include "AppConstants.h"
 
-class GrainVisualizer: public juce::Component, public juce::Timer
+class TimeFreqVisualizer: public juce::Component, public juce::Timer
 {
 public:
-    GrainVisualizer();
+    TimeFreqVisualizer();
 
-    ~GrainVisualizer() override;
+    ~TimeFreqVisualizer() override;
 
     //==============================================================================
 
-    void setActive(bool active);
+    void setEnabled(bool active);
 
     void addCurrentIndex(int grainId);
 
@@ -42,10 +42,10 @@ private:
 
     juce::Array<juce::Point<float>> grainArray;
 
-    bool active;
+    bool enabled;
 
     int currentIndex;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainVisualizer);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TimeFreqVisualizer);
 };
 

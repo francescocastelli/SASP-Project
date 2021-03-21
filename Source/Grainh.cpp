@@ -31,7 +31,7 @@ Grain::~Grain()
 {
 }
 
-void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex)
+void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex) const
 {
     for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
     {
@@ -52,22 +52,22 @@ void Grain::fadeIn(int endSample)
     dataBuffer.applyGainRamp(0, endSample, 0.0f, 1.0f);
 }
 
-bool Grain::canPlay(int timeIndex)
+bool Grain::canPlay(int timeIndex) const
 {
     return (startIndex < timeIndex) && (timeIndex < startIndex + dataBuffer.getNumSamples());
 }
 
-int Grain::getStartIndex()
+int Grain::getStartIndex() const
 {
     return startIndex;
 }
 
-bool Grain::hasEnded(int timeIndex)
+bool Grain::hasEnded(int timeIndex) const
 {
     return (timeIndex > startIndex + dataBuffer.getNumSamples());
 }
 
-int Grain::getId()
+int Grain::getId() const
 {
     return id;
 }

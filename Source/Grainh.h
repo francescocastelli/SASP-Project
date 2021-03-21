@@ -21,19 +21,19 @@ public:
 
     ~Grain();
 
-    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex);
+    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex) const;
 
     void fadeOut(int startSample);
 
     void fadeIn(int endSample);
 
-    bool canPlay(int timeIndex);
+    bool canPlay(int timeIndex) const;
     
-    bool hasEnded(int timeIndex);
+    bool hasEnded(int timeIndex) const;
 
-    int getStartIndex();
+    int getStartIndex() const;
 
-    int getId();
+    int getId() const;
 
 private:
 

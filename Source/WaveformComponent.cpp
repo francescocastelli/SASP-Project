@@ -1,17 +1,24 @@
 #include "WaveformComponent.h"
 
-WaveformComponent::WaveformComponent(juce::AudioThumbnail& audioThumbnail) : thumbnail (audioThumbnail)
+WaveformVisualizer::WaveformVisualizer(Model& model) 
+    :model(model),
+    enabled(false)
 {
-    thumbnail.addChangeListener(this);
 }
 
-void WaveformComponent::paint(juce::Graphics& g)
+void WaveformVisualizer::setEnabled(bool enabled)
 {
-    if (thumbnail.getNumChannels() == 0)  paintIfNoFileLoaded(g);
+    this->enabled = enabled;
+    repaint();
+}
+
+void WaveformVisualizer::paint(juce::Graphics& g)
+{
+    if (!enabled)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
-void WaveformComponent::paintIfNoFileLoaded(juce::Graphics& g)
+void WaveformVisualizer::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
@@ -23,19 +30,13 @@ void WaveformComponent::paintIfNoFileLoaded(juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
  
-void WaveformComponent::paintIfFileLoaded(juce::Graphics& g)
+void WaveformVisualizer::paintIfFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
     g.setColour(AppColours::waveformColor);
-    thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), 1.0f);
+    model.getAudioThumbnail().drawChannels(g, getLocalBounds(), 0.0, model.getAudioThumbnail().getTotalLength(), 1.0f);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);
-}
-
-void WaveformComponent::changeListenerCallback(juce::ChangeBroadcaster* source) 
-{
-    if (source == &thumbnail)
-        repaint();
 }

@@ -10,22 +10,22 @@
 
 #include "TimeFrequencyVisualizer.h"
 
-GrainVisualizer::GrainVisualizer()
-    :active(false)
+TimeFreqVisualizer::TimeFreqVisualizer()
+    :enabled(false)
 {
     startTimerHz(300);
 }
 
-GrainVisualizer::~GrainVisualizer() {}
+TimeFreqVisualizer::~TimeFreqVisualizer() {}
 
-void GrainVisualizer::setActive(bool active)
+void TimeFreqVisualizer::setEnabled(bool active)
 {
-    this->active = active;
+    this->enabled= active;
     repaint();
 }
 
 
-void GrainVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray)
+void TimeFreqVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray)
 {
     float xOffset =  float(getLocalBounds().getWidth()) / float(grainFileArray.size());
     auto x = 0.0f;
@@ -38,24 +38,24 @@ void GrainVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray)
     }
 }
 
-void GrainVisualizer::addCurrentIndex(int grainId)
+void TimeFreqVisualizer::addCurrentIndex(int grainId)
 {
     currentIndex =  grainId;
 }
 
 
-void GrainVisualizer::timerCallback()
+void TimeFreqVisualizer::timerCallback()
 {
     repaint();
 }
 
-void GrainVisualizer::paint(juce::Graphics& g)
+void TimeFreqVisualizer::paint(juce::Graphics& g)
 {
-    if (!active)  paintIfNoFileLoaded(g);
+    if (!enabled)  paintIfNoFileLoaded(g);
     else  paintIfFileLoaded(g);
 }
 
-void GrainVisualizer::paintIfNoFileLoaded(juce::Graphics& g)
+void TimeFreqVisualizer::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
@@ -63,7 +63,7 @@ void GrainVisualizer::paintIfNoFileLoaded(juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
  
-void GrainVisualizer::paintIfFileLoaded(juce::Graphics& g)
+void TimeFreqVisualizer::paintIfFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
@@ -74,7 +74,7 @@ void GrainVisualizer::paintIfFileLoaded(juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
 
-void GrainVisualizer::drawGrains(juce::Graphics& g)
+void TimeFreqVisualizer::drawGrains(juce::Graphics& g)
 {
     for (int i = 0; i < grainArray.size(); ++i)
     {

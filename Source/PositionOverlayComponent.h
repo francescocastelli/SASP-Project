@@ -1,12 +1,15 @@
 #pragma once
 #include <JuceHeader.h>
 #include "AppConstants.h"
+#include "Model.h"
 
 class PositionOverlayComponent : public juce::Component, private juce::Timer
 {
 public:
 
-    PositionOverlayComponent(juce::AudioTransportSource& transportSourceToUse, const float& grainLenght);
+    PositionOverlayComponent(Model& model);
+
+    void setEnabled(bool enabled);
 
     void paint(juce::Graphics& g) override;
 
@@ -16,11 +19,9 @@ public:
 
 private:
     
-    //transportSource
-    juce::AudioTransportSource& transportSource;
+    Model& model;
 
-    const float& currentGrainLenght;
-
+    bool enabled;
     //private functions
     void timerCallback() override;
 
