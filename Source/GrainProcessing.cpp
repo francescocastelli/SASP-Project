@@ -22,6 +22,7 @@ void GrainProcessing::selectCurrentGrain()
 	auto currentTime = model.getTransportSource().getCurrentPosition();
 	auto startTime = (currentTime -  currentGrainLenght/ 2) < 0 ? 0 : currentTime - currentGrainLenght / 2;
 	auto endTime = (startTime + currentGrainLenght >= totLength) ? totLength: startTime + currentGrainLenght;
+    auto currentGain = model.getReadGain();
 
 	//temp buffer used for getting the sample to store in the wav
 	//the lenght of the buffer is the grain lenght
@@ -37,8 +38,10 @@ void GrainProcessing::selectCurrentGrain()
     model.getAudioState() = ModelAudioState::selectionPlay;
     model.getTransportSource().setPosition(startTime);
 	model.getTransportSource().start();
+    model.getWriteGain() = 0.0f;
 	model.getTransportSource().getNextAudioBlock(audioChannelInfo);
 	model.getTransportSource().stop();
+    model.getWriteGain() = currentGain;
     model.getAudioState() = ModelAudioState::StopAudio;
 	//reset the position to the previous one 
 	model.getTransportSource().setPosition(endTime);

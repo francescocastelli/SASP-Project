@@ -31,6 +31,10 @@ private:
    
     long long nextGrainStart;
 
+    //--------------------- private methods ---------------------------
+
+    void selectNextGrain();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GrainSelector);
 };
 

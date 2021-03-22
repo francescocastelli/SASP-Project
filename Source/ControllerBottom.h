@@ -61,6 +61,8 @@ private:
     juce::Slider densitySlider;
     juce::Slider windowLenghtSlider;
     juce::Slider windowPositionSlider;
+    juce::Slider randomPositionSlider;
+
     //filter sliders
     juce::Slider cutOffFreqSlider;
     juce::Slider qFactorSlider;
@@ -95,6 +97,8 @@ private:
     void grainSliderChanged();
 
     void loadGrainClicked();
+
+    void randomPositionSliderChanged();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };

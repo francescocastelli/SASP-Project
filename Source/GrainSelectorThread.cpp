@@ -31,6 +31,16 @@ void GrainSelector::start()
 	startThread();
 }
 
+void GrainSelector::selectNextGrain()
+{
+	auto currentIndex = model.getGrainCurrentIndex();
+
+	if (currentIndex + 1 >= model.getGrainWindowLength() + model.getGrainPosition())
+		model.getGrainCurrentIndex() = model.getGrainPosition();
+	else
+		model.getGrainCurrentIndex() = currentIndex + 1;
+}
+
 void GrainSelector::run()
 {
 	juce::AudioBuffer<float> tempBuf;
@@ -53,9 +63,9 @@ void GrainSelector::run()
 
 		//read the buffer for the current grain
 		//TODO implement next grain selection
-		//selectNextGrain();
+		selectNextGrain();
 
-		formatReader = model.getAudioFormatManager().createReaderFor(model.getWriteGrainstack()[0]);
+		formatReader = model.getAudioFormatManager().createReaderFor(model.getWriteGrainstack()[model.getGrainCurrentIndex()]);
 		if (formatReader)
 		{
 			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
@@ -71,7 +81,7 @@ void GrainSelector::run()
 			model.getMutex().lock();
 
 			//add the buffer to the grain stack
-			grainStack.push_back((Grain(tempBuf, grainStart, 0)));
+			grainStack.push_back((Grain(tempBuf, grainStart, model.getGrainCurrentIndex())));
 
 			if (fadein != 0) grainStack.back().fadeIn(fadein);
 			model.getMutex().unlock();
@@ -80,7 +90,7 @@ void GrainSelector::run()
 			// next = start pos of this + its duration
 			//nextGrainStart = grainStart + duration;
 			int duration = (model.getReadSamplerate() / model.getReadDensity());
-			nextGrainStart = grainStart + duration;
+			nextGrainStart = grainStart + duration + juce::Random::getSystemRandom().nextInt(model.getRandomPosition());
 
 			//overlap
 			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)

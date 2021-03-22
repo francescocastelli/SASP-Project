@@ -23,7 +23,8 @@ Model::Model()
     grainPosition(1),
     grainWindowLength(1),
     grainDensity(1),
-    noFiltering(true)
+    noFiltering(true),
+    randomPosition (1)
 {
     //format inizialization
     formatManager.registerBasicFormats();
@@ -246,4 +247,9 @@ int& Model::getGrainCurrentIndex()
 bool Model::getNoFiltering()
 {
     return noFiltering;
+}
+
+int& Model::getRandomPosition()
+{
+    return randomPosition;
 }

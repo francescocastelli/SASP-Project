@@ -130,6 +130,17 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	windowPositionSlider.onValueChange = [this] { grainSliderChanged(); };
 	windowPositionSlider.setValue(0);
 
+	//random position slider
+	addAndMakeVisible(randomPositionSlider);
+	randomPositionSlider.setRange(0, 10000, 1);
+	randomPositionSlider.setTextBoxIsEditable(false);
+	randomPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
+	randomPositionSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
+	randomPositionSlider.setLookAndFeel(&knobLookAndFeel);
+	randomPositionSlider.onValueChange = [this] { randomPositionSliderChanged(); };
+	randomPositionSlider.setValue(0);
+
+
 	//cut off freq slider
 	addAndMakeVisible(cutOffFreqSlider);
 	cutOffFreqSlider.setRange(20, 15000, 0.5);
@@ -203,6 +214,8 @@ void GranularSynthComponent::resized()
 
 	//window position slider
 	windowPositionSlider.setBoundsRelative(-0.01f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
+
+	randomPositionSlider.setBoundsRelative(0.08f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
 
 	//random selection button
 	randomSelectionButton.setBoundsRelative(0.575f, 0.145f, 0.2f, 0.2f);
@@ -344,3 +357,7 @@ void GranularSynthComponent::loadGrainClicked()
 	grainSliderChanged();
 }
 
+void GranularSynthComponent::randomPositionSliderChanged()
+{
+	model.getRandomPosition() = randomPositionSlider.getValue();
+}

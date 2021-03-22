@@ -115,6 +115,8 @@ public:
 
     bool getNoFiltering();
 
+    int& getRandomPosition();
+
 private:
 
     //the state of the model
@@ -202,6 +204,9 @@ private:
 
     //grain position
     int grainPosition;
+
+    //random position
+    int randomPosition;
 
     //grain window
     int grainWindowLength;
