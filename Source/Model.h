@@ -23,7 +23,8 @@ class Model
 {
 public:
     Model();
-
+    
+    ~Model();
     //---------------------------------------------------------------
     
     //get the reference to the grain queue, read or write
@@ -115,7 +116,7 @@ public:
 
     bool getNoFiltering();
 
-    int& getRandomPosition();
+    float& getRandomPosition();
 
 private:
 
@@ -127,7 +128,6 @@ private:
 
     //grain directory 
     juce::File grainDirectory;
-
 
     //tranport source used to play the input audio
     juce::AudioTransportSource transportSource;
@@ -159,7 +159,6 @@ private:
 
     //buffer after processing
     juce::AudioBuffer<float> currentProcessedBuffer;
-
 
     //window 
     juce::dsp::WindowingFunction<float> currentWindow;
@@ -206,7 +205,7 @@ private:
     int grainPosition;
 
     //random position
-    int randomPosition;
+    float randomPosition;
 
     //grain window
     int grainWindowLength;

@@ -11,15 +11,22 @@
 #include "AudioEngine.h"
 
 AudioEngine::AudioEngine(Model& model)
-	:model (model)
+	:model (model),
+	fftVisualizer(nullptr)
 {
 
 }
 
 //-------------------------------------------------------------
+void AudioEngine::setfftVisualizer(SpectrogramComponent* fftVisualizer)
+{
+	this->fftVisualizer = fftVisualizer;
+}
 
 void AudioEngine::releaseResources()
 {
+	delete(fftVisualizer);
+	fftVisualizer = nullptr;
 }
 
 void AudioEngine::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -81,18 +88,19 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 		//apply some reverb to the output
 		model.getWriteReverb().processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
 
-		//TODO add the spec to the model
-		//spectrogram.setNextAudioBlock(bufferToFill);
+		//apply gain at the output sound
+		bufferToFill.buffer->applyGain(model.getReadGain());
+
+		//fft visualizer
+		fftVisualizer->setNextAudioBlock(bufferToFill);
 	}
 	else if (model.getAudioState() == ModelAudioState::selectionPlay)
 	{
 		model.getTransportSource().getNextAudioBlock(bufferToFill);
+		bufferToFill.buffer->applyGain(model.getReadGain());
 	}
 	else bufferToFill.clearActiveBufferRegion();
 
-	//apply gain at the output sound
-	//TODO used db
-	bufferToFill.buffer->applyGain(model.getReadGain());
 }
 
 

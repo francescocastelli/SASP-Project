@@ -100,21 +100,25 @@ void GrainProcessing::saveGrain()
     std::unique_ptr<juce::AudioFormatWriter> writer;
     int fileNum(0);
 
-    //get the number of files in the dir
-    for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(model.getGrainDirectory().getFullPathName()), false))
-        fileNum++;
+    if (model.getGrainDirectory().getFullPathName() != ":Empty")
+    {
+        //get the number of files in the dir
+        for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(model.getGrainDirectory().getFullPathName()), false))
+            fileNum++;
 
-    //path to the file
-    juce::File file(model.getGrainDirectory().getFullPathName() + "\\grain" + juce::String(fileNum) + ".wav");
+        //path to the file
+        juce::File file(model.getGrainDirectory().getFullPathName() + "\\grain" + juce::String(fileNum) + ".wav");
 
-    //write the wav file with the buffer content
-    writer.reset(format.createWriterFor(new juce::FileOutputStream(file),
-        model.getReadSamplerate(),
-        2,
-        16,
-        {},
-        0));
+        //write the wav file with the buffer content
+        writer.reset(format.createWriterFor(new juce::FileOutputStream(file),
+            model.getReadSamplerate(),
+            2,
+            16,
+            {},
+            0));
 
-    if (writer != nullptr)
-        writer->writeFromAudioSampleBuffer(model.getProcessedGrainBuffer(), 0, model.getProcessedGrainBuffer().getNumSamples());
+        if (writer != nullptr)
+            writer->writeFromAudioSampleBuffer(model.getProcessedGrainBuffer(), 0, model.getProcessedGrainBuffer().getNumSamples());
+    }else
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::InfoIcon, "No folder selected!", "Please restart and select a folder");
 }

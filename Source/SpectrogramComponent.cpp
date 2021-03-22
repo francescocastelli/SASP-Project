@@ -11,9 +11,8 @@
 #include <JuceHeader.h>
 #include "SpectrogramComponent.h"
 
-SpectrogramComponent::SpectrogramComponent(Model& model)
+SpectrogramComponent::SpectrogramComponent()
     : forwardFFT(fftOrder),
-    model (model),
     enabled(false),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {

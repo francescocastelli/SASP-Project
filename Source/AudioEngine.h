@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "Grainh.h"
 #include "Model.h"
+#include "SpectrogramComponent.h"
 
 class AudioEngine
 {
@@ -18,6 +19,8 @@ public:
     AudioEngine(Model& model);
 
     //-------------------------------------------------------------
+
+    void setfftVisualizer(SpectrogramComponent* fftVisualizer);
 
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
 
@@ -27,8 +30,9 @@ public:
 
 private:
 
-
     Model& model;
+
+    SpectrogramComponent* fftVisualizer;
 
     //---------------------- private method -------------------------------
 

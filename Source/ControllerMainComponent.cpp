@@ -12,7 +12,7 @@
 
 ControllerMainComponent::ControllerMainComponent()
     :selectionComponent(model, audioLoader, grainProcessor),
-    granularSynthComponent(model, grainSelector, audioLoader),
+    granularSynthComponent(model, grainSelector, audioLoader, audioEngine),
     audioEngine(model),
     audioLoader(model),
     grainProcessor(model),
@@ -37,8 +37,12 @@ ControllerMainComponent::ControllerMainComponent()
 
     setSize (1200, 600);
 
-    //create the directory based on the filename
-    //sampleDir.createDirectory();
+        //create the directory based on the filename
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::QuestionIcon, "Bho", "Choose a folder to store grains", juce::String(), this,
+            juce::ModalCallbackFunction::create(selectGrainFolder, this));
+
+    //dir.createDirectory();
+    //model.getGrainDirectory() = dir;
 }
 
 ControllerMainComponent::~ControllerMainComponent()
@@ -76,5 +80,7 @@ void ControllerMainComponent::getNextAudioBlock(const juce::AudioSourceChannelIn
 
 void ControllerMainComponent::releaseResources()
 {
+    model.getAudioThumbnail().clear();
+    model.getTransportSource().releaseResources();
 }
 

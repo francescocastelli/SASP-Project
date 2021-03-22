@@ -18,6 +18,11 @@ GrainSelector::GrainSelector(Model& model)
 
 }
 
+GrainSelector::~GrainSelector()
+{
+	stopThread(100);
+}
+
 //-------------------------------------------------------------
 
 void GrainSelector::reset() 
@@ -75,7 +80,7 @@ void GrainSelector::run()
 			if (nextGrainStart == 0) nextGrainStart = model.getReadTime();
 
 			//set the start index for the current grain
-			int scheduleDelay = 200;
+			int scheduleDelay = 500;
 			long long grainStart = nextGrainStart + scheduleDelay;
 
 			model.getMutex().lock();
@@ -90,7 +95,7 @@ void GrainSelector::run()
 			// next = start pos of this + its duration
 			//nextGrainStart = grainStart + duration;
 			int duration = (model.getReadSamplerate() / model.getReadDensity());
-			nextGrainStart = grainStart + duration + juce::Random::getSystemRandom().nextInt(model.getRandomPosition());
+			nextGrainStart = grainStart + duration*( 2 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*3 -1)));
 
 			//overlap
 			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)

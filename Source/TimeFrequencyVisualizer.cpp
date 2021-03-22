@@ -10,8 +10,9 @@
 
 #include "TimeFrequencyVisualizer.h"
 
-TimeFreqVisualizer::TimeFreqVisualizer()
-    :enabled(false)
+TimeFreqVisualizer::TimeFreqVisualizer(Model& model)
+    :enabled(false),
+    model(model)
 {
     startTimerHz(300);
 }
@@ -24,9 +25,9 @@ void TimeFreqVisualizer::setEnabled(bool active)
     repaint();
 }
 
-
-void TimeFreqVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray)
+void TimeFreqVisualizer::setGrains()
 {
+    auto grainFileArray = model.getWriteGrainstack();
     float xOffset =  float(getLocalBounds().getWidth()) / float(grainFileArray.size());
     auto x = 0.0f;
 
@@ -37,12 +38,6 @@ void TimeFreqVisualizer::setGrains(const juce::Array<juce::File>& grainFileArray
         grainArray.add(juce::Point<float>(x, y));
     }
 }
-
-void TimeFreqVisualizer::addCurrentIndex(int grainId)
-{
-    currentIndex =  grainId;
-}
-
 
 void TimeFreqVisualizer::timerCallback()
 {
@@ -79,7 +74,7 @@ void TimeFreqVisualizer::drawGrains(juce::Graphics& g)
     for (int i = 0; i < grainArray.size(); ++i)
     {
         g.setColour(AppColours::specStroke);
-        if ( i == currentIndex )
+        if ( i == model.getGrainCurrentIndex())
             g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 8, 8);
         else
             g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 3, 3);

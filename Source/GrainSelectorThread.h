@@ -17,6 +17,7 @@ class GrainSelector: public juce::Thread
 public:
     GrainSelector(Model& model);
 
+    ~GrainSelector();
     //-------------------------------------------------------------
 
     void run() override;

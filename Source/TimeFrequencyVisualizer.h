@@ -12,11 +12,12 @@
 #include <JuceHeader.h>
 #include <set>
 #include "AppConstants.h"
+#include "Model.h"
 
 class TimeFreqVisualizer: public juce::Component, public juce::Timer
 {
 public:
-    TimeFreqVisualizer();
+    TimeFreqVisualizer(Model& model);
 
     ~TimeFreqVisualizer() override;
 
@@ -26,7 +27,7 @@ public:
 
     void addCurrentIndex(int grainId);
 
-    void setGrains(const juce::Array<juce::File>& grainFileArray);
+    void setGrains();
 
     void timerCallback() override;
 
@@ -40,11 +41,11 @@ public:
 
 private:
 
+    Model& model;
+
     juce::Array<juce::Point<float>> grainArray;
 
     bool enabled;
-
-    int currentIndex;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TimeFreqVisualizer);
 };

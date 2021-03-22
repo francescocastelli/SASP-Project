@@ -46,11 +46,26 @@ private:
     //grain selector
     GrainSelector grainSelector;
 
+    //selected directory 
+    juce::File dir;
 
     //top part of the window, contains the waveform and the grain selection (also buttons)
     SelectionComponent selectionComponent;
     //bottom half of the window, contains the granular synth
     GranularSynthComponent granularSynthComponent;
+
+    //--------------------------- private method ------------------------------------
+
+    static void selectGrainFolder(int modalResult, ControllerMainComponent* param)
+    {
+        juce::FileChooser chooser("Select a directory for storing grains", {});
+
+        if (chooser.browseForDirectory())
+        {
+            param->dir = chooser.getResult();
+            param->model.getGrainDirectory() = param->dir;
+        }
+    };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ControllerMainComponent)
 };

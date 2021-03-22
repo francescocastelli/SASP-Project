@@ -17,7 +17,7 @@ class SpectrogramComponent : public juce::Component,
                              private juce::Timer
 {
 public:
-    SpectrogramComponent(Model& model);
+    SpectrogramComponent();
 
     ~SpectrogramComponent() override;
 
@@ -50,7 +50,6 @@ public:
     };
 
 private:
-    Model& model;
 
     juce::dsp::FFT forwardFFT;                     
     juce::dsp::WindowingFunction<float> window;     

@@ -12,7 +12,7 @@
 
 Model::Model()
     :
-    grainDirectory("C:\\Users\\Francesco\\Desktop\\testSamples"),
+    grainDirectory(":Empty"),
     time(0),
     thumbnailCache(5),
     audioThumbnail(512, formatManager, thumbnailCache),
@@ -24,15 +24,18 @@ Model::Model()
     grainWindowLength(1),
     grainDensity(1),
     noFiltering(true),
-    randomPosition (1)
+    randomPosition (0.0f)
 {
     //format inizialization
     formatManager.registerBasicFormats();
 
     //create the directory
-    grainDirectory.createDirectory();
+    //grainDirectory.createDirectory();
 }
 
+Model::~Model()
+{
+}
 //----------------------------------------------------------
 
 const std::deque<Grain>& Model::getReadGrainQueue()
@@ -249,7 +252,7 @@ bool Model::getNoFiltering()
     return noFiltering;
 }
 
-int& Model::getRandomPosition()
+float& Model::getRandomPosition()
 {
     return randomPosition;
 }

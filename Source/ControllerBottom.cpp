@@ -10,11 +10,13 @@
 
 #include "ControllerBottom.h"
 
-GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grainSelector, AudioLoader& audioLoader)
+GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grainSelector, AudioLoader& audioLoader, AudioEngine& audioEngine)
 	:model(model),
-	fftVisualizer(model),
+	fftVisualizer(),
+	grainsVisualizer(model),
 	grainSelector(grainSelector),
-	audioLoader(audioLoader)
+	audioLoader(audioLoader),
+	noGrainsAlert("No grains found!", "Please select some grains before loading", juce::AlertWindow::InfoIcon)
 {
 
 	addAndMakeVisible(fftVisualizer);
@@ -22,6 +24,9 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 
 	fftVisualizer.setEnabled(false);
 	grainsVisualizer.setEnabled(false);
+
+	//set the fftvisualizer in the audioEngine
+	audioEngine.setfftVisualizer(&fftVisualizer);
 
 	knobLookAndFeel.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
 	knobLookAndFeel.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);
@@ -53,6 +58,11 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	positionLabel.setText("POSITION", juce::NotificationType::dontSendNotification);
 	positionLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
 	positionLabel.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(randomPositionLabel);
+	randomPositionLabel.setText("RAND", juce::NotificationType::dontSendNotification);
+	randomPositionLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	randomPositionLabel.setFont(juce::Font(10.0f, juce::Font::bold));
 
 	addAndMakeVisible(cutoffLabel);
 	cutoffLabel.setText("CUT OFF", juce::NotificationType::dontSendNotification);
@@ -132,9 +142,9 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 
 	//random position slider
 	addAndMakeVisible(randomPositionSlider);
-	randomPositionSlider.setRange(0, 10000, 1);
+	randomPositionSlider.setRange(-1.0f, 1.0f, 0.01f);
 	randomPositionSlider.setTextBoxIsEditable(false);
-	randomPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
+	randomPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 40, 20);
 	randomPositionSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
 	randomPositionSlider.setLookAndFeel(&knobLookAndFeel);
 	randomPositionSlider.onValueChange = [this] { randomPositionSliderChanged(); };
@@ -241,6 +251,8 @@ void GranularSynthComponent::resized()
 
 	positionLabel.setBoundsRelative(0.035f, 0.13f, 0.2f, 0.1f);
 
+	randomPositionLabel.setBoundsRelative(0.135f, 0.50f, 0.2f, 0.1f);
+
 	lengthLabel.setBoundsRelative(0.13f, 0.13f, 0.2f, 0.1f);
 
 	cutoffLabel.setBoundsRelative(0.248f, 0.13f, 0.2f, 0.1f);
@@ -313,6 +325,7 @@ void GranularSynthComponent::setSliderState(bool granulationSlider)
 	windowLenghtSlider.setEnabled(granulationSlider);
 	windowPositionSlider.setEnabled(granulationSlider);
 	densitySlider.setEnabled(granulationSlider);
+	randomPositionSlider.setEnabled(granulationSlider);
 }
 
 void GranularSynthComponent::setFilterSliderState(bool noFilter, bool filterParam)
@@ -345,16 +358,28 @@ void GranularSynthComponent::grainSliderChanged()
 		model.getWriteDensity() = densitySlider.getValue();
 
 		//update the ranges
-		windowPositionSlider.setRange(1, model.getWriteGrainstack().size(), 1);
-		windowLenghtSlider.setRange(0, model.getWriteGrainstack().size() - model.getGrainPosition(), 1);
+		windowPositionSlider.setRange(0, juce::jmax(model.getWriteGrainstack().size()-1, 1), 1);
+		if (model.getWriteGrainstack().size() - model.getGrainPosition() <= 0)
+			windowLenghtSlider.setEnabled(false);
+		else
+		{
+			windowLenghtSlider.setRange(0, model.getWriteGrainstack().size() - model.getGrainPosition(), 1);
+			windowLenghtSlider.setEnabled(true);
+		}
 	}
 }
 
 void GranularSynthComponent::loadGrainClicked()
 {
 	audioLoader.loadGrainFile(); 
-	changeCurrentState(SynthState::Loaded); 
-	grainSliderChanged();
+	if (model.getWriteGrainstack().size() != 0)
+	{
+		grainsVisualizer.setGrains();
+		grainsVisualizer.setEnabled(true);
+		changeCurrentState(SynthState::Loaded); 
+		grainSliderChanged();
+	} else
+		juce::AlertWindow::showMessageBox(juce::AlertWindow::InfoIcon, "No grains found!", "Please select some grains before loading");
 }
 
 void GranularSynthComponent::randomPositionSliderChanged()

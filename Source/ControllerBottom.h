@@ -16,6 +16,7 @@
 #include "Model.h"
 #include "GrainSelectorThread.h"
 #include "AudioLoader.h"
+#include "AudioEngine.h"
 
 //state for the transport source 
 enum class SynthState
@@ -29,7 +30,7 @@ enum class SynthState
 class GranularSynthComponent : public juce::Component
 {
 public:
-    GranularSynthComponent(Model& model, GrainSelector& grainSelector, AudioLoader& audioLoader);
+    GranularSynthComponent(Model& model, GrainSelector& grainSelector, AudioLoader& audioLoader, AudioEngine& audioEngine);
 
     void paint(juce::Graphics& g) override;
 
@@ -48,6 +49,7 @@ private:
     KnobLookAndFeel knobLookAndFeel;
 
     TimeFreqVisualizer grainsVisualizer;
+
     SpectrogramComponent fftVisualizer;
 
     //buttons
@@ -79,6 +81,10 @@ private:
     juce::Label gainLabel;
     juce::Label qFactorLabel;
     juce::Label filterTypeLabel;
+    juce::Label randomPositionLabel;
+
+    //alert window
+    juce::AlertWindow noGrainsAlert;
 
     //------------------------------------ methods --------------------
 
