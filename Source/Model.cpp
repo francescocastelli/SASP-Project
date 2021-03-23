@@ -24,7 +24,8 @@ Model::Model()
     grainWindowLength(1),
     grainDensity(1),
     noFiltering(true),
-    randomPosition (0.0f)
+    randomPosition (0.0f),
+    randomSelection(false)
 {
     //format inizialization
     formatManager.registerBasicFormats();
@@ -255,4 +256,14 @@ bool Model::getNoFiltering()
 float& Model::getRandomPosition()
 {
     return randomPosition;
+}
+
+bool Model::getRandomSelection()
+{
+    return randomSelection;
+}
+
+void Model::setRandomSelection(bool randomSel)
+{
+    randomSelection = randomSel;
 }

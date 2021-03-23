@@ -40,10 +40,16 @@ void GrainSelector::selectNextGrain()
 {
 	auto currentIndex = model.getGrainCurrentIndex();
 
-	if (currentIndex + 1 >= model.getGrainWindowLength() + model.getGrainPosition())
-		model.getGrainCurrentIndex() = model.getGrainPosition();
-	else
-		model.getGrainCurrentIndex() = currentIndex + 1;
+	if (model.getRandomSelection())
+	{
+		model.getGrainCurrentIndex() = juce::Random::getSystemRandom().nextInt(juce::Range<int>(model.getGrainPosition(), model.getGrainWindowLength() + model.getGrainPosition() - 1));
+	}
+	else {
+		if (currentIndex + 1 >= model.getGrainWindowLength() + model.getGrainPosition())
+			model.getGrainCurrentIndex() = model.getGrainPosition();
+		else
+			model.getGrainCurrentIndex() = currentIndex + 1;
+	}
 }
 
 void GrainSelector::run()
@@ -95,7 +101,7 @@ void GrainSelector::run()
 			// next = start pos of this + its duration
 			//nextGrainStart = grainStart + duration;
 			int duration = (model.getReadSamplerate() / model.getReadDensity());
-			nextGrainStart = grainStart + duration*( 2 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*3 -1)));
+			nextGrainStart = grainStart + duration*( 1 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*2 -1)));
 
 			//overlap
 			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)

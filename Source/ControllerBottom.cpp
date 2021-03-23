@@ -15,12 +15,14 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	fftVisualizer(),
 	grainsVisualizer(model),
 	grainSelector(grainSelector),
-	audioLoader(audioLoader),
-	noGrainsAlert("No grains found!", "Please select some grains before loading", juce::AlertWindow::InfoIcon)
+	audioLoader(audioLoader)
 {
 
 	addAndMakeVisible(fftVisualizer);
 	addAndMakeVisible(grainsVisualizer);
+	addAndMakeVisible(randomSelectionButton);
+
+	randomSelectionButton.onClick = [this] {randomSelectionButtonClicked(); };
 
 	fftVisualizer.setEnabled(false);
 	grainsVisualizer.setEnabled(false);
@@ -117,7 +119,7 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	densitySlider.setTextBoxIsEditable(false);
 	densitySlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
 	densitySlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-	densitySlider.onValueChange = [this] { grainSliderChanged(); };
+	densitySlider.onValueChange = [this] { densitySliderChanged(); };
 	densitySlider.setValue(2);
 
 	//window lenght slider
@@ -127,7 +129,7 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	windowLenghtSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
 	windowLenghtSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
 	windowLenghtSlider.setLookAndFeel(&knobLookAndFeel);
-	windowLenghtSlider.onValueChange = [this] { grainSliderChanged(); };
+	windowLenghtSlider.onValueChange = [this] { windowSliderChanged(); };
 	windowLenghtSlider.setValue(2);
 
 	//window position slider
@@ -142,14 +144,13 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 
 	//random position slider
 	addAndMakeVisible(randomPositionSlider);
-	randomPositionSlider.setRange(-1.0f, 1.0f, 0.01f);
+	randomPositionSlider.setRange(-0.99f, 0.99f, 0.01f);
 	randomPositionSlider.setTextBoxIsEditable(false);
 	randomPositionSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 40, 20);
 	randomPositionSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
 	randomPositionSlider.setLookAndFeel(&knobLookAndFeel);
 	randomPositionSlider.onValueChange = [this] { randomPositionSliderChanged(); };
 	randomPositionSlider.setValue(0);
-
 
 	//cut off freq slider
 	addAndMakeVisible(cutOffFreqSlider);
@@ -354,8 +355,7 @@ void GranularSynthComponent::grainSliderChanged()
 	if (currentState != SynthState::Disable)
 	{
 		model.getGrainPosition() = windowPositionSlider.getValue();
-		model.getGrainWindowLength() = windowLenghtSlider.getValue();
-		model.getWriteDensity() = densitySlider.getValue();
+		model.getGrainCurrentIndex() = model.getGrainWindowLength();
 
 		//update the ranges
 		windowPositionSlider.setRange(0, juce::jmax(model.getWriteGrainstack().size()-1, 1), 1);
@@ -367,6 +367,16 @@ void GranularSynthComponent::grainSliderChanged()
 			windowLenghtSlider.setEnabled(true);
 		}
 	}
+}
+
+void GranularSynthComponent::windowSliderChanged()
+{
+	model.getGrainWindowLength() = windowLenghtSlider.getValue();
+}
+ 
+void GranularSynthComponent::densitySliderChanged()
+{
+	model.getWriteDensity() = densitySlider.getValue();
 }
 
 void GranularSynthComponent::loadGrainClicked()
@@ -385,4 +395,9 @@ void GranularSynthComponent::loadGrainClicked()
 void GranularSynthComponent::randomPositionSliderChanged()
 {
 	model.getRandomPosition() = randomPositionSlider.getValue();
+}
+   
+void GranularSynthComponent::randomSelectionButtonClicked()
+{
+	model.setRandomSelection(randomSelectionButton.getToggleStateValue().getValue());
 }

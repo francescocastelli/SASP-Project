@@ -118,6 +118,10 @@ public:
 
     float& getRandomPosition();
 
+    bool getRandomSelection();
+    
+    void setRandomSelection(bool randomSel);
+
 private:
 
     //the state of the model
@@ -153,6 +157,8 @@ private:
     float endTime;
 
     int automaticSelectionValue;
+
+    bool randomSelection;
 
     //buffer of the current selected grain
     juce::AudioBuffer<float> currentGrainBuffer;

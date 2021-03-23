@@ -83,9 +83,6 @@ private:
     juce::Label filterTypeLabel;
     juce::Label randomPositionLabel;
 
-    //alert window
-    juce::AlertWindow noGrainsAlert;
-
     //------------------------------------ methods --------------------
 
     void changeCurrentState(SynthState newState);
@@ -105,6 +102,12 @@ private:
     void loadGrainClicked();
 
     void randomPositionSliderChanged();
+    
+    void randomSelectionButtonClicked();
+    
+    void windowSliderChanged();
+
+    void densitySliderChanged();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };
