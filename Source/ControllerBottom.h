@@ -57,6 +57,7 @@ private:
     juce::TextButton stopAudio;
     juce::TextButton playAudio;
     juce::ToggleButton randomSelectionButton;
+    juce::ToggleButton reverseButton;
 
     //sliders
     juce::Slider masterVolume;
@@ -108,6 +109,8 @@ private:
     void windowSliderChanged();
 
     void densitySliderChanged();
+
+    void reverseButtonClicked();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularSynthComponent);
 };

@@ -92,6 +92,9 @@ void GrainSelector::run()
 			model.getMutex().lock();
 
 			//add the buffer to the grain stack
+			if (model.getReverse())
+				tempBuf.reverse(0, tempBuf.getNumSamples());
+
 			grainStack.push_back((Grain(tempBuf, grainStart, model.getGrainCurrentIndex())));
 
 			if (fadein != 0) grainStack.back().fadeIn(fadein);

@@ -21,8 +21,10 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	addAndMakeVisible(fftVisualizer);
 	addAndMakeVisible(grainsVisualizer);
 	addAndMakeVisible(randomSelectionButton);
+	addAndMakeVisible(reverseButton);
 
 	randomSelectionButton.onClick = [this] {randomSelectionButtonClicked(); };
+	reverseButton.onClick = [this] {reverseButtonClicked(); };
 
 	fftVisualizer.setEnabled(false);
 	grainsVisualizer.setEnabled(false);
@@ -229,7 +231,9 @@ void GranularSynthComponent::resized()
 	randomPositionSlider.setBoundsRelative(0.08f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
 
 	//random selection button
-	randomSelectionButton.setBoundsRelative(0.575f, 0.145f, 0.2f, 0.2f);
+	randomSelectionButton.setBoundsRelative(0.575f, 0.05f, 0.2f, 0.2f);
+
+	reverseButton.setBoundsRelative(0.575f, 0.23f, 0.2f, 0.2f);
 
 	//cut off 
 	cutOffFreqSlider.setBoundsRelative(0.2f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
@@ -355,7 +359,7 @@ void GranularSynthComponent::grainSliderChanged()
 	if (currentState != SynthState::Disable)
 	{
 		model.getGrainPosition() = windowPositionSlider.getValue();
-		model.getGrainCurrentIndex() = model.getGrainWindowLength();
+		model.getGrainCurrentIndex() = model.getGrainPosition();
 
 		//update the ranges
 		windowPositionSlider.setRange(0, juce::jmax(model.getWriteGrainstack().size()-1, 1), 1);
@@ -400,4 +404,9 @@ void GranularSynthComponent::randomPositionSliderChanged()
 void GranularSynthComponent::randomSelectionButtonClicked()
 {
 	model.setRandomSelection(randomSelectionButton.getToggleStateValue().getValue());
+}
+    
+void GranularSynthComponent::reverseButtonClicked()
+{
+	model.setReverse(reverseButton.getToggleStateValue().getValue());
 }

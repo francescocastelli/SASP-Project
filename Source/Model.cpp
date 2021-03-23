@@ -267,3 +267,13 @@ void Model::setRandomSelection(bool randomSel)
 {
     randomSelection = randomSel;
 }
+
+bool Model::getReverse()
+{
+    return playReverse;
+}
+
+void Model::setReverse(bool reverse)
+{
+    playReverse = reverse;
+}

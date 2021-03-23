@@ -78,6 +78,18 @@ void TimeFreqVisualizer::drawGrains(juce::Graphics& g)
             g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 8, 8);
         else
             g.fillEllipse(grainArray[i].getX(), grainArray[i].getY(), 3, 3);
+        
     }
+
+    float size = model.getWriteGrainstack().size();
+
+    float drawPosition = (float)(model.getGrainPosition()/size)*getWidth();
+    float rectWidth = (float)(model.getGrainWindowLength() / size)* getWidth();
+
+    g.setColour(AppColours::positionOverlayBar);
+    g.drawLine(drawPosition, 0.0f, drawPosition, (float)getHeight(), 2.0f);
+    g.setColour(AppColours::positionOverlay);
+    g.setOpacity(0.3);
+    g.fillRoundedRectangle(drawPosition, 0.0f, rectWidth, getHeight(), 1.0f);
 }
 

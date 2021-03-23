@@ -122,6 +122,10 @@ public:
     
     void setRandomSelection(bool randomSel);
 
+    bool getReverse();
+
+    void setReverse(bool reverse);
+
 private:
 
     //the state of the model
@@ -159,6 +163,8 @@ private:
     int automaticSelectionValue;
 
     bool randomSelection;
+
+    bool playReverse;
 
     //buffer of the current selected grain
     juce::AudioBuffer<float> currentGrainBuffer;

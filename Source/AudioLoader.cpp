@@ -17,7 +17,7 @@ AudioLoader::AudioLoader(Model& model)
 
 void AudioLoader::loadInputFile()
 {
-	juce::FileChooser chooser("Select a Wave file to play...", {}, "*.wav");                                     
+	juce::FileChooser chooser("Select a Wave file to play...", {}, "*.wav;*.mp3");                                     
     
 	if (chooser.browseForFileToOpen())                                          
 	{
