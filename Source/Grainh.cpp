@@ -13,7 +13,8 @@
 Grain::Grain() 
     : dataBuffer(),
       startIndex (0),
-      dataBufferIndex(0)
+      dataBufferIndex(0), 
+      finished(false)
 {
 }
 
@@ -21,7 +22,8 @@ Grain::Grain(juce::AudioBuffer<float>& buf, int startTime, int id)
     : dataBuffer (),
       startIndex (startTime),
       id (id),
-      dataBufferIndex (0)
+      dataBufferIndex (0),
+      finished (false)
 {
     //make a copy of the buffer
     dataBuffer = buf;
@@ -31,7 +33,7 @@ Grain::~Grain()
 {
 }
 
-void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex) const
+void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex) 
 {
     for (int channel = 0; channel < bufferToFill.buffer->getNumChannels(); ++channel)
     {
@@ -40,6 +42,8 @@ void Grain::processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int t
 
         outputChannel[timeIndex % bufferToFill.numSamples] += dataChannel[timeIndex - startIndex];
     }
+
+    finished =  (timeIndex +1 >= startIndex + dataBuffer.getNumSamples());
 }
 
 void Grain::fadeOut(int startSample)
@@ -70,4 +74,9 @@ bool Grain::hasEnded(int timeIndex) const
 int Grain::getId() const
 {
     return id;
+}
+    
+bool Grain::isFinished()
+{
+    return finished;
 }

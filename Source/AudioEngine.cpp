@@ -53,28 +53,23 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 {
 	if (model.getAudioState() == ModelAudioState::grainPlay)
 	{
-		//lock to prevent the thread to modify the grain stack during the copy 
-		model.getMutex().lock();
+		std::atomic<long long>& time = model.getWriteTime();
+		int currentWrite = model.getWritePos();
 
-		//get the info from the model
-		const std::deque<Grain>& localStack = model.getReadGrainQueue();
-		long long& time = model.getWriteTime();
+		if (model.getReadPos() >= currentWrite)
+			currentWrite = model.getWriteGrainQueue().size();
 
 		for (int i = 0; i < bufferToFill.numSamples; ++i)
 		{
-			for (int j = 0; j < localStack.size(); ++j)
-				if (localStack[j].canPlay(time))
-				{
-					localStack[j].processBlock(bufferToFill, time);
-
-					//add the visualizer to the model
-					//grainVisualizer.addCurrentIndex(localStack[j].getId());
-				}
+			for (int j = 0; j < currentWrite-model.getReadPos(); ++j)
+				if (model.getWriteGrainQueue()[model.getReadPos()+j].canPlay(time))
+					model.getWriteGrainQueue()[model.getReadPos()+j].processBlock(bufferToFill, time);
 
 			++time;
-		}
 
-		model.getMutex().unlock();
+			if (model.getWriteGrainQueue()[model.getReadPos()].isFinished())
+				model.getReadPos() = (model.getReadPos() + 1) % model.getWriteGrainQueue().size();
+		}
 
 		//filtering 
 		model.updateFilterCoeff();

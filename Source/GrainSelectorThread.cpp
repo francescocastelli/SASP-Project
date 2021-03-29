@@ -56,6 +56,7 @@ void GrainSelector::run()
 {
 	juce::AudioBuffer<float> tempBuf;
 	juce::AudioFormatReader* formatReader;
+	std::vector<Grain>& grainStack = model.getWriteGrainQueue();
 
 	double waitTime = -1;
 	long long fadein = 0;
@@ -63,17 +64,6 @@ void GrainSelector::run()
 
 	while (!threadShouldExit())
 	{
-		model.getMutex().lock();
-		std::deque<Grain>& grainStack = model.getWriteGrainQueue();
-
-		//remove the grains already played
-		if (grainStack.size() > 0)
-			grainStack.erase(std::remove_if(grainStack.begin(), grainStack.end(), [this](Grain x) {return x.hasEnded(model.getReadTime()); }), grainStack.end());
-
-		model.getMutex().unlock();
-
-		//read the buffer for the current grain
-		//TODO implement next grain selection
 		selectNextGrain();
 
 		formatReader = model.getAudioFormatManager().createReaderFor(model.getWriteGrainstack()[model.getGrainCurrentIndex()]);
@@ -89,16 +79,13 @@ void GrainSelector::run()
 			int scheduleDelay = 500;
 			long long grainStart = nextGrainStart + scheduleDelay;
 
-			model.getMutex().lock();
-
 			//add the buffer to the grain stack
 			if (model.getReverse())
 				tempBuf.reverse(0, tempBuf.getNumSamples());
 
-			grainStack.push_back((Grain(tempBuf, grainStart, model.getGrainCurrentIndex())));
+			Grain newgrain { tempBuf, int(grainStart), model.getGrainCurrentIndex() };
 
-			if (fadein != 0) grainStack.back().fadeIn(fadein);
-			model.getMutex().unlock();
+			if (fadein != 0) newgrain.fadeIn(juce::jmin(tempBuf.getNumSamples()-1, int(fadein)));
 
 			//set the start index for the next grain 
 			// next = start pos of this + its duration
@@ -109,13 +96,18 @@ void GrainSelector::run()
 			//overlap
 			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)
 			{
-				model.getMutex().lock();
 				auto fadeSamples = grainStart + tempBuf.getNumSamples() - nextGrainStart;
-				grainStack.back().fadeOut(fadeSamples);
-				model.getMutex().unlock();
+				newgrain.fadeOut(fadeSamples);
 				fadein = fadeSamples;
 			}
 			else fadein = 0;
+
+		
+			if (model.getWritePos() < grainStack.size())
+				grainStack[model.getWritePos()] = std::move(newgrain);
+			else model.getWritePos() = 0;
+
+			++model.getWritePos();
 
 			//time to wait
 			float grainDuration = float(tempBuf.getNumSamples()) / model.getReadSamplerate();

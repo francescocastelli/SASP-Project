@@ -25,7 +25,9 @@ Model::Model()
     grainDensity(1),
     noFiltering(true),
     randomPosition (0.0f),
-    randomSelection(false)
+    randomSelection(false),
+    readPos (0), 
+    writePos(0)
 {
     //format inizialization
     formatManager.registerBasicFormats();
@@ -39,22 +41,22 @@ Model::~Model()
 }
 //----------------------------------------------------------
 
-const std::deque<Grain>& Model::getReadGrainQueue()
+const std::vector<Grain>& Model::getReadGrainQueue()
 {
     return grainQueue;
 }
 
-std::deque<Grain>& Model::getWriteGrainQueue()
+std::vector<Grain>& Model::getWriteGrainQueue()
 {
     return grainQueue;
 }
 
-long long& Model::getReadTime()
+std::atomic<long long>& Model::getReadTime()
 {
     return time;
 }
 
-long long& Model::getWriteTime()
+std::atomic<long long>& Model::getWriteTime()
 {
     return time;
 }
@@ -121,11 +123,6 @@ float Model::getReadDensity()
 float& Model::getWriteDensity()
 {
     return grainDensity;
-}
-
-std::mutex& Model::getMutex()
-{
-    return mtx;
 }
 
 ModelAudioState& Model::getAudioState()
@@ -276,4 +273,14 @@ bool Model::getReverse()
 void Model::setReverse(bool reverse)
 {
     playReverse = reverse;
+}
+
+std::atomic<int>& Model::getWritePos()
+{
+    return writePos;
+}
+
+std::atomic<int>& Model::getReadPos()
+{
+    return readPos;
 }

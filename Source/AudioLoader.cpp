@@ -34,15 +34,17 @@ void AudioLoader::loadInputFile()
 			model.getAudioThumbnail().setSource(new juce::FileInputSource(file));
 			readerSource.reset(newSource.release());     
 		}
-		
     }
 }
 
 void AudioLoader::loadGrainFile()
 {
+	//TODO delete the grains already present
 	//get the number of files in the dir
 	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(model.getGrainDirectory().getFullPathName()), false))
 	{
 		model.getWriteGrainstack().add(entry.getFile());
 	}
+
+	model.getWriteGrainQueue().resize(model.getWriteGrainstack().size());
 }

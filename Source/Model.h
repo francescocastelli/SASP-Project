@@ -25,19 +25,45 @@ public:
     Model();
     
     ~Model();
-    //---------------------------------------------------------------
     
+    //----------------------- grain playback---------------------------------------
     //get the reference to the grain queue, read or write
-    const std::deque<Grain>& getReadGrainQueue();
-    std::deque<Grain>& getWriteGrainQueue();
+    const std::vector<Grain>& getReadGrainQueue();
+    std::vector<Grain>& getWriteGrainQueue();
+
+    //get read and write positions
+    std::atomic<int>& getWritePos();
+    std::atomic<int>& getReadPos();
 
     //get the ref to the file stack of grains
     juce::Array<juce::File>& getWriteGrainstack();
 
     //get reference to the current time
-    long long& getReadTime();
-    long long& getWriteTime();
+    std::atomic<long long>& getReadTime();
+    std::atomic<long long>& getWriteTime();
 
+    //get the current gain
+    float getReadGain();
+    float& getWriteGain();
+
+    //get the current density 
+    float getReadDensity();
+    float& getWriteDensity();
+
+    float& getRandomPosition();
+    bool getRandomSelection();
+    void setRandomSelection(bool randomSel);
+
+    bool getReverse();
+    void setReverse(bool reverse);
+
+    int& getGrainPosition();
+
+    int& getGrainWindowLength();
+
+    int& getGrainCurrentIndex();
+
+    //------------------------------- filter ------------------------------------------------
     //use to update the current filter coeff
     void updateFilterCoeff();
 
@@ -47,20 +73,22 @@ public:
     //get reg to reverb
     juce::Reverb& getWriteReverb();
 
-    //get the current gain
-    float getReadGain();
-    float& getWriteGain();
+    float& getFilterCutoff();
 
+    float& getFilterResonance();
+
+    float& getFilterGain();
+
+    int& getFilterType();
+
+    bool getNoFiltering();
+
+    //------------------------------ general info ---------------------------
     //get the current sample rate
     double getReadSamplerate();
     double& getWriteSamplerate();
 
-    //get the current density 
-    float getReadDensity();
-    float& getWriteDensity();
-
-    //get the mutex
-    std::mutex& getMutex();
+    juce::File& getGrainDirectory();
 
     //get the current state
     ModelAudioState& getAudioState();
@@ -71,12 +99,11 @@ public:
     //get the audio thumbnail 
     juce::AudioThumbnail& getAudioThumbnail();
 
-    juce::File& getGrainDirectory();
-
     //get the fade
     float getReadFade();
     float& getWriteFade();
 
+    //--------------------------------- grain selection ------------------------------
     //get the current selected grain buffer
     juce::AudioBuffer<float>& getSelectedGrainBuffer();
 
@@ -99,32 +126,6 @@ public:
     float& getGrainEndTime();
 
     int& getAutomaticSelValue();
-
-    float& getFilterCutoff();
-
-    float& getFilterResonance();
-
-    float& getFilterGain();
-
-    int& getFilterType();
-
-    int& getGrainPosition();
-
-    int& getGrainWindowLength();
-
-    int& getGrainCurrentIndex();
-
-    bool getNoFiltering();
-
-    float& getRandomPosition();
-
-    bool getRandomSelection();
-    
-    void setRandomSelection(bool randomSel);
-
-    bool getReverse();
-
-    void setReverse(bool reverse);
 
 private:
 
@@ -199,13 +200,17 @@ private:
     //---------------------- GRAIN PLAYBACK ----------------------
 
     //queue of current grains to be played
-    std::deque<Grain> grainQueue;
+    std::vector<Grain> grainQueue;
 
     //stack of all the grains
     juce::Array<juce::File> grainFileStack;
 
     //current time 
-    long long time;
+    std::atomic<long long> time;
+
+    std::atomic<int> writePos;
+
+    std::atomic<int> readPos;
 
     //gain
     float currentGain;
@@ -221,9 +226,6 @@ private:
 
     //grain window
     int grainWindowLength;
-
-    //mutex
-    std::mutex mtx;
 
     //grain current index
     int grainCurrentIndex;

@@ -21,7 +21,7 @@ public:
 
     ~Grain();
 
-    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex) const;
+    void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex);
 
     void fadeOut(int startSample);
 
@@ -35,6 +35,8 @@ public:
 
     int getId() const;
 
+    bool isFinished();
+
 private:
 
     juce::AudioBuffer<float> dataBuffer;
@@ -44,4 +46,6 @@ private:
     int startIndex;
 
     int id;
+
+    bool finished;
 };
