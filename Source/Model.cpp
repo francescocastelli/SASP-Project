@@ -20,6 +20,7 @@ Model::Model()
     grainLength(0.1f),
     currentGain(0.8f),
     fadeValue(0.0f),
+    grainQueue (200),
     grainPosition(1),
     grainWindowLength(1),
     grainDensity(1),
@@ -95,12 +96,7 @@ juce::Reverb& Model::getWriteReverb()
     return reverb;
 }
 
-float Model::getReadGain()
-{
-    return currentGain;
-}
-
-float& Model::getWriteGain()
+std::atomic<float>& Model::getWriteGain()
 {
     return currentGain;
 }
@@ -115,12 +111,7 @@ double& Model::getWriteSamplerate()
     return sampleRate;
 }
 
-float Model::getReadDensity()
-{
-    return grainDensity;
-}
-
-float& Model::getWriteDensity()
+std::atomic<float>& Model::getWriteDensity()
 {
     return grainDensity;
 }
@@ -150,12 +141,7 @@ juce::File& Model::getGrainDirectory()
     return grainDirectory;
 }
 
-float Model::getReadFade()
-{
-    return fadeValue;
-}
-
-float& Model::getWriteFade()
+std::atomic<float>& Model::getWriteFade()
 {
     return fadeValue;
 }
@@ -170,12 +156,7 @@ juce::AudioBuffer<float>& Model::getProcessedGrainBuffer()
     return currentProcessedBuffer;
 }
 
-float Model::getReadGrainLength()
-{
-    return grainLength;
-}
-
-float& Model::getWriteGrainLength()
+std::atomic<float>& Model::getWriteGrainLength()
 {
     return grainLength;
 }
@@ -190,12 +171,12 @@ juce::AudioFormatManager& Model::getAudioFormatManager()
     return formatManager;
 }
 
-float& Model::getGrainStartTime()
+std::atomic<float>& Model::getGrainStartTime()
 {
     return startTime;
 }
     
-float& Model::getGrainEndTime()
+std::atomic<float>& Model::getGrainEndTime()
 {
     return endTime;
 }
@@ -205,52 +186,52 @@ juce::dsp::WindowingFunction<float>::WindowingMethod& Model::getCurrentWindowMet
     return currentWindowMethod;
 }
 
-int& Model::getAutomaticSelValue()
+std::atomic<int>& Model::getAutomaticSelValue()
 {
     return automaticSelectionValue;
 }
 
-float& Model::getFilterCutoff()
+std::atomic<float>& Model::getFilterCutoff()
 {
     return cutoffFreq;
 }
 
-float& Model::getFilterResonance()
+std::atomic<float>& Model::getFilterResonance()
 {
     return resonance;
 }
 
-float& Model::getFilterGain()
+std::atomic<float>& Model::getFilterGain()
 {
     return filterGain;
 }
 
-int& Model::getFilterType()
+std::atomic<int>& Model::getFilterType()
 {
     return filterType;
 }
 
-int& Model::getGrainPosition()
+std::atomic<int>& Model::getGrainPosition()
 {
     return grainPosition;
 }
 
-int& Model::getGrainWindowLength()
+std::atomic<int>& Model::getGrainWindowLength()
 {
     return grainWindowLength;
 }
 
-int& Model::getGrainCurrentIndex()
+std::atomic<int>& Model::getGrainCurrentIndex()
 {
     return grainCurrentIndex;
 }
 
-bool Model::getNoFiltering()
+std::atomic<bool>& Model::getNoFiltering()
 {
     return noFiltering;
 }
 
-float& Model::getRandomPosition()
+std::atomic<float>& Model::getRandomPosition()
 {
     return randomPosition;
 }

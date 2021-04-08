@@ -43,25 +43,23 @@ public:
     std::atomic<long long>& getWriteTime();
 
     //get the current gain
-    float getReadGain();
-    float& getWriteGain();
+    std::atomic<float>& getWriteGain();
 
     //get the current density 
-    float getReadDensity();
-    float& getWriteDensity();
+    std::atomic<float>& getWriteDensity();
 
-    float& getRandomPosition();
+    std::atomic<float>& getRandomPosition();
     bool getRandomSelection();
     void setRandomSelection(bool randomSel);
 
     bool getReverse();
     void setReverse(bool reverse);
 
-    int& getGrainPosition();
+    std::atomic<int>& getGrainPosition();
 
-    int& getGrainWindowLength();
+    std::atomic<int>& getGrainWindowLength();
 
-    int& getGrainCurrentIndex();
+    std::atomic<int>& getGrainCurrentIndex();
 
     //------------------------------- filter ------------------------------------------------
     //use to update the current filter coeff
@@ -73,15 +71,15 @@ public:
     //get reg to reverb
     juce::Reverb& getWriteReverb();
 
-    float& getFilterCutoff();
+    std::atomic<float>& getFilterCutoff();
 
-    float& getFilterResonance();
+    std::atomic<float>& getFilterResonance();
 
-    float& getFilterGain();
+    std::atomic<float>& getFilterGain();
 
-    int& getFilterType();
+    std::atomic<int>& getFilterType();
 
-    bool getNoFiltering();
+    std::atomic<bool>& getNoFiltering();
 
     //------------------------------ general info ---------------------------
     //get the current sample rate
@@ -100,8 +98,7 @@ public:
     juce::AudioThumbnail& getAudioThumbnail();
 
     //get the fade
-    float getReadFade();
-    float& getWriteFade();
+    std::atomic<float>& getWriteFade();
 
     //--------------------------------- grain selection ------------------------------
     //get the current selected grain buffer
@@ -111,8 +108,7 @@ public:
     juce::AudioBuffer<float>& getProcessedGrainBuffer();
 
     //get the current grain length
-    float getReadGrainLength();
-    float& getWriteGrainLength();
+    std::atomic<float>& getWriteGrainLength();
 
     //get the current window
     juce::dsp::WindowingFunction<float>& getCurrentWindow();
@@ -121,11 +117,11 @@ public:
 
     juce::AudioFormatManager& getAudioFormatManager();
 
-    float& getGrainStartTime();
+    std::atomic<float>& getGrainStartTime();
     
-    float& getGrainEndTime();
+    std::atomic<float>& getGrainEndTime();
 
-    int& getAutomaticSelValue();
+    std::atomic<int>& getAutomaticSelValue();
 
 private:
 
@@ -151,21 +147,21 @@ private:
     //---------------------- GRAIN SELECTION ------------------------------------
 
     //lenght of the grain [s]
-    float grainLength;
+    std::atomic<float> grainLength;
 
     //fade value on the selected grain
-    float fadeValue;
+    std::atomic<float> fadeValue;
 
     //start and end pos of the grain
-    float startTime;
+    std::atomic<float> startTime;
 
-    float endTime;
+    std::atomic<float> endTime;
 
-    int automaticSelectionValue;
+    std::atomic<int> automaticSelectionValue;
 
-    bool randomSelection;
+    std::atomic<bool> randomSelection;
 
-    bool playReverse;
+    std::atomic<bool> playReverse;
 
     //buffer of the current selected grain
     juce::AudioBuffer<float> currentGrainBuffer;
@@ -187,15 +183,15 @@ private:
     //current reverb 
     juce::Reverb reverb;
 
-    float cutoffFreq;
+    std::atomic<float> cutoffFreq;
 
-    float resonance;
+    std::atomic<float> resonance;
 
-    int filterType;
+    std::atomic<int> filterType;
 
-    float filterGain;
+    std::atomic<float> filterGain;
 
-    bool noFiltering;
+    std::atomic<bool> noFiltering;
 
     //---------------------- GRAIN PLAYBACK ----------------------
 
@@ -213,20 +209,20 @@ private:
     std::atomic<int> readPos;
 
     //gain
-    float currentGain;
+    std::atomic<float> currentGain;
 
     //grain density
-    float grainDensity;
+    std::atomic<float> grainDensity;
 
     //grain position
-    int grainPosition;
+    std::atomic<int> grainPosition;
 
     //random position
-    float randomPosition;
+    std::atomic<float> randomPosition;
 
     //grain window
-    int grainWindowLength;
+    std::atomic<int> grainWindowLength;
 
     //grain current index
-    int grainCurrentIndex;
+    std::atomic<int> grainCurrentIndex;
 };

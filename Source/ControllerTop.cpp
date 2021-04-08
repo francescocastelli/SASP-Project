@@ -325,7 +325,7 @@ void SelectionComponent::selectionButtonClicked()
 void SelectionComponent::grainLenghtChanged()
 {
 	model.getWriteGrainLength() = grainLenghtSlider.getValue()/ 1000.0f;
-	fadeSlider.setRange(0, int(model.getReadGrainLength() * 1000), 1);
+	fadeSlider.setRange(0, int(model.getWriteGrainLength() * 1000), 1);
 }
 
 void SelectionComponent::windowMenuChanged()
@@ -361,9 +361,9 @@ void SelectionComponent::automaticValueChanged()
 
 void SelectionComponent::automaticGrainSelection() 
 {
-	auto maxLenght = int((model.getTransportSource().getLengthInSeconds() - model.getTransportSource().getCurrentPosition() - model.getReadGrainLength()) / model.getReadGrainLength());
+	auto maxLenght = int((model.getTransportSource().getLengthInSeconds() - model.getTransportSource().getCurrentPosition() - model.getWriteGrainLength()) / model.getWriteGrainLength());
 
-	for (int i = 0; i < juce::jmin(model.getAutomaticSelValue(), maxLenght); i++)
+	for (int i = 0; i < juce::jmin(model.getAutomaticSelValue().load(), maxLenght); i++)
 	{
 		selectionButtonClicked();
 		grainProcessor.saveGrain();

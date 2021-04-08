@@ -17,12 +17,12 @@ GrainProcessing::GrainProcessing(Model& model)
 
 void GrainProcessing::selectCurrentGrain()
 {
-    auto currentGrainLenght = model.getReadGrainLength();
+    auto& currentGrainLenght = model.getWriteGrainLength();
     auto totLength = model.getTransportSource().getLengthInSeconds();
 	auto currentTime = model.getTransportSource().getCurrentPosition();
 	auto startTime = (currentTime -  currentGrainLenght/ 2) < 0 ? 0 : currentTime - currentGrainLenght / 2;
 	auto endTime = (startTime + currentGrainLenght >= totLength) ? totLength: startTime + currentGrainLenght;
-    auto currentGain = model.getReadGain();
+    auto currentGain = model.getWriteGain().load();
 
 	//temp buffer used for getting the sample to store in the wav
 	//the lenght of the buffer is the grain lenght
@@ -56,8 +56,8 @@ void GrainProcessing::selectCurrentGrain()
 void GrainProcessing::computeWindowOutput()
 {
     //always check the maximum lenght
-    auto fadeInSamples = juce::jmin(int(model.getReadFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
-    auto windowLenght = juce::jmin(int(model.getReadGrainLength()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
+    auto fadeInSamples = juce::jmin(int(model.getWriteFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
+    auto windowLenght = juce::jmin(int(model.getWriteFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
 
     //get the buffer 
     auto currentBuffer = model.getSelectedGrainBuffer();

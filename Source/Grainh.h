@@ -19,7 +19,13 @@ public:
 
     Grain(juce::AudioBuffer<float>& buf, int startTime, int id);
 
-    ~Grain();
+    Grain(const Grain&) = default;
+    Grain(Grain&&) noexcept = default;
+
+    Grain& operator=(const Grain&) = default ;
+    Grain& operator=(Grain&& grain) noexcept = default;
+
+    ~Grain() = default;
 
     void processBlock(const juce::AudioSourceChannelInfo& bufferToFill, int timeIndex);
 

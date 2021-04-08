@@ -84,7 +84,7 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 		model.getWriteReverb().processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
 
 		//apply gain at the output sound
-		bufferToFill.buffer->applyGain(model.getReadGain());
+		bufferToFill.buffer->applyGain(model.getWriteGain());
 
 		//fft visualizer
 		fftVisualizer->setNextAudioBlock(bufferToFill);
@@ -92,7 +92,7 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 	else if (model.getAudioState() == ModelAudioState::selectionPlay)
 	{
 		model.getTransportSource().getNextAudioBlock(bufferToFill);
-		bufferToFill.buffer->applyGain(model.getReadGain());
+		bufferToFill.buffer->applyGain(model.getWriteGain());
 	}
 	else bufferToFill.clearActiveBufferRegion();
 

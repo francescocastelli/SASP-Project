@@ -45,6 +45,4 @@ void AudioLoader::loadGrainFile()
 	{
 		model.getWriteGrainstack().add(entry.getFile());
 	}
-
-	model.getWriteGrainQueue().resize(model.getWriteGrainstack().size());
 }

@@ -22,7 +22,7 @@ void PositionOverlayComponent::paint(juce::Graphics& g)
         {
             auto audioPosition = (float)model.getTransportSource().getCurrentPosition();
             auto drawPosition = (audioPosition / duration) * (float)getWidth();
-            auto rectWidth = float((model.getReadGrainLength() / duration)) * (float)getWidth();
+            auto rectWidth = float((model.getWriteGrainLength() / duration)) * (float)getWidth();
 
             g.setColour(AppColours::positionOverlayBar);
             g.drawLine(drawPosition, 0.0f, drawPosition, (float)getHeight(), 2.0f);

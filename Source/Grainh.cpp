@@ -14,22 +14,17 @@ Grain::Grain()
     : dataBuffer(),
       startIndex (0),
       dataBufferIndex(0), 
+      id(0),
       finished(false)
 {
 }
 
 Grain::Grain(juce::AudioBuffer<float>& buf, int startTime, int id) 
-    : dataBuffer (),
+    : dataBuffer (std::move(buf)),
       startIndex (startTime),
       id (id),
       dataBufferIndex (0),
       finished (false)
-{
-    //make a copy of the buffer
-    dataBuffer = buf;
-}
-
-Grain::~Grain()
 {
 }
 

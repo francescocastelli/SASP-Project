@@ -38,7 +38,7 @@ void GrainSelector::start()
 
 void GrainSelector::selectNextGrain()
 {
-	auto currentIndex = model.getGrainCurrentIndex();
+	auto currentIndex = model.getGrainCurrentIndex().load();
 
 	if (model.getRandomSelection())
 	{
@@ -46,7 +46,7 @@ void GrainSelector::selectNextGrain()
 	}
 	else {
 		if (currentIndex + 1 >= model.getGrainWindowLength() + model.getGrainPosition())
-			model.getGrainCurrentIndex() = model.getGrainPosition();
+			model.getGrainCurrentIndex().store(model.getGrainPosition());
 		else
 			model.getGrainCurrentIndex() = currentIndex + 1;
 	}
@@ -54,8 +54,6 @@ void GrainSelector::selectNextGrain()
 
 void GrainSelector::run()
 {
-	juce::AudioBuffer<float> tempBuf;
-	juce::AudioFormatReader* formatReader;
 	std::vector<Grain>& grainStack = model.getWriteGrainQueue();
 
 	double waitTime = -1;
@@ -66,10 +64,11 @@ void GrainSelector::run()
 	{
 		selectNextGrain();
 
-		formatReader = model.getAudioFormatManager().createReaderFor(model.getWriteGrainstack()[model.getGrainCurrentIndex()]);
+		juce::AudioFormatReader* formatReader = model.getAudioFormatManager().createReaderFor(model.getWriteGrainstack()[model.getGrainCurrentIndex()]);
 		if (formatReader)
 		{
-			tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
+			juce::AudioBuffer<float> tempBuf = juce::AudioBuffer<float> (2, formatReader->lengthInSamples);
+			auto bufNumsamples = tempBuf.getNumSamples();
 			formatReader->read(&tempBuf, 0, formatReader->lengthInSamples, 0, true, true);	
 			formatReader->~AudioFormatReader();
 
@@ -81,22 +80,22 @@ void GrainSelector::run()
 
 			//add the buffer to the grain stack
 			if (model.getReverse())
-				tempBuf.reverse(0, tempBuf.getNumSamples());
+				tempBuf.reverse(0, bufNumsamples);
 
 			Grain newgrain { tempBuf, int(grainStart), model.getGrainCurrentIndex() };
 
-			if (fadein != 0) newgrain.fadeIn(juce::jmin(tempBuf.getNumSamples()-1, int(fadein)));
+			if (fadein != 0) newgrain.fadeIn(juce::jmin(bufNumsamples-1, int(fadein)));
 
 			//set the start index for the next grain 
 			// next = start pos of this + its duration
 			//nextGrainStart = grainStart + duration;
-			int duration = (model.getReadSamplerate() / model.getReadDensity());
+			int duration = (model.getReadSamplerate() / model.getWriteDensity());
 			nextGrainStart = grainStart + duration*( 1 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*2 -1)));
 
 			//overlap
-			if (grainStart + tempBuf.getNumSamples() >= nextGrainStart)
+			if (grainStart + bufNumsamples >= nextGrainStart)
 			{
-				auto fadeSamples = grainStart + tempBuf.getNumSamples() - nextGrainStart;
+				auto fadeSamples = grainStart + bufNumsamples - nextGrainStart;
 				newgrain.fadeOut(fadeSamples);
 				fadein = fadeSamples;
 			}
@@ -110,7 +109,7 @@ void GrainSelector::run()
 			++model.getWritePos();
 
 			//time to wait
-			float grainDuration = float(tempBuf.getNumSamples()) / model.getReadSamplerate();
+			float grainDuration = float(bufNumsamples) / model.getReadSamplerate();
 			waitTime = (grainDuration * 1000)/model.getReadSamplerate();
 			//add the schedule error wrt to the current time
 			double scheduleErr = float( ( (grainStart - scheduleDelay) - model.getReadTime()) * 1000) / model.getReadSamplerate();

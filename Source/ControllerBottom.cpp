@@ -301,7 +301,7 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 		setFilterSliderState(true, true);
 		model.getAudioState() = ModelAudioState::grainPlay;
 		grainSelector.start();
-		model.getGrainCurrentIndex() = model.getGrainPosition();
+		model.getGrainCurrentIndex().store(model.getGrainPosition());
 		fftVisualizer.setEnabled(true);
 		grainsVisualizer.setEnabled(true);
 		break;
@@ -359,7 +359,7 @@ void GranularSynthComponent::grainSliderChanged()
 	if (currentState != SynthState::Disable)
 	{
 		model.getGrainPosition() = windowPositionSlider.getValue();
-		model.getGrainCurrentIndex() = model.getGrainPosition();
+		model.getGrainCurrentIndex().store(model.getGrainPosition());
 
 		//update the ranges
 		windowPositionSlider.setRange(0, juce::jmax(model.getWriteGrainstack().size()-1, 1), 1);

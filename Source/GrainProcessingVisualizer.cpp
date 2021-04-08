@@ -63,7 +63,7 @@ void GrainProcessingVisualizer::drawFrame(juce::Graphics& g)
 {
     auto width = getLocalBounds().getWidth();
     auto height = getLocalBounds().getHeight();
-    auto windowLenght = juce::jmin(int(model.getReadGrainLength() * model.getReadSamplerate()), model.getProcessedGrainBuffer().getNumSamples());
+    auto windowLenght = juce::jmin(int(model.getWriteGrainLength() * model.getReadSamplerate()), model.getProcessedGrainBuffer().getNumSamples());
     //auto channel = (showLeft) ? 0 : 1;
 
     //create a new path
