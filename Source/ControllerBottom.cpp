@@ -199,8 +199,15 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 void GranularSynthComponent::paint(juce::Graphics& g)
 {
 	g.setColour(AppColours::waveformBorder);
-	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, getLocalBounds().getBottomLeft().getX() + getWidth() * 0.575f, getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14);
-	g.drawLine(getLocalBounds().getTopLeft().getX() + getWidth() * 0.215f, getLocalBounds().getTopLeft().getY() + getHeight() * 0.14f, getLocalBounds().getBottomLeft().getX() + getWidth() * 0.215f, getLocalBounds().getBottomLeft().getY() - getHeight() * 0.2f);
+	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, 
+		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, 
+		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.575f, 
+			   getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14);
+
+	g.drawLine(getLocalBounds().getTopLeft().getX() + getWidth() * 0.215f, 
+		       getLocalBounds().getTopLeft().getY() + getHeight() * 0.14f, 
+		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.215f, 
+		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.2f);
 }
 
 void GranularSynthComponent::resized()
@@ -227,12 +234,10 @@ void GranularSynthComponent::resized()
 
 	//window position slider
 	windowPositionSlider.setBoundsRelative(-0.01f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
-
 	randomPositionSlider.setBoundsRelative(0.08f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
 
 	//random selection button
 	randomSelectionButton.setBoundsRelative(0.575f, 0.05f, 0.2f, 0.2f);
-
 	reverseButton.setBoundsRelative(0.575f, 0.23f, 0.2f, 0.2f);
 
 	//cut off 
@@ -243,7 +248,6 @@ void GranularSynthComponent::resized()
 
 	//filter type 
 	filterTypeSlider.setBoundsRelative(0.3f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
-
 	filterGainSlider.setBoundsRelative(0.2f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
 
 	//labels
@@ -251,21 +255,13 @@ void GranularSynthComponent::resized()
 
 	//labels
 	filterLabel.setBoundsRelative(0.295f, 0.03f, 0.2f, 0.1f);
-
 	densityLabel.setBoundsRelative(0.0377f, 0.50f, 0.2f, 0.1f);
-
 	positionLabel.setBoundsRelative(0.035f, 0.13f, 0.2f, 0.1f);
-
 	randomPositionLabel.setBoundsRelative(0.135f, 0.50f, 0.2f, 0.1f);
-
 	lengthLabel.setBoundsRelative(0.13f, 0.13f, 0.2f, 0.1f);
-
 	cutoffLabel.setBoundsRelative(0.248f, 0.13f, 0.2f, 0.1f);
-
 	qFactorLabel.setBoundsRelative(0.343f, 0.13f, 0.2f, 0.1f);
-
 	gainLabel.setBoundsRelative(0.255f, 0.5f, 0.2f, 0.1f);
-
 	filterTypeLabel.setBoundsRelative(0.351f, 0.5f, 0.2f, 0.1f);
 }
 

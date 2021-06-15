@@ -49,6 +49,8 @@ namespace AppColours
 
 namespace AppConstants
 {
+    //project name 
+    const juce::String projectName = "Granular synth";
     //grain
     constexpr float maxgrainlengthsec = 0.1;
 
@@ -60,4 +62,6 @@ namespace AppConstants
     //know width and heigth
     const float knobWidth = 0.14f;
     const float knobHeigth = 0.25f;
+    const float knobFadeWidth = 0.10f;
+    const float knobFadeHeigth = 0.20f;
 };

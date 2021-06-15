@@ -14,10 +14,10 @@ AudioEngine::AudioEngine(Model& model)
 	:model (model),
 	fftVisualizer(nullptr)
 {
-
 }
 
 //-------------------------------------------------------------
+
 void AudioEngine::setfftVisualizer(SpectrogramComponent* fftVisualizer)
 {
 	this->fftVisualizer = fftVisualizer;
@@ -80,10 +80,9 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 			model.getWriteFilter().process(juce::dsp::ProcessContextReplacing<float>(currentBlock));
 		}
 
-		//apply some reverb to the output
-		model.getWriteReverb().processStereo(bufferToFill.buffer->getWritePointer(0), bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
-
-		//apply gain at the output sound
+		//apply some reverb and gain to the output
+		model.getWriteReverb().processStereo(bufferToFill.buffer->getWritePointer(0), 
+										     bufferToFill.buffer->getWritePointer(1), bufferToFill.numSamples);
 		bufferToFill.buffer->applyGain(model.getWriteGain());
 
 		//fft visualizer
@@ -97,5 +96,3 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 	else bufferToFill.clearActiveBufferRegion();
 
 }
-
-

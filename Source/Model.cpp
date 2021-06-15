@@ -37,9 +37,6 @@ Model::Model()
     //grainDirectory.createDirectory();
 }
 
-Model::~Model()
-{
-}
 //----------------------------------------------------------
 
 const std::vector<Grain>& Model::getReadGrainQueue()

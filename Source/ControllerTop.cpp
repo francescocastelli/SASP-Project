@@ -43,15 +43,15 @@ SelectionComponent::SelectionComponent(Model& model, AudioLoader& audioLoader, G
 	grainLabel.setColour(juce::Label::textColourId, AppColours::boxText);
 	grainLabel.setFont(juce::Font(13.0f, juce::Font::bold));
 
-	addAndMakeVisible(windowLabel);
-	windowLabel.setText("WINDOWED GRAIN", juce::NotificationType::dontSendNotification);
-	windowLabel.setColour(juce::Label::textColourId, AppColours::boxText);
-	windowLabel.setFont(juce::Font(13.0f, juce::Font::bold));
+	addAndMakeVisible(windowedLabel);
+	windowedLabel.setText("WINDOWED GRAIN", juce::NotificationType::dontSendNotification);
+	windowedLabel.setColour(juce::Label::textColourId, AppColours::boxText);
+	windowedLabel.setFont(juce::Font(13.0f, juce::Font::bold));
 
-	addAndMakeVisible(fadeLabel);
-	fadeLabel.setText("PROCESSING", juce::NotificationType::dontSendNotification);
-	fadeLabel.setColour(juce::Label::textColourId, AppColours::boxText);
-	fadeLabel.setFont(juce::Font(13.0f, juce::Font::bold));
+	addAndMakeVisible(processingLabel);
+	processingLabel.setText("PROCESSING", juce::NotificationType::dontSendNotification);
+	processingLabel.setColour(juce::Label::textColourId, AppColours::boxText);
+	processingLabel.setFont(juce::Font(13.0f, juce::Font::bold));
 
 	//initialize buttons
 	addAndMakeVisible(&openButton);
@@ -196,7 +196,7 @@ void SelectionComponent::resized()
 
 	//slider
 	grainLenghtSlider.setBoundsRelative(0.79f, 0.2f, 0.2f, 0.15f);
-	fadeSlider.setBoundsRelative(0.26f, 0.55f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	fadeSlider.setBoundsRelative(0.39f, 0.62f, AppConstants::knobFadeWidth, AppConstants::knobFadeHeigth);
 
 	//windows menu display 
 	windowsMenu.setBoundsRelative(0.32f, 0.87f, 0.15f, 0.08f);;
@@ -205,15 +205,14 @@ void SelectionComponent::resized()
 	automaticSelectionSlider.setBoundsRelative(0.79f, 0.75f, 0.2f, 0.08f);
 
 	//show left or right windowed grain
-	grainLeft.setBoundsRelative(0.495f, 0.71f, 0.02f, 0.05f);
-	grainRight.setBoundsRelative(0.495f, 0.78f, 0.02f, 0.05f);
+	grainLeft.setBoundsRelative(0.34f, 0.67f, 0.02f, 0.05f);
+	grainRight.setBoundsRelative(0.37f, 0.67f, 0.02f, 0.05f);
 
 	//labels 
 	waveformLabel.setBoundsRelative(0.02f, -0.03f, 0.1f, 0.1f);
 	grainLabel.setBoundsRelative(0.02f, 0.52f, 0.1f, 0.1f);
-	windowLabel.setBoundsRelative(0.52f, 0.52f, 0.1f, 0.1f);
-	fadeLabel.setBoundsRelative(0.37f, 0.52f, 0.1f, 0.1f);
-
+	windowedLabel.setBoundsRelative(0.52f, 0.52f, 0.1f, 0.1f);
+	processingLabel.setBoundsRelative(0.36f, 0.52f, 0.1f, 0.1f);
 }
 
 //used to change the state of the component
@@ -279,7 +278,7 @@ void SelectionComponent::setSliderEnable(bool enableWlenght, bool enableFade, bo
 	automaticSelectionSlider.setEnabled(enableAuto);
 }
 
-//------------------------------------ buttons actions ---------------
+//-------------------------- buttons actions -----------------------------------
 
 void SelectionComponent::openButtonClicked()
 {

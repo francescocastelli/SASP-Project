@@ -6,7 +6,15 @@
     Author:  Francesco
 
   ==============================================================================
+
+	Audio engine, contains the method for processing the audio blocks and write audio
+	on the output buffer. Based on the audio state of the model it knows if we are 
+	playing audio from the input wav file or if we are synthetizing audio with the 
+	granular synth. If we are synthesing audio it will also apply filtering and reverb.
+
+  ==============================================================================
 */
+
 #pragma once
 #include <JuceHeader.h>
 #include "Grainh.h"
@@ -31,10 +39,7 @@ public:
 private:
 
     Model& model;
-
     SpectrogramComponent* fftVisualizer;
-
-    //---------------------- private method -------------------------------
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioEngine);
 };

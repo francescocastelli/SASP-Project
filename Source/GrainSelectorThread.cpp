@@ -15,7 +15,6 @@ GrainSelector::GrainSelector(Model& model)
 	Thread("Selector thread"),
 	nextGrainStart(0)
 {
-
 }
 
 GrainSelector::~GrainSelector()
@@ -89,8 +88,8 @@ void GrainSelector::run()
 			//set the start index for the next grain 
 			// next = start pos of this + its duration
 			//nextGrainStart = grainStart + duration;
-			int duration = (model.getReadSamplerate() / model.getWriteDensity());
-			nextGrainStart = grainStart + duration*( 1 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*2 -1)));
+			long long duration = (model.getReadSamplerate() / model.getWriteDensity());
+			nextGrainStart = grainStart + duration*(long long)( 1 + (model.getRandomPosition()*(juce::Random::getSystemRandom().nextFloat()*2 -1)));
 
 			//overlap
 			if (grainStart + bufNumsamples >= nextGrainStart)
@@ -101,7 +100,6 @@ void GrainSelector::run()
 			}
 			else fadein = 0;
 
-		
 			if (model.getWritePos() < grainStack.size())
 				grainStack[model.getWritePos()] = std::move(newgrain);
 			else model.getWritePos() = 0;
@@ -109,10 +107,10 @@ void GrainSelector::run()
 			++model.getWritePos();
 
 			//time to wait
-			float grainDuration = float(bufNumsamples) / model.getReadSamplerate();
+			double grainDuration = double(bufNumsamples) / model.getReadSamplerate();
 			waitTime = (grainDuration * 1000)/model.getReadSamplerate();
 			//add the schedule error wrt to the current time
-			double scheduleErr = float( ( (grainStart - scheduleDelay) - model.getReadTime()) * 1000) / model.getReadSamplerate();
+			double scheduleErr = double( ( (grainStart - scheduleDelay) - model.getReadTime()) * 1000) / model.getReadSamplerate();
 			waitTime += scheduleErr;
 		}
 		wait(waitTime);

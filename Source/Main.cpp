@@ -8,6 +8,7 @@
 
 #include <JuceHeader.h>
 #include "ControllerMainComponent.h"
+#include "AppConstants.h"
 
 //==============================================================================
 class NewProjectApplication  : public juce::JUCEApplication
@@ -16,7 +17,7 @@ public:
     //==============================================================================
     NewProjectApplication() {}
 
-    const juce::String getApplicationName() override       { return ProjectInfo::projectName; }
+    const juce::String getApplicationName() override       { return AppConstants::projectName; }
     const juce::String getApplicationVersion() override    { return ProjectInfo::versionString; }
     bool moreThanOneInstanceAllowed() override             { return true; }
 
@@ -64,7 +65,7 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar (true);
+            //setUsingNativeTitleBar (true);
             setContentOwned (new ControllerMainComponent(), true);
 
            #if JUCE_IOS || JUCE_ANDROID

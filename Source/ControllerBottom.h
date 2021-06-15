@@ -6,6 +6,17 @@
     Author:  Francesco
 
   ==============================================================================
+
+	Controller for the bottom half of the window. It manages all the knobs and 
+    buttons that are in this part of the app, so paints and resizes all the 
+    components and also	react to events (like clicks and value changed) by 
+    updating the state of the model that correspond to that particular button.
+
+    Here we load grains from a folder and play them back using granular synth. 
+    We can also apply some filters and play around with the granular synth by 
+    changing grain number, overlapping, ecc...
+
+  ==============================================================================
 */
 
 #pragma once
@@ -84,7 +95,7 @@ private:
     juce::Label filterTypeLabel;
     juce::Label randomPositionLabel;
 
-    //------------------------------------ methods --------------------
+    //---------------------------- methods ------------------------------
 
     void changeCurrentState(SynthState newState);
 

@@ -22,8 +22,6 @@ public:
 
     void paint(juce::Graphics& g) override;
 
-    void drawFrame(juce::Graphics& g);
-
     void paintIfFileLoaded(juce::Graphics& g);
 
     void paintIfNoFileLoaded(juce::Graphics& g);

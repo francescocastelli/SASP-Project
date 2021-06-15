@@ -6,6 +6,13 @@
     Author:  Francesco
 
   ==============================================================================
+
+	This represent the single grain, contains all the info about a grain and the 
+    audio buffer containg the audio. Process block basically add the content of 
+    the grain audio buffer to the buffer pass as parameter. Then we have also 
+    methods for applying fade in/out, used for doing overlap and add.
+
+  ==============================================================================
 */
 
 #pragma once

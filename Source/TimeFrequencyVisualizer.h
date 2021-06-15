@@ -25,8 +25,6 @@ public:
 
     void setEnabled(bool active);
 
-    void addCurrentIndex(int grainId);
-
     void setGrains();
 
     void timerCallback() override;

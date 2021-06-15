@@ -6,6 +6,16 @@
     Author:  Francesco
 
   ==============================================================================
+
+ 	Controller for the top half of the window. It manages all the knobs and 
+    buttons that are in this part of the app, so paints and resizes all the 
+    components and also	react to events (like clicks and value changed) by 
+    updating the state of the model that correspond to that particular button.
+
+    Here we read the input file and create, preprocess and save all the grains, 
+    both by user selection or automatically.
+
+  ==============================================================================
 */
 
 #pragma once
@@ -73,8 +83,8 @@ private:
     //text labels
     juce::Label waveformLabel;
     juce::Label grainLabel;
-    juce::Label windowLabel;
-    juce::Label fadeLabel;
+    juce::Label windowedLabel;
+    juce::Label processingLabel;
 
     //sliders
     juce::Slider grainLenghtSlider;

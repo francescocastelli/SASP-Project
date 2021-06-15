@@ -6,6 +6,10 @@
     Author:  Francesco
 
   ==============================================================================
+
+	Model is a singleton -> non copyable and movable.
+
+  ==============================================================================
 */
 
 #pragma once
@@ -23,94 +27,38 @@ class Model
 {
 public:
     Model();
+
+    Model(const Model&) = delete;
+    Model(Model&&) = delete;
+
+    Model& operator=(const Model&) = delete;
+    Model&& operator=(Model&&) = delete;
     
-    ~Model();
-    
-    //----------------------- grain playback---------------------------------------
-    //get the reference to the grain queue, read or write
-    const std::vector<Grain>& getReadGrainQueue();
-    std::vector<Grain>& getWriteGrainQueue();
+    ~Model() = default;
+ 
+    //------------------------------ GENERAL INFO --------------------------
 
-    //get read and write positions
-    std::atomic<int>& getWritePos();
-    std::atomic<int>& getReadPos();
-
-    //get the ref to the file stack of grains
-    juce::Array<juce::File>& getWriteGrainstack();
-
-    //get reference to the current time
-    std::atomic<long long>& getReadTime();
-    std::atomic<long long>& getWriteTime();
-
-    //get the current gain
-    std::atomic<float>& getWriteGain();
-
-    //get the current density 
-    std::atomic<float>& getWriteDensity();
-
-    std::atomic<float>& getRandomPosition();
-    bool getRandomSelection();
-    void setRandomSelection(bool randomSel);
-
-    bool getReverse();
-    void setReverse(bool reverse);
-
-    std::atomic<int>& getGrainPosition();
-
-    std::atomic<int>& getGrainWindowLength();
-
-    std::atomic<int>& getGrainCurrentIndex();
-
-    //------------------------------- filter ------------------------------------------------
-    //use to update the current filter coeff
-    void updateFilterCoeff();
-
-    //get reference to the current filter
-    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>& getWriteFilter();
-
-    //get reg to reverb
-    juce::Reverb& getWriteReverb();
-
-    std::atomic<float>& getFilterCutoff();
-
-    std::atomic<float>& getFilterResonance();
-
-    std::atomic<float>& getFilterGain();
-
-    std::atomic<int>& getFilterType();
-
-    std::atomic<bool>& getNoFiltering();
-
-    //------------------------------ general info ---------------------------
-    //get the current sample rate
     double getReadSamplerate();
     double& getWriteSamplerate();
 
     juce::File& getGrainDirectory();
 
-    //get the current state
     ModelAudioState& getAudioState();
 
-    //get the tranpost source
     juce::AudioTransportSource& getTransportSource();
 
-    //get the audio thumbnail 
     juce::AudioThumbnail& getAudioThumbnail();
 
-    //get the fade
     std::atomic<float>& getWriteFade();
 
-    //--------------------------------- grain selection ------------------------------
-    //get the current selected grain buffer
+    //----------------------------- GRAIN SELECTION ------------------------------
+
     juce::AudioBuffer<float>& getSelectedGrainBuffer();
 
-    //get the current processed buffer
     juce::AudioBuffer<float>& getProcessedGrainBuffer();
 
-    //get the current grain length
     std::atomic<float>& getWriteGrainLength();
 
-    //get the current window
     juce::dsp::WindowingFunction<float>& getCurrentWindow();
 
     juce::dsp::WindowingFunction<float>::WindowingMethod& getCurrentWindowMethod();
@@ -123,7 +71,59 @@ public:
 
     std::atomic<int>& getAutomaticSelValue();
 
+    //------------------------------- FILTER ---------------------------------
+
+    void updateFilterCoeff();
+
+    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>>& getWriteFilter();
+
+    juce::Reverb& getWriteReverb();
+
+    std::atomic<float>& getFilterCutoff();
+
+    std::atomic<float>& getFilterResonance();
+
+    std::atomic<float>& getFilterGain();
+
+    std::atomic<int>& getFilterType();
+
+    std::atomic<bool>& getNoFiltering();
+
+    //----------------------- GRAIN PLAYBACK ---------------------------------------
+
+    const std::vector<Grain>& getReadGrainQueue();
+    std::vector<Grain>& getWriteGrainQueue();
+
+    std::atomic<int>& getWritePos();
+    std::atomic<int>& getReadPos();
+
+    juce::Array<juce::File>& getWriteGrainstack();
+
+    std::atomic<long long>& getReadTime();
+    std::atomic<long long>& getWriteTime();
+
+    std::atomic<float>& getWriteGain();
+
+    std::atomic<float>& getWriteDensity();
+
+    std::atomic<float>& getRandomPosition();
+
+    bool getRandomSelection();
+
+    void setRandomSelection(bool randomSel);
+
+    bool getReverse();
+
+    void setReverse(bool reverse);
+
+    std::atomic<int>& getGrainPosition();
+
+    std::atomic<int>& getGrainWindowLength();
+
+    std::atomic<int>& getGrainCurrentIndex();
+
 private:
+    //------------------------------ GENERAL INFO --------------------------
 
     //the state of the model
     ModelAudioState currentAudioState;
@@ -154,13 +154,12 @@ private:
 
     //start and end pos of the grain
     std::atomic<float> startTime;
-
     std::atomic<float> endTime;
 
     std::atomic<int> automaticSelectionValue;
 
+    // grain selection flags
     std::atomic<bool> randomSelection;
-
     std::atomic<bool> playReverse;
 
     //buffer of the current selected grain
@@ -183,14 +182,11 @@ private:
     //current reverb 
     juce::Reverb reverb;
 
+    // filter parameters 
     std::atomic<float> cutoffFreq;
-
     std::atomic<float> resonance;
-
     std::atomic<int> filterType;
-
     std::atomic<float> filterGain;
-
     std::atomic<bool> noFiltering;
 
     //---------------------- GRAIN PLAYBACK ----------------------

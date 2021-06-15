@@ -6,6 +6,11 @@
     Author:  Francesco
 
   ==============================================================================
+
+	AudioLoader is used to managed audio file loading, both the input file and the 
+	grain when synthesize back the audio. 
+
+  ==============================================================================
 */
 
 #pragma once
@@ -27,5 +32,4 @@ private:
 
     //reader for loading audio files
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
-
 };

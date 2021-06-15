@@ -22,7 +22,9 @@ private:
     Model& model;
 
     bool enabled;
-    //private functions
+
+    // -------------------- private functions -------------------------
+
     void timerCallback() override;
 
     void mouseSelection(const juce::MouseEvent& event);

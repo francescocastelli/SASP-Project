@@ -12,7 +12,6 @@
 GrainProcessing::GrainProcessing(Model& model)
     :model (model)
 {
-
 }
 
 void GrainProcessing::selectCurrentGrain()
