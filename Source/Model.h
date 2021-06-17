@@ -134,15 +134,15 @@ private:
     //grain directory 
     juce::File grainDirectory;
 
-    //tranport source used to play the input audio
-    juce::AudioTransportSource transportSource;
+    juce::AudioFormatManager formatManager;
+
+    juce::AudioThumbnailCache thumbnailCache;
 
     //audio thubnail to keep the opened file
     juce::AudioThumbnail audioThumbnail;
 
-    juce::AudioFormatManager formatManager;
-
-    juce::AudioThumbnailCache thumbnailCache;
+    //tranport source used to play the input audio
+    juce::AudioTransportSource transportSource;
 
     //---------------------- GRAIN SELECTION ------------------------------------
 

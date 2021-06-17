@@ -88,6 +88,16 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	filterTypeLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
 	filterTypeLabel.setFont(juce::Font(10.0f, juce::Font::bold));
 
+	addAndMakeVisible(randomSelectionLabel);
+	randomSelectionLabel.setText("  RANDOM\nSELECTION", juce::NotificationType::dontSendNotification);
+	randomSelectionLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	randomSelectionLabel.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(reverseLabel);
+	reverseLabel.setText("REVERSE", juce::NotificationType::dontSendNotification);
+	reverseLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	reverseLabel.setFont(juce::Font(10.0f, juce::Font::bold));
+
 	addAndMakeVisible(&loadGrain);
 	loadGrain.setButtonText("LOAD GRAINS");
 	loadGrain.onClick = [this] { loadGrainClicked();  };
@@ -199,14 +209,17 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 void GranularSynthComponent::paint(juce::Graphics& g)
 {
 	g.setColour(AppColours::waveformBorder);
+
+	// bottom line 
 	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, 
 		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, 
 		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.575f, 
 			   getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14);
 
-	g.drawLine(getLocalBounds().getTopLeft().getX() + getWidth() * 0.215f, 
+	// line btw filters and grains
+	g.drawLine(getLocalBounds().getTopLeft().getX() + getWidth() * 0.374f, 
 		       getLocalBounds().getTopLeft().getY() + getHeight() * 0.14f, 
-		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.215f, 
+		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.374f, 
 		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.2f);
 }
 
@@ -227,42 +240,52 @@ void GranularSynthComponent::resized()
 	masterVolume.setBoundsRelative(0.2f, 0.9f, 0.2f, 0.08f);
 
 	//density slider
-	densitySlider.setBoundsRelative(-0.01f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	densitySlider.setBoundsRelative(-0.01f, 0.575f, AppConstants::knobWidth, 
+									AppConstants::knobHeigth);
 
 	//window lenght slider
-	windowLenghtSlider.setBoundsRelative(0.08f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	windowLenghtSlider.setBoundsRelative(0.08f, 0.2f, AppConstants::knobWidth, 
+										 AppConstants::knobHeigth);
 
 	//window position slider
-	windowPositionSlider.setBoundsRelative(-0.01f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
-	randomPositionSlider.setBoundsRelative(0.08f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	windowPositionSlider.setBoundsRelative(-0.01f, 0.2f, AppConstants::knobWidth, 
+										   AppConstants::knobHeigth);
+	randomPositionSlider.setBoundsRelative(0.08f, 0.575f, AppConstants::knobWidth, 
+										   AppConstants::knobHeigth);
 
 	//random selection button
-	randomSelectionButton.setBoundsRelative(0.575f, 0.05f, 0.2f, 0.2f);
-	reverseButton.setBoundsRelative(0.575f, 0.23f, 0.2f, 0.2f);
+	randomSelectionButton.setBoundsRelative(0.315f, 0.25f, 0.05f, 0.1f);
+	reverseButton.setBoundsRelative(0.23f, 0.25f, 0.05f, 0.1f);
 
 	//cut off 
-	cutOffFreqSlider.setBoundsRelative(0.2f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	cutOffFreqSlider.setBoundsRelative(0.35f, 0.2f, AppConstants::knobWidth, 
+									   AppConstants::knobHeigth);
 
 	//qfactor 
-	qFactorSlider.setBoundsRelative(0.3f, 0.2f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	qFactorSlider.setBoundsRelative(0.45f, 0.2f, AppConstants::knobWidth, 
+									AppConstants::knobHeigth);
 
 	//filter type 
-	filterTypeSlider.setBoundsRelative(0.3f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
-	filterGainSlider.setBoundsRelative(0.2f, 0.575f, AppConstants::knobWidth, AppConstants::knobHeigth);
+	filterTypeSlider.setBoundsRelative(0.45f, 0.575f, AppConstants::knobWidth, 
+									   AppConstants::knobHeigth);
+	filterGainSlider.setBoundsRelative(0.35f, 0.575f, AppConstants::knobWidth, 
+									   AppConstants::knobHeigth);
 
 	//labels
 	grainLabel.setBoundsRelative(0.08f, 0.03f, 0.2f, 0.1f);
 
 	//labels
-	filterLabel.setBoundsRelative(0.295f, 0.03f, 0.2f, 0.1f);
+	filterLabel.setBoundsRelative(0.445f, 0.03f, 0.2f, 0.1f);
 	densityLabel.setBoundsRelative(0.0377f, 0.50f, 0.2f, 0.1f);
 	positionLabel.setBoundsRelative(0.035f, 0.13f, 0.2f, 0.1f);
 	randomPositionLabel.setBoundsRelative(0.135f, 0.50f, 0.2f, 0.1f);
 	lengthLabel.setBoundsRelative(0.13f, 0.13f, 0.2f, 0.1f);
-	cutoffLabel.setBoundsRelative(0.248f, 0.13f, 0.2f, 0.1f);
-	qFactorLabel.setBoundsRelative(0.343f, 0.13f, 0.2f, 0.1f);
-	gainLabel.setBoundsRelative(0.255f, 0.5f, 0.2f, 0.1f);
-	filterTypeLabel.setBoundsRelative(0.351f, 0.5f, 0.2f, 0.1f);
+	cutoffLabel.setBoundsRelative(0.398f, 0.13f, 0.2f, 0.1f);
+	qFactorLabel.setBoundsRelative(0.493f, 0.13f, 0.2f, 0.1f);
+	gainLabel.setBoundsRelative(0.405f, 0.5f, 0.2f, 0.1f);
+	filterTypeLabel.setBoundsRelative(0.501f, 0.5f, 0.2f, 0.1f);
+	reverseLabel.setBoundsRelative(0.22f, 0.13f, 0.2f, 0.1f);
+	randomSelectionLabel.setBoundsRelative(0.3f, 0.13f, 0.2f, 0.1f);
 }
 
 void GranularSynthComponent::changeCurrentState(SynthState newState)

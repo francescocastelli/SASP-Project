@@ -9,6 +9,7 @@
 */
 
 #include "GrainProcessing.h"
+
 GrainProcessing::GrainProcessing(Model& model)
     :model (model)
 {

@@ -94,6 +94,8 @@ private:
     juce::Label qFactorLabel;
     juce::Label filterTypeLabel;
     juce::Label randomPositionLabel;
+    juce::Label randomSelectionLabel;
+    juce::Label reverseLabel;
 
     //---------------------------- methods ------------------------------
 
