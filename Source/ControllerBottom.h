@@ -80,7 +80,6 @@ private:
     //filter sliders
     juce::Slider cutOffFreqSlider;
     juce::Slider qFactorSlider;
-    juce::Slider filterGainSlider;
     juce::Slider filterTypeSlider;
 
     //labels
@@ -90,7 +89,6 @@ private:
     juce::Label positionLabel;
     juce::Label lengthLabel;
     juce::Label cutoffLabel;
-    juce::Label gainLabel;
     juce::Label qFactorLabel;
     juce::Label filterTypeLabel;
     juce::Label randomPositionLabel;

@@ -28,6 +28,8 @@ void GrainSelector::reset()
 {
 	stopThread(100);
 	nextGrainStart = 0;
+	model.getWritePos() = 0;
+	model.getReadPos() = 0;
 }
 
 void GrainSelector::start()

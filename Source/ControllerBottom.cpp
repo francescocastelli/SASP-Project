@@ -26,7 +26,7 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	randomSelectionButton.onClick = [this] {randomSelectionButtonClicked(); };
 	reverseButton.onClick = [this] {reverseButtonClicked(); };
 
-	fftVisualizer.setEnabled(false);
+	fftVisualizer.setEnabled(false, 0);
 	grainsVisualizer.setEnabled(false);
 
 	//set the fftvisualizer in the audioEngine
@@ -78,13 +78,8 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	qFactorLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
 	qFactorLabel.setFont(juce::Font(10.0f, juce::Font::bold));
 
-	addAndMakeVisible(gainLabel);
-	gainLabel.setText("GAIN", juce::NotificationType::dontSendNotification);
-	gainLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
-	gainLabel.setFont(juce::Font(10.0f, juce::Font::bold));
-
 	addAndMakeVisible(filterTypeLabel);
-	filterTypeLabel.setText("FILTER", juce::NotificationType::dontSendNotification);
+	filterTypeLabel.setText("TYPE", juce::NotificationType::dontSendNotification);
 	filterTypeLabel.setColour(juce::Label::textColourId, AppColours::knobLabel);
 	filterTypeLabel.setFont(juce::Font(10.0f, juce::Font::bold));
 
@@ -185,15 +180,18 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	qFactorSlider.onValueChange = [this] { filterSliderChanged(); };
 	qFactorSlider.setValue(0);
 
-	addAndMakeVisible(filterGainSlider);
-	filterGainSlider.setRange(0.0, 1.2, 0.01);
-	filterGainSlider.setTextBoxIsEditable(false);
-	filterGainSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
-	filterGainSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryVerticalDrag);
-	filterGainSlider.setLookAndFeel(&knobLookAndFeel);
-	filterGainSlider.onValueChange = [this] {filterSliderChanged(); };
-	filterGainSlider.setValue(0);
+	addAndMakeVisible(filterTypeSlider);
+	filterTypeSlider.setRange(0, 3, 1);
+	filterTypeSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
+	filterTypeSlider.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);
+	filterTypeSlider.setColour(juce::Slider::backgroundColourId, AppColours::waveformBackground);
+	filterTypeSlider.setColour(juce::Slider::trackColourId, AppColours::buttons);
+	filterTypeSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 30, 20);
+	filterTypeSlider.setTextBoxIsEditable(false);
+	filterTypeSlider.onValueChange = [this] { filterSliderChanged(); };
+	filterTypeSlider.setValue(0);
 
+	/*
 	addAndMakeVisible(filterTypeSlider);
 	filterTypeSlider.setRange(0, 3, 1);
 	filterTypeSlider.setTextBoxIsEditable(false);
@@ -202,6 +200,7 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	filterTypeSlider.setLookAndFeel(&knobLookAndFeel);
 	filterTypeSlider.onValueChange = [this] {filterSliderChanged(); };
 	filterTypeSlider.setValue(0);
+	*/
 
 	changeCurrentState(SynthState::Disable);
 }
@@ -266,10 +265,10 @@ void GranularSynthComponent::resized()
 									AppConstants::knobHeigth);
 
 	//filter type 
-	filterTypeSlider.setBoundsRelative(0.45f, 0.575f, AppConstants::knobWidth, 
-									   AppConstants::knobHeigth);
-	filterGainSlider.setBoundsRelative(0.35f, 0.575f, AppConstants::knobWidth, 
-									   AppConstants::knobHeigth);
+	//filterTypeSlider.setBoundsRelative(0.45f, 0.575f, AppConstants::knobWidth, 
+	//								   AppConstants::knobHeigth);
+	filterTypeSlider.setBoundsRelative(0.40f, 0.575f, AppConstants::knobWidth , 
+									   AppConstants::knobHeigth *0.8 );
 
 	//labels
 	grainLabel.setBoundsRelative(0.08f, 0.03f, 0.2f, 0.1f);
@@ -282,8 +281,7 @@ void GranularSynthComponent::resized()
 	lengthLabel.setBoundsRelative(0.13f, 0.13f, 0.2f, 0.1f);
 	cutoffLabel.setBoundsRelative(0.398f, 0.13f, 0.2f, 0.1f);
 	qFactorLabel.setBoundsRelative(0.493f, 0.13f, 0.2f, 0.1f);
-	gainLabel.setBoundsRelative(0.405f, 0.5f, 0.2f, 0.1f);
-	filterTypeLabel.setBoundsRelative(0.501f, 0.5f, 0.2f, 0.1f);
+	filterTypeLabel.setBoundsRelative(0.455f, 0.5f, 0.2f, 0.1f);
 	reverseLabel.setBoundsRelative(0.22f, 0.13f, 0.2f, 0.1f);
 	randomSelectionLabel.setBoundsRelative(0.3f, 0.13f, 0.2f, 0.1f);
 }
@@ -298,7 +296,7 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 		setButtonState(true, false, true, true);
 		setSliderState(true);
 		setFilterSliderState(false, false);
-		fftVisualizer.setEnabled(false);
+		fftVisualizer.setEnabled(false, 0.);
 		grainsVisualizer.setEnabled(true);
 		break;
 
@@ -306,12 +304,11 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 		setButtonState(true, false, true, true);
 		setSliderState(true);
 		setFilterSliderState(false, false);
-		fftVisualizer.setEnabled(false);
+		fftVisualizer.setEnabled(false, 0.);
 		grainsVisualizer.setEnabled(true);
 		model.getWriteTime() = 0;
 		model.getAudioState() = ModelAudioState::StopAudio;
 		grainSelector.reset();
-		model.getWriteGrainQueue().clear();
 		break;
 
 	case SynthState::Playing:
@@ -321,14 +318,14 @@ void GranularSynthComponent::changeCurrentState(SynthState newState)
 		model.getAudioState() = ModelAudioState::grainPlay;
 		grainSelector.start();
 		model.getGrainCurrentIndex().store(model.getGrainPosition());
-		fftVisualizer.setEnabled(true);
+		fftVisualizer.setEnabled(true, model.getReadSamplerate());
 		grainsVisualizer.setEnabled(true);
 		break;
 	case SynthState::Disable:
 		setButtonState(false, false, true, false);
 		setSliderState(false);
 		setFilterSliderState(false, false);
-		fftVisualizer.setEnabled(false);
+		fftVisualizer.setEnabled(false, 0.);
 		grainsVisualizer.setEnabled(false);
 	default:
 		break;
@@ -356,7 +353,6 @@ void GranularSynthComponent::setFilterSliderState(bool noFilter, bool filterPara
 {
 	cutOffFreqSlider.setEnabled(filterParam);
 	qFactorSlider.setEnabled(filterParam);
-	filterGainSlider.setEnabled(filterParam);
 	filterTypeSlider.setEnabled(noFilter);
 }
 
@@ -370,7 +366,6 @@ void GranularSynthComponent::filterSliderChanged()
 	model.getFilterCutoff() = cutOffFreqSlider.getValue();
 	model.getFilterResonance() = qFactorSlider.getValue();
 	model.getFilterType() = filterTypeSlider.getValue();
-	model.getFilterGain() = filterGainSlider.getValue();
 }
 
 void GranularSynthComponent::grainSliderChanged()

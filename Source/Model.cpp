@@ -73,7 +73,7 @@ void Model::updateFilterCoeff()
         break;
     case 1:
         noFiltering = false;
-        *filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowShelf(sampleRate, cutoffFreq, resonance, filterGain);
+        *filter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(sampleRate, cutoffFreq, resonance);
         break;
     case 2:
         noFiltering = false;
@@ -81,7 +81,7 @@ void Model::updateFilterCoeff()
         break;
     case 3:
         noFiltering = false;
-        *filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighShelf(sampleRate, cutoffFreq, resonance, filterGain);
+        *filter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, cutoffFreq, resonance);
         break;
     default:
         break;
@@ -196,11 +196,6 @@ std::atomic<float>& Model::getFilterCutoff()
 std::atomic<float>& Model::getFilterResonance()
 {
     return resonance;
-}
-
-std::atomic<float>& Model::getFilterGain()
-{
-    return filterGain;
 }
 
 std::atomic<int>& Model::getFilterType()

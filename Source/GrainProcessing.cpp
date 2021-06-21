@@ -57,7 +57,8 @@ void GrainProcessing::computeWindowOutput()
 {
     //always check the maximum lenght
     auto fadeInSamples = juce::jmin(int(model.getWriteFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
-    auto windowLenght = juce::jmin(int(model.getWriteFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
+    //auto windowLenght = juce::jmin(int(model.getWriteFade()* model.getReadSamplerate()), model.getSelectedGrainBuffer().getNumSamples());
+    auto windowLenght = model.getSelectedGrainBuffer().getNumSamples();
 
     //get the buffer 
     auto currentBuffer = model.getSelectedGrainBuffer();

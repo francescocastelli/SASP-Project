@@ -83,8 +83,6 @@ public:
 
     std::atomic<float>& getFilterResonance();
 
-    std::atomic<float>& getFilterGain();
-
     std::atomic<int>& getFilterType();
 
     std::atomic<bool>& getNoFiltering();
@@ -186,7 +184,6 @@ private:
     std::atomic<float> cutoffFreq;
     std::atomic<float> resonance;
     std::atomic<int> filterType;
-    std::atomic<float> filterGain;
     std::atomic<bool> noFiltering;
 
     //---------------------- GRAIN PLAYBACK ----------------------

@@ -45,9 +45,6 @@ public:
     void resized() override;
 
 private:
-    //model instance
-    Model model;
-
     //audio engine
     AudioEngine audioEngine;
 
@@ -70,6 +67,9 @@ private:
     //bottom half of the window, contains the granular synth
     // ControllerBottom
     GranularSynthComponent granularSynthComponent;
+
+    //model instance
+    Model model;
 
     //--------------------------- private method ------------------------------------
 

@@ -32,10 +32,21 @@ void SpectrogramComponent::setNextAudioBlock(const juce::AudioSourceChannelInfo&
     }
 }
 
-void SpectrogramComponent::setEnabled(bool active)
+void SpectrogramComponent::setEnabled(bool active, double sampleRate)
 {
     this->enabled = active;
+    if (active == true)
+        computeFreqAxis(sampleRate);
+
     repaint();
+}
+
+void SpectrogramComponent::computeFreqAxis(double sampleRate)
+{
+    auto freqStep = sampleRate / fftSize;
+    fftFreq[0] = 0;
+    for (int i = 1; i < fftSize; ++i)
+        fftFreq[i] = fftFreq[i - 1] + freqStep;
 }
 
 void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
@@ -115,6 +126,7 @@ void SpectrogramComponent::drawNextFrameOfSpectrum()
             mindB, maxdB, 0.0f, 1.0f);
 
         scopeData[i] = level;                                   
+        freqAxis[i] = (fftFreq[fftDataIndex]);
     }
 }
 
@@ -123,11 +135,11 @@ void SpectrogramComponent::drawFrame(juce::Graphics& g)
     auto width = getLocalBounds().getWidth();
     auto height = getLocalBounds().getHeight();
     
-    //create a new path
+    // path for the fft amplitude 
     juce::Path path = juce::Path();
     juce::PathStrokeType specStroke = juce::PathStrokeType(0.6f);
 
-    //starting point of the path
+    // starting point of the path
     path.startNewSubPath(getLocalBounds().getBottomLeft().getX(), getLocalBounds().getBottomLeft().getY());
 
     for (int i = 0; i < scopeSize; ++i)
@@ -135,6 +147,9 @@ void SpectrogramComponent::drawFrame(juce::Graphics& g)
         //add points to the path
         path.lineTo((float)juce::jmap(i, 0, scopeSize - 1, 0, width),
             juce::jmap(scopeData[i], 0.0f, 1.0f, (float)height, 0.0f));
+
+        g.setColour(juce::Colours::grey);
+        g.drawVerticalLine((float)juce::jmap(freqAxis[i], 0.f, (float)(scopeSize - 1), 0.f, (float)width), 0.f, (float)height);
     }
 
     //add the last point

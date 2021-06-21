@@ -25,7 +25,9 @@ public:
 
     void setNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
 
-    void setEnabled(bool active);
+    void setEnabled(bool active, double sampleRate);
+
+    void computeFreqAxis(double sampleRate);
 
     void paint(juce::Graphics& g) override;
 
@@ -44,9 +46,9 @@ public:
     //fft parameters
     enum
     {
-        fftOrder = 11,             
-        fftSize = 1 << fftOrder,  
-        scopeSize = 512 
+        fftOrder = 11,
+        fftSize = 1 << fftOrder,
+        scopeSize = 512,
     };
 
 private:
@@ -56,9 +58,11 @@ private:
 
     float fifo[fftSize];                         
     float fftData[2 * fftSize];                   
+    float fftFreq[fftSize];                   
     int fifoIndex = 0;                             
     bool nextFFTBlockReady = false;                
     float scopeData[scopeSize];                    
+    float freqAxis[scopeSize];                    
 
     bool enabled;
 

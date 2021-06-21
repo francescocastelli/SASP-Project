@@ -132,7 +132,7 @@ SelectionComponent::SelectionComponent(Model& model, AudioLoader& audioLoader, G
 	//grain lenght slider [s]
 	addAndMakeVisible(grainLenghtSlider);
 	grainLenghtSlider.setRange(1, 500, 0.5);
-	grainLenghtSlider.setLookAndFeel(&knobLookAndFeel);
+	//grainLenghtSlider.setLookAndFeel(&knobLookAndFeel);
 	grainLenghtSlider.setTextValueSuffix(" [ms]");
 	grainLenghtSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
 	grainLenghtSlider.setColour(juce::Slider::textBoxTextColourId, AppColours::knobText);

@@ -94,5 +94,4 @@ void AudioEngine::processNextAudioBlock(const juce::AudioSourceChannelInfo& buff
 		bufferToFill.buffer->applyGain(model.getWriteGain());
 	}
 	else bufferToFill.clearActiveBufferRegion();
-
 }
