@@ -64,4 +64,5 @@ namespace AppConstants
     const float knobHeigth = 0.25f;
     const float knobFadeWidth = 0.10f;
     const float knobFadeHeigth = 0.20f;
-};
+
+  };

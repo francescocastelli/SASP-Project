@@ -109,6 +109,27 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	stopAudio.onClick = [this] { changeCurrentState(SynthState::Stopped); };
 	stopAudio.setLookAndFeel(&knobLookAndFeel);
 
+	// freq ax labels
+	addAndMakeVisible(label1e1);
+	label1e1.setText("10", juce::NotificationType::dontSendNotification);
+	label1e1.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label1e1.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(label1e2);
+	label1e2.setText("100", juce::NotificationType::dontSendNotification);
+	label1e2.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label1e2.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(label1e3);
+	label1e3.setText("1k", juce::NotificationType::dontSendNotification);
+	label1e3.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label1e3.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(label1e4);
+	label1e4.setText("10k", juce::NotificationType::dontSendNotification);
+	label1e4.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label1e4.setFont(juce::Font(10.0f, juce::Font::bold));
+
 	//master volume slider
 	addAndMakeVisible(masterVolume);
 	masterVolume.setRange(0.0f, 0.95f, 0.001);
@@ -225,7 +246,7 @@ void GranularSynthComponent::paint(juce::Graphics& g)
 void GranularSynthComponent::resized()
 {
 	//spec
-	fftVisualizer.setBoundsRelative(0.6f, 0.48f, 0.39f, 0.5f);
+	fftVisualizer.setBoundsRelative(0.6f, 0.48f, 0.39f, 0.47f);
 
 	//grain vis
 	grainsVisualizer.setBoundsRelative(0.6f, 0.04f, 0.39f, 0.4f);
@@ -284,6 +305,12 @@ void GranularSynthComponent::resized()
 	filterTypeLabel.setBoundsRelative(0.455f, 0.5f, 0.2f, 0.1f);
 	reverseLabel.setBoundsRelative(0.22f, 0.13f, 0.2f, 0.1f);
 	randomSelectionLabel.setBoundsRelative(0.3f, 0.13f, 0.2f, 0.1f);
+
+	// freq ax label
+	label1e1.setBoundsRelative(0.595f, 0.895f, 0.2f, 0.15f);
+	label1e2.setBoundsRelative(0.71f, 0.895f, 0.2f, 0.15f);
+	label1e3.setBoundsRelative(0.83f, 0.895f, 0.2f, 0.15f);
+	label1e4.setBoundsRelative(0.945f, 0.895f, 0.2f, 0.15f);
 }
 
 void GranularSynthComponent::changeCurrentState(SynthState newState)

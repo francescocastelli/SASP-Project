@@ -95,6 +95,12 @@ private:
     juce::Label randomSelectionLabel;
     juce::Label reverseLabel;
 
+    // label for freq axis
+    juce::Label label1e1;
+    juce::Label label1e2;
+    juce::Label label1e3;
+    juce::Label label1e4;
+
     //---------------------------- methods ------------------------------
 
     void changeCurrentState(SynthState newState);

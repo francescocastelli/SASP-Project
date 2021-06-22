@@ -16,6 +16,20 @@ SpectrogramComponent::SpectrogramComponent()
     enabled(false),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
+    // create frequency axis for bode plot
+    int pos = 0;
+    for (auto i = 1; i < (int)(freqAxisSize / 10); ++i)
+    {
+        for (auto j = 1; j < 10; ++j)
+        {
+            freqAxis[pos] = log10(j * pow(10, i));
+            ++pos;
+        }
+    }
+    
+    freqAxis[pos] = log10(pow(10, 4));
+    freqAxis[pos+1] = log10(2 * pow(10, 4));
+
     startTimerHz(30);
 }
 
@@ -43,10 +57,7 @@ void SpectrogramComponent::setEnabled(bool active, double sampleRate)
 
 void SpectrogramComponent::computeFreqAxis(double sampleRate)
 {
-    auto freqStep = sampleRate / fftSize;
-    fftFreq[0] = 0;
-    for (int i = 1; i < fftSize; ++i)
-        fftFreq[i] = fftFreq[i - 1] + freqStep;
+    
 }
 
 void SpectrogramComponent::pushNextSampleIntoFifo(float sample) noexcept
@@ -78,11 +89,17 @@ void SpectrogramComponent::paintIfNoFileLoaded(juce::Graphics& g)
 {
     g.fillAll(AppColours::waveformBackground);
 
-    //g.setColour(AppColours::waveformColor);
-    //g.drawFittedText("No file loaded", getLocalBounds() , juce::Justification::centred, 1);
+    auto width = getLocalBounds().getWidth();
+    auto height = getLocalBounds().getHeight();
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);
+
+    for (int i = 0; i < freqAxisSize - 12; ++i)
+    {
+        g.setColour(juce::Colours::grey);
+        g.drawVerticalLine((float)juce::jmap(freqAxis[i], 1.f, (float)log10(20000), 0.f, (float)width), 0.f, (float)height);
+    }
 }
  
 void SpectrogramComponent::paintIfFileLoaded(juce::Graphics& g)
@@ -116,18 +133,19 @@ void SpectrogramComponent::drawNextFrameOfSpectrum()
 
     auto mindB = -100.0f;
     auto maxdB = 0.0f;
+    float a;
 
     for (int i = 0; i < scopeSize; ++i)                         
     {
-        auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
+        auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.1f);
         auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
         auto level = juce::jmap(juce::jlimit(mindB, maxdB, juce::Decibels::gainToDecibels(fftData[fftDataIndex])
-            - juce::Decibels::gainToDecibels((float)fftSize)),
-            mindB, maxdB, 0.0f, 1.0f);
+            - juce::Decibels::gainToDecibels((float)fftSize)), mindB, maxdB, 0.0f, 1.0f);
 
         scopeData[i] = level;                                   
-        freqAxis[i] = (fftFreq[fftDataIndex]);
+        a = skewedProportionX;
     }
+
 }
 
 void SpectrogramComponent::drawFrame(juce::Graphics& g)
@@ -148,8 +166,12 @@ void SpectrogramComponent::drawFrame(juce::Graphics& g)
         path.lineTo((float)juce::jmap(i, 0, scopeSize - 1, 0, width),
             juce::jmap(scopeData[i], 0.0f, 1.0f, (float)height, 0.0f));
 
+    }
+
+    for (int i = 0; i < freqAxisSize - 12; ++i)
+    {
         g.setColour(juce::Colours::grey);
-        g.drawVerticalLine((float)juce::jmap(freqAxis[i], 0.f, (float)(scopeSize - 1), 0.f, (float)width), 0.f, (float)height);
+        g.drawVerticalLine((float)juce::jmap(freqAxis[i], 1.f, (float)log10(20000), 0.f, (float)width), 0.f, (float)height);
     }
 
     //add the last point

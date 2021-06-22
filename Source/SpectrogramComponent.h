@@ -49,6 +49,7 @@ public:
         fftOrder = 11,
         fftSize = 1 << fftOrder,
         scopeSize = 512,
+        freqAxisSize = 40,
     };
 
 private:
@@ -58,11 +59,11 @@ private:
 
     float fifo[fftSize];                         
     float fftData[2 * fftSize];                   
-    float fftFreq[fftSize];                   
     int fifoIndex = 0;                             
     bool nextFFTBlockReady = false;                
     float scopeData[scopeSize];                    
-    float freqAxis[scopeSize];                    
+    float freqAxis[freqAxisSize-12];                    
+    double sampleRate;
 
     bool enabled;
 
