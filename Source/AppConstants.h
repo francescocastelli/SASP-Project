@@ -54,6 +54,10 @@ namespace AppConstants
     //grain
     constexpr float maxgrainlengthsec = 0.1;
 
+    //db levels 
+    constexpr float mindB = -80.0f; 
+    constexpr float maxdB = 0.0f;
+
     //buttons position
     const float controlButtonsY = 0.05f;
     const float controlButtonWidth = 0.06f;

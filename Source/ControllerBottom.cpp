@@ -132,12 +132,12 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 
 	//master volume slider
 	addAndMakeVisible(masterVolume);
-	masterVolume.setRange(0.0f, 0.95f, 0.001);
+	masterVolume.setRange(0.0f, 1.0f, 0.001);
 	masterVolume.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	masterVolume.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
 	masterVolume.setColour(juce::Slider::trackColourId, AppColours::buttons);
-	masterVolume.setValue(0.8);
-	masterVolume.setSkewFactor(0.5);
+	masterVolume.setValue(0.8f);
+	masterVolume.setSkewFactor(0.6);
 	masterVolume.onValueChange = [this] { changeMasterVolume(); };
 
 	//density slider

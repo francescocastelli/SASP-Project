@@ -79,6 +79,7 @@ void GrainProcessing::computeWindowOutput()
         if (rangeIn.getStart() == rangeIn.getEnd()) rangeIn.setEnd(rangeIn.getEnd() + 0.001);
         juce::NormalisableRange<float> norm = juce::NormalisableRange<float>(rangeIn);
 
+        // TODO: check level of output grain
         for (int i = 0; i < currentBuffer.getNumSamples(); ++i)
         {
            currentBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(currentBuffer.getReadPointer(channel)[i]) - 0.5);

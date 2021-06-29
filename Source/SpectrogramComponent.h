@@ -27,7 +27,6 @@ public:
 
     void setEnabled(bool active, double sampleRate);
 
-    void computeFreqAxis(double sampleRate);
 
     void paint(juce::Graphics& g) override;
 
@@ -63,9 +62,14 @@ private:
     bool nextFFTBlockReady = false;                
     float scopeData[scopeSize];                    
     float freqAxis[freqAxisSize-12];                    
-    double sampleRate;
+    float dbLevel[9];
 
     bool enabled;
+
+    // ------------------- private methods ---------------------
+    void computeFreqAxis();
+
+    void computedBLevel();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpectrogramComponent);
 };
