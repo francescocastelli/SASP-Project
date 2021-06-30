@@ -130,14 +130,25 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 	label1e4.setColour(juce::Label::textColourId, AppColours::knobLabel);
 	label1e4.setFont(juce::Font(10.0f, juce::Font::bold));
 
+	// dB level labels
+	addAndMakeVisible(label80dB);
+	label80dB.setText("-80dB", juce::NotificationType::dontSendNotification);
+	label80dB.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label80dB.setFont(juce::Font(10.0f, juce::Font::bold));
+
+	addAndMakeVisible(label0dB);
+	label0dB.setText("0dB", juce::NotificationType::dontSendNotification);
+	label0dB.setColour(juce::Label::textColourId, AppColours::knobLabel);
+	label0dB.setFont(juce::Font(10.0f, juce::Font::bold));
+
 	//master volume slider
 	addAndMakeVisible(masterVolume);
-	masterVolume.setRange(0.0f, 1.0f, 0.001);
+	masterVolume.setRange(0.0f, 1.0f, 0.00001);
 	masterVolume.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	masterVolume.setSliderStyle(juce::Slider::SliderStyle::LinearBar);
 	masterVolume.setColour(juce::Slider::trackColourId, AppColours::buttons);
-	masterVolume.setValue(0.8f);
-	masterVolume.setSkewFactor(0.6);
+	masterVolume.setValue(0.7f);
+	masterVolume.setSkewFactor(0.3);
 	masterVolume.onValueChange = [this] { changeMasterVolume(); };
 
 	//density slider
@@ -233,7 +244,7 @@ void GranularSynthComponent::paint(juce::Graphics& g)
 	// bottom line 
 	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, 
 		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, 
-		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.575f, 
+		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.545f, 
 			   getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14);
 
 	// line btw filters and grains
@@ -252,12 +263,12 @@ void GranularSynthComponent::resized()
 	grainsVisualizer.setBoundsRelative(0.6f, 0.04f, 0.39f, 0.4f);
 
 	//buttons
-	loadGrain.setBoundsRelative(0.02f, 0.9f, 0.16f, 0.08f);
-	playAudio.setBoundsRelative(0.41f, 0.9f, 0.08f, 0.08f);
-	stopAudio.setBoundsRelative(0.50f, 0.9f, 0.08f, 0.08f);
+	loadGrain.setBoundsRelative(0.02f, 0.9f, 0.14f, 0.08f);
+	playAudio.setBoundsRelative(0.41f, 0.9f, 0.06f, 0.08f);
+	stopAudio.setBoundsRelative(0.485f, 0.9f, 0.06f, 0.08f);
 
 	//master volume slider
-	masterVolume.setBoundsRelative(0.2f, 0.9f, 0.2f, 0.08f);
+	masterVolume.setBoundsRelative(0.18f, 0.9f, 0.2f, 0.08f);
 
 	//density slider
 	densitySlider.setBoundsRelative(-0.01f, 0.575f, AppConstants::knobWidth, 
@@ -292,7 +303,7 @@ void GranularSynthComponent::resized()
 									   AppConstants::knobHeigth *0.8 );
 
 	//labels
-	grainLabel.setBoundsRelative(0.08f, 0.03f, 0.2f, 0.1f);
+	grainLabel.setBoundsRelative(0.175f, 0.03f, 0.2f, 0.1f);
 
 	//labels
 	filterLabel.setBoundsRelative(0.445f, 0.03f, 0.2f, 0.1f);
@@ -307,10 +318,14 @@ void GranularSynthComponent::resized()
 	randomSelectionLabel.setBoundsRelative(0.3f, 0.13f, 0.2f, 0.1f);
 
 	// freq ax label
-	label1e1.setBoundsRelative(0.595f, 0.895f, 0.2f, 0.15f);
+	//label1e1.setBoundsRelative(0.595f, 0.895f, 0.2f, 0.15f);
 	label1e2.setBoundsRelative(0.71f, 0.895f, 0.2f, 0.15f);
 	label1e3.setBoundsRelative(0.83f, 0.895f, 0.2f, 0.15f);
 	label1e4.setBoundsRelative(0.945f, 0.895f, 0.2f, 0.15f);
+
+	// db levels label
+	label80dB.setBoundsRelative(0.57f, 0.88f, 0.2f, 0.1f);
+	label0dB.setBoundsRelative(0.578f, 0.45f, 0.2f, 0.1f);
 }
 
 void GranularSynthComponent::changeCurrentState(SynthState newState)

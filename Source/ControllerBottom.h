@@ -101,6 +101,10 @@ private:
     juce::Label label1e3;
     juce::Label label1e4;
 
+    // db levels labels
+    juce::Label label80dB;
+    juce::Label label0dB;
+
     //---------------------------- methods ------------------------------
 
     void changeCurrentState(SynthState newState);

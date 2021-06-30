@@ -37,9 +37,10 @@ ControllerMainComponent::ControllerMainComponent()
 
     setSize (1200, 600);
 
-        //create the directory based on the filename
-        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::QuestionIcon, "Bho", "Choose a folder to store grains", juce::String(), this,
-            juce::ModalCallbackFunction::create(selectGrainFolder, this));
+	//create the directory based on the filename
+	juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::QuestionIcon, "Grains folder", 
+										   "Choose a folder to store grains", juce::String(), this,
+										   juce::ModalCallbackFunction::create(selectGrainFolder, this));
 
     //dir.createDirectory();
     //model.getGrainDirectory() = dir;

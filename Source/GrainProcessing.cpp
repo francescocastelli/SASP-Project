@@ -82,7 +82,7 @@ void GrainProcessing::computeWindowOutput()
         // TODO: check level of output grain
         for (int i = 0; i < currentBuffer.getNumSamples(); ++i)
         {
-           currentBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(currentBuffer.getReadPointer(channel)[i]) - 0.5);
+           currentBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(currentBuffer.getReadPointer(channel)[i]) - 0.1);
         }
     }
 
