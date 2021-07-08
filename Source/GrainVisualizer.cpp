@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "GrainVisualizer.h"
+#include "..\Include\GrainVisualizer.h"
 
 GrainVisualizer::GrainVisualizer(Model& model)
     :model(model),

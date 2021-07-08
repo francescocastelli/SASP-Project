@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "GrainProcessing.h"
+#include "..\Include\GrainProcessing.h"
 
 GrainProcessing::GrainProcessing(Model& model)
     :model (model)

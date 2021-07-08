@@ -1,4 +1,4 @@
-#include "WaveformComponent.h"
+#include "..\Include\WaveformComponent.h"
 
 WaveformVisualizer::WaveformVisualizer(Model& model) 
     :model(model),

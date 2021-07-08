@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "ControllerMainComponent.h"
+#include "..\Include\ControllerMainComponent.h"
 
 ControllerMainComponent::ControllerMainComponent()
     :selectionComponent(model, audioLoader, grainProcessor),

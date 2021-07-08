@@ -1,4 +1,4 @@
-#include "PositionOverlayComponent.h"
+#include "..\Include\PositionOverlayComponent.h"
 
  PositionOverlayComponent::PositionOverlayComponent(Model& model)
      :model(model),

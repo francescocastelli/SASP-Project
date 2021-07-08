@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "ControllerTop.h"
+#include "..\Include\ControllerTop.h"
 
 SelectionComponent::SelectionComponent(Model& model, AudioLoader& audioLoader, GrainProcessing& grainProcessor)
 	:model(model),

@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "AudioEngine.h"
+#include "..\Include\AudioEngine.h"
 
 AudioEngine::AudioEngine(Model& model)
 	:model (model),

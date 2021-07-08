@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "GrainProcessingVisualizer.h"
+#include "..\Include\GrainProcessingVisualizer.h"
 
 GrainProcessingVisualizer::GrainProcessingVisualizer(Model& model)
     :model(model),

@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "GrainSelectorThread.h"
+#include "..\Include\GrainSelectorThread.h"
 
 GrainSelector::GrainSelector(Model& model)
     :model(model),

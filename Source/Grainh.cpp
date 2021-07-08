@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "Grainh.h"
+#include "..\Include\Grainh.h"
 
 Grain::Grain() 
     : dataBuffer(),

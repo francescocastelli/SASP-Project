@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "ControllerBottom.h"
+#include "..\Include\ControllerBottom.h"
 
 GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grainSelector, AudioLoader& audioLoader, AudioEngine& audioEngine)
 	:model(model),

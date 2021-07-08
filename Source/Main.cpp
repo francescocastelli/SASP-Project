@@ -7,8 +7,8 @@
 */
 
 #include <JuceHeader.h>
-#include "ControllerMainComponent.h"
-#include "AppConstants.h"
+#include "..\Include\ControllerMainComponent.h"
+#include "..\Include\AppConstants.h"
 
 //==============================================================================
 class NewProjectApplication  : public juce::JUCEApplication

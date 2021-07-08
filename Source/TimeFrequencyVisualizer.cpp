@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "TimeFrequencyVisualizer.h"
+#include "..\Include\TimeFrequencyVisualizer.h"
 
 TimeFreqVisualizer::TimeFreqVisualizer(Model& model)
     :enabled(false),
