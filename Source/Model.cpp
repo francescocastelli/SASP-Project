@@ -28,7 +28,9 @@ Model::Model()
     randomPosition (0.0f),
     randomSelection(false),
     readPos (0), 
-    writePos(0)
+    writePos(0),
+    currentAudioState (ModelAudioState::StopAudio),
+    sampleRate(0.0)
 {
     //format inizialization
     formatManager.registerBasicFormats();

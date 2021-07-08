@@ -52,7 +52,7 @@ namespace AppConstants
     //project name 
     const juce::String projectName = "Granular synth";
     //grain
-    constexpr float maxgrainlengthsec = 0.1;
+    constexpr float maxgrainlengthsec = 0.1f;
 
     //db levels 
     constexpr float mindB = -80.0f; 

@@ -245,7 +245,7 @@ void GranularSynthComponent::paint(juce::Graphics& g)
 	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, 
 		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, 
 		       getLocalBounds().getBottomLeft().getX() + getWidth() * 0.545f, 
-			   getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14);
+			   getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f);
 
 	// line btw filters and grains
 	g.drawLine(getLocalBounds().getTopLeft().getX() + getWidth() * 0.374f, 
@@ -300,7 +300,7 @@ void GranularSynthComponent::resized()
 	//filterTypeSlider.setBoundsRelative(0.45f, 0.575f, AppConstants::knobWidth, 
 	//								   AppConstants::knobHeigth);
 	filterTypeSlider.setBoundsRelative(0.40f, 0.575f, AppConstants::knobWidth , 
-									   AppConstants::knobHeigth *0.8 );
+									   AppConstants::knobHeigth *0.8f);
 
 	//labels
 	grainLabel.setBoundsRelative(0.175f, 0.03f, 0.2f, 0.1f);

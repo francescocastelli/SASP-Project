@@ -71,13 +71,13 @@ void GrainProcessingVisualizer::drawFrame(juce::Graphics& g)
     juce::PathStrokeType stroke = juce::PathStrokeType(0.9f);
 
     //starting point of the path
-    path.startNewSubPath(0, height / 2);
+    path.startNewSubPath(0, height * 0.5f);
 
     for (int i = 0; i < windowLenght; ++i)
     {
         //add points to the path
         path.lineTo((float)juce::jmap(i, 0, windowLenght - 1, 0, width),
-            juce::jmap(model.getProcessedGrainBuffer().getReadPointer(currentChannel)[i], 0.0f, 1.0f, (float)height, 0.0f) - height / 2);
+            juce::jmap(model.getProcessedGrainBuffer().getReadPointer(currentChannel)[i], 0.0f, 1.0f, (float)height, 0.0f) - height * 0.5f);
     }
 
     //draw the stroke

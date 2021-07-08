@@ -35,7 +35,7 @@ void WaveformVisualizer::paintIfFileLoaded(juce::Graphics& g)
     g.fillAll(AppColours::waveformBackground);
 
     g.setColour(AppColours::waveformColor);
-    model.getAudioThumbnail().drawChannels(g, getLocalBounds(), 0.0, model.getAudioThumbnail().getTotalLength(), 1.0f);
+    model.getAudioThumbnail().drawChannels(g, getLocalBounds(), 0.0f, model.getAudioThumbnail().getTotalLength(), 1.0f);
 
     g.setColour(AppColours::waveformBorder);
     g.drawRect(getLocalBounds(), 1);

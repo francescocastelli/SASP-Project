@@ -82,14 +82,14 @@ void GrainProcessing::computeWindowOutput()
         // TODO: check level of output grain
         for (int i = 0; i < currentBuffer.getNumSamples(); ++i)
         {
-           currentBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(currentBuffer.getReadPointer(channel)[i]) - 0.1);
+           currentBuffer.getWritePointer(channel)[i] = (norm.convertTo0to1(currentBuffer.getReadPointer(channel)[i]) - 0.5f);
         }
     }
 
     //fade in
-    currentBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
+    currentBuffer.applyGainRamp(0, fadeInSamples, -0.5f, .5f);
     //fade out
-    currentBuffer.applyGainRamp(currentBuffer.getNumSamples() - fadeInSamples, fadeInSamples, 1.0f, 0.0f);
+    currentBuffer.applyGainRamp(currentBuffer.getNumSamples() - fadeInSamples, fadeInSamples, .5f, -.5f);
 
     //save the result into the processed buffer
     model.getProcessedGrainBuffer() = currentBuffer;

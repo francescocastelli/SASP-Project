@@ -89,7 +89,7 @@ void TimeFreqVisualizer::drawGrains(juce::Graphics& g)
     g.setColour(AppColours::positionOverlayBar);
     g.drawLine(drawPosition, 0.0f, drawPosition, (float)getHeight(), 2.0f);
     g.setColour(AppColours::positionOverlay);
-    g.setOpacity(0.3);
+    g.setOpacity(0.3f);
     g.fillRoundedRectangle(drawPosition, 0.0f, rectWidth, getHeight(), 1.0f);
 }
 

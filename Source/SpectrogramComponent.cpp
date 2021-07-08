@@ -125,7 +125,7 @@ void SpectrogramComponent::drawNextFrameOfSpectrum()
         auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.1f);
         auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
         auto level = juce::jmap(juce::jlimit(AppConstants::mindB, AppConstants::maxdB, juce::Decibels::gainToDecibels(fftData[fftDataIndex])
-            - juce::Decibels::gainToDecibels((float)fftSize)), AppConstants::mindB, AppConstants::maxdB, 0.0f, 1.0f);
+            - juce::Decibels::gainToDecibels((float)fftSize)), AppConstants::mindB, AppConstants::maxdB, 0.0f, 1.5f);
 
         scopeData[i] = level;                                   
     }
@@ -155,14 +155,14 @@ void SpectrogramComponent::drawFrame(juce::Graphics& g)
     for (int i = 0; i < freqAxisSize - 12; ++i)
     {
         g.setColour(juce::Colours::grey);
-        g.setOpacity(0.6);
+        g.setOpacity(0.6f);
         g.drawVerticalLine((float)juce::jmap(freqAxis[i], 1.f, (float)log10(20000), 0.f, (float)width), 0.f, (float)height);
     }
     
     for (int i = 0; i < 9; ++i)
     {
         g.setColour(juce::Colours::grey);
-        g.setOpacity(0.6);
+        g.setOpacity(0.6f);
         g.drawHorizontalLine(juce::jmap(dbLevel[i], 0.f, 1.f, 0.f, (float)height), 0.f, (float)width);
     }
 
