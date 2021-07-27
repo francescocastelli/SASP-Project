@@ -43,6 +43,7 @@ void GrainSelector::selectNextGrain()
 
 	if (model.getRandomSelection())
 	{
+		// TODO: check boundaries
 		model.getGrainCurrentIndex() = juce::Random::getSystemRandom().nextInt(juce::Range<int>(model.getGrainPosition(), model.getGrainWindowLength() + model.getGrainPosition() - 1));
 	}
 	else {
