@@ -87,9 +87,9 @@ void GrainProcessing::computeWindowOutput()
     }
 
     //fade in
-    currentBuffer.applyGainRamp(0, fadeInSamples, -0.5f, .5f);
+    currentBuffer.applyGainRamp(0, fadeInSamples, 0.0f, 1.0f);
     //fade out
-    currentBuffer.applyGainRamp(currentBuffer.getNumSamples() - fadeInSamples, fadeInSamples, .5f, -.5f);
+    currentBuffer.applyGainRamp(currentBuffer.getNumSamples() - fadeInSamples, fadeInSamples, 1.0f, 0.0f);
 
     //save the result into the processed buffer
     model.getProcessedGrainBuffer() = currentBuffer;

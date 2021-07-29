@@ -37,6 +37,8 @@ public:
     
     void paintIfNoFileLoaded(juce::Graphics& g);
 
+    void reset();
+
 private:
 
     Model& model;

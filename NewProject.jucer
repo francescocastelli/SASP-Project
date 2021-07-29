@@ -4,7 +4,7 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="FyVhbw" name="NewProject">
     <GROUP id="{A4901266-5191-6809-AF86-7A5CF8D2845D}" name="imgs">
-      <FILE id="cwQWOM" name="logo.png" compile="0" resource="1" file="imgs/logo.png"/>
+      <FILE id="XmMTvX" name="logoApp.png" compile="0" resource="1" file="imgs/logoApp.png"/>
     </GROUP>
     <GROUP id="{C98ECD7D-0371-5B8D-EF7D-AC118172C963}" name="Include">
       <FILE id="iwIgZS" name="AppConstants.h" compile="0" resource="0" file="Include/AppConstants.h"/>
@@ -68,7 +68,7 @@
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>
-    <VS2019 targetFolder="Builds/VisualStudio2019" smallIcon="cwQWOM" bigIcon="cwQWOM">
+    <VS2019 targetFolder="Builds/VisualStudio2019" smallIcon="XmMTvX" bigIcon="XmMTvX">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="NewProject"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="Granular synth"/>

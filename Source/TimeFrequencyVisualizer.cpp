@@ -93,3 +93,8 @@ void TimeFreqVisualizer::drawGrains(juce::Graphics& g)
     g.fillRoundedRectangle(drawPosition, 0.0f, rectWidth, getHeight(), 1.0f);
 }
 
+void TimeFreqVisualizer::reset()
+{
+    grainArray.clear();
+}
+

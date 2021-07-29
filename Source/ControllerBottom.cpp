@@ -239,8 +239,6 @@ GranularSynthComponent::GranularSynthComponent(Model& model, GrainSelector& grai
 
 void GranularSynthComponent::paint(juce::Graphics& g)
 {
-	g.setColour(AppColours::waveformBorder);
-
 	// bottom line 
 	g.drawLine(getLocalBounds().getBottomLeft().getX() + getWidth() * 0.02f, 
 		       getLocalBounds().getBottomLeft().getY() - getHeight() * 0.14f, 
@@ -441,6 +439,7 @@ void GranularSynthComponent::densitySliderChanged()
 
 void GranularSynthComponent::loadGrainClicked()
 {
+	grainsVisualizer.reset();
 	audioLoader.loadGrainFile(); 
 	if (model.getWriteGrainstack().size() != 0)
 	{

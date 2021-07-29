@@ -17,7 +17,7 @@ AudioLoader::AudioLoader(Model& model)
 
 void AudioLoader::loadInputFile()
 {
-	juce::FileChooser chooser("Select an audio file...", {}, "*.wav;*.mp3");                                     
+	juce::FileChooser chooser("Select an audio file...", {}, "*.wav;*.mp3;*.flac");                                     
     
 	if (chooser.browseForFileToOpen())                                          
 	{
@@ -40,7 +40,9 @@ void AudioLoader::loadInputFile()
 void AudioLoader::loadGrainFile()
 {
 	//TODO delete the grains already present
-	//get the number of files in the dir
+
+	model.getWriteGrainstack().clear();
+	//get the number of files in the dir 
 	for (juce::DirectoryEntry entry : juce::RangedDirectoryIterator(juce::File(model.getGrainDirectory().getFullPathName()), false))
 	{
 		model.getWriteGrainstack().add(entry.getFile());
